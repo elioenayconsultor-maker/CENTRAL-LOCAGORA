@@ -1,7 +1,7 @@
 "use client";
 import type { JourneyStep } from "@/lib/types";
 const steps:[JourneyStep,string][]=[
- ["client","Cliente"],["solution","Solução"],["simulation","Simulação"],["confirmation","Confirmação"],["proposal","Proposta"]
+ ["client","Cliente"],["solution","Solução"],["simulation","Simulação"],["confirmation","Confirmação"],["comparison","Comparador"],["proposal","Proposta"]
 ];
 export default function JourneyStepper({step,onChange}:{step:JourneyStep,onChange:(s:JourneyStep)=>void}) {
  return <div className="stepper">{steps.map(([id,label],i)=>
