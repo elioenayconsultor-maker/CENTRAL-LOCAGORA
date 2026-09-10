@@ -51,24 +51,6 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const sendActivationEmail = async (corporateEmail: string) => {
-    const supabase = createClient();
-    // Use the origin where the Central is actually open. This prevents the shared Supabase
-    // project Site URL (CRM) from hijacking activation links.
-    const appOrigin = window.location.origin.replace(/\/$/,"");
-    const redirectTo = `${appOrigin}/auth/confirm?next=/account/update-password`;
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email: corporateEmail,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: redirectTo,
-        data: { activation_required: true, activation_origin: "central_locagora" },
-      },
-    });
-    if (otpError) throw otpError;
-    setNotice(`Enviamos a confirmação para ${corporateEmail}. Abra esse e-mail corporativo e confirme o acesso. Depois você será obrigado a criar uma senha pessoal.`);
-  };
-
   const login = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -82,20 +64,37 @@ export default function AuthGate({ children }: { children: ReactNode }) {
         return;
       }
 
-      // A senha padrão é somente um gatilho de ativação. Ela nunca abre a Central.
+      const supabase = createClient();
+
       if (password === DEFAULT_ACTIVATION_PASSWORD) {
-        await sendActivationEmail(corporateEmail);
-        setPassword("");
+        const response = await fetch("/api/auth/first-access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: corporateEmail }),
+        });
+        const provision = await response.json().catch(() => null);
+        if (!response.ok || !provision?.ok) {
+          if (provision?.reason === "profile_missing") setError("Este e-mail ainda não está cadastrado no sistema. Solicite o cadastro ao administrador.");
+          else if (provision?.reason === "inactive") setError("Este acesso está bloqueado pelo administrador.");
+          else setError("Não foi possível liberar o primeiro acesso agora.");
+          return;
+        }
+
+        const { error: firstLoginError } = await supabase.auth.signInWithPassword({ email: corporateEmail, password });
+        if (firstLoginError) {
+          setError("A senha padrão só funciona no primeiro acesso. Se você já criou sua senha pessoal, use-a abaixo ou clique em Esqueci minha senha.");
+          return;
+        }
+        window.location.replace("/account/update-password");
         return;
       }
 
-      const supabase = createClient();
       const { error: loginError } = await supabase.auth.signInWithPassword({
         email: corporateEmail,
         password,
       });
       if (loginError) {
-        setError("Acesso não realizado. Se for seu primeiro acesso, use a senha padrão informada pela empresa para receber o e-mail de ativação.");
+        setError("E-mail ou senha não conferem. No primeiro acesso, use a senha padrão fornecida pela empresa.");
         return;
       }
 
@@ -103,18 +102,17 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       setAccess(result);
       if (result.status !== "active") {
         await supabase.auth.signOut();
-        if (result.status === "profile_missing") setError("E-mail confirmado, mas o perfil ainda não existe no CRM Locagora. Solicite o cadastro ao gestor.");
-        else if (result.status === "inactive") setError("Seu usuário está inativo no CRM Locagora.");
-        else if (result.status === "already_linked") setError("Este perfil do CRM já está vinculado a outra credencial. Solicite revisão ao administrador.");
+        if (result.status === "profile_missing") setError("Seu e-mail ainda não está cadastrado no sistema. Solicite o cadastro ao administrador.");
+        else if (result.status === "inactive") setError("Seu acesso foi bloqueado pelo administrador.");
+        else if (result.status === "already_linked") setError("Este perfil já está vinculado a outra credencial. Solicite revisão ao administrador.");
         else setError("Não foi possível validar seu acesso corporativo.");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível iniciar a ativação.");
+      setError(err instanceof Error ? err.message : "Não foi possível realizar o acesso.");
     } finally {
       setLoading(false);
     }
   };
-
 
   const recoverPassword = async () => {
     setError("");
@@ -130,9 +128,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       const supabase = createClient();
       const appOrigin = window.location.origin.replace(/\/$/, "");
       const redirectTo = `${appOrigin}/auth/confirm?next=/account/update-password`;
-      const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(corporateEmail, {
-        redirectTo,
-      });
+      const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(corporateEmail, { redirectTo });
       if (recoveryError) throw recoveryError;
       setNotice(`Enviamos um link de recuperação para ${corporateEmail}. Abra o e-mail e crie uma nova senha.`);
     } catch (err) {
@@ -154,13 +150,13 @@ export default function AuthGate({ children }: { children: ReactNode }) {
 
   if (authenticated && access && access.status !== "active") {
     const text = access.status === "profile_missing"
-      ? "Seu e-mail corporativo foi confirmado, mas ainda não existe um perfil correspondente no CRM Locagora."
+      ? "Seu e-mail ainda não possui um perfil correspondente no sistema."
       : access.status === "inactive"
-        ? "Seu perfil está inativo no CRM Locagora."
+        ? "Seu acesso foi bloqueado pelo administrador."
         : access.status === "already_linked"
           ? "Este perfil já está vinculado a outra credencial de autenticação."
           : "Não foi possível autorizar este acesso corporativo.";
-    return <main className="authScreen"><section className="authCard"><div className="authIcon danger"><UserX /></div><h1>Acesso pendente</h1><p>{text}</p><button className="secondary" onClick={signOut}>Sair e usar outro e-mail</button></section></main>;
+    return <main className="authScreen"><section className="authCard"><div className="authIcon danger"><UserX /></div><h1>Acesso indisponível</h1><p>{text}</p><button className="secondary" onClick={signOut}>Sair e usar outro e-mail</button></section></main>;
   }
 
   return <main className="authScreen">
@@ -168,14 +164,14 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       <div className="authBrand"><div className="brandLogoRow"><Image src="/locagora-logo.png" alt="Locagora - Assinatura de Motos" width={220} height={76} priority className="authLogo" /><span className="versionBadge">V9.0</span></div><small>CENTRAL COMERCIAL</small><div className="publicEntryLinks"><a href="/historia">História pública</a><a href="/negocios">Negócios & Investimentos</a></div></div>
       <div className="authIcon"><ShieldCheck /></div>
       <h1>Acesso corporativo</h1>
-      <p>Use seu e-mail <b>@locgrupo.com.br</b>. No primeiro acesso, a senha padrão apenas dispara a confirmação por e-mail.</p>
+      <p>Use seu e-mail <b>@locgrupo.com.br</b>. No primeiro acesso, entre com a senha padrão fornecida pela empresa e crie sua senha pessoal imediatamente.</p>
       <form onSubmit={login}>
         <label>E-mail corporativo<input type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" placeholder="nome@locgrupo.com.br" /></label>
         <label>Senha<input type="password" required value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" /></label>
-        <div className="activationHint"><KeyRound size={15}/><span>Primeiro acesso: use a senha padrão fornecida pela empresa. Ela não libera o sistema; envia um e-mail de confirmação.</span></div>
+        <div className="activationHint"><KeyRound size={15}/><span>Primeiro acesso: use a senha padrão. Não há confirmação por e-mail; após entrar, você será direcionado para criar sua senha definitiva.</span></div>
         {notice && <div className="statusOk activationNotice"><MailCheck size={16}/><span>{notice}</span></div>}
         {error && <div className="statusWarn">{error}</div>}
-        <button className="primary" disabled={loading || recovering}><LogIn size={17}/>{loading ? "Processando..." : "Entrar / Ativar acesso"}</button>
+        <button className="primary" disabled={loading || recovering}><LogIn size={17}/>{loading ? "Processando..." : "Entrar"}</button>
         <button type="button" className="secondary" disabled={loading || recovering} onClick={() => void recoverPassword()}>
           <KeyRound size={17}/>{recovering ? "Enviando recuperação..." : "Esqueci minha senha"}
         </button>
