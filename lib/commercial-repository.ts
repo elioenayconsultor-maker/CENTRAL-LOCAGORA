@@ -35,6 +35,7 @@ export async function saveCommercialSession(state:CommercialState):Promise<RepoR
     client:state.client,
     step:state.step,
     selected_product_route:state.selectedProductRoute||"",
+    selected_presentation_id:state.selectedPresentationId||null,
     updated_at:new Date().toISOString()
   };
 
@@ -114,20 +115,35 @@ export async function saveRemoteProposal(state:CommercialState,simulation:Simula
     user_id:user.id,
     client:state.client,
     proposal:state.proposal,
+    comparison_scenario_id:state.selectedComparisonScenarioId||null,
+    comparison_snapshot:state.comparisonSnapshot||null,
     status:"draft",
     valid_until:validUntil,
     updated_at:new Date().toISOString()
   };
 
-  if(state.proposal.remoteId){
+  let proposalId=state.proposal.remoteId;
+  if(proposalId){
     const {data,error}=await createClient().from("commercial_proposals")
-      .update(payload).eq("id",state.proposal.remoteId).select("id").single();
-    return error?{ok:false,reason:error.message}:{ok:true,id:data.id,proposalId:data.id,simulationId,sessionId:session.sessionId};
+      .update(payload).eq("id",proposalId).select("id").single();
+    if(error)return {ok:false,reason:error.message};
+    proposalId=data.id;
+  }else{
+    const {data,error}=await createClient().from("commercial_proposals")
+      .insert(payload).select("id").single();
+    if(error)return {ok:false,reason:error.message};
+    proposalId=data.id;
   }
 
-  const {data,error}=await createClient().from("commercial_proposals")
-    .insert(payload).select("id").single();
-  return error?{ok:false,reason:error.message}:{ok:true,id:data.id,proposalId:data.id,simulationId,sessionId:session.sessionId};
+  if(state.selectedComparisonScenarioId){
+    const {error}=await createClient().rpc("commercial_freeze_comparison_on_proposal",{
+      p_proposal_id:proposalId,
+      p_scenario_id:state.selectedComparisonScenarioId
+    });
+    if(error)return {ok:false,reason:`comparison_freeze_failed: ${error.message}`};
+  }
+
+  return {ok:true,id:proposalId,proposalId,simulationId,sessionId:session.sessionId};
 }
 
 export async function finalizeRemoteProposal(state:CommercialState,simulation:Simulation):Promise<RepoResult>{
@@ -137,7 +153,7 @@ export async function finalizeRemoteProposal(state:CommercialState,simulation:Si
   const pdfResponse=await fetch("/api/proposal/pdf",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({client:state.client,simulation,proposal:state.proposal})
+    body:JSON.stringify({client:state.client,simulation,proposal:state.proposal,comparison:state.comparisonSnapshot})
   });
   if(!pdfResponse.ok)return {ok:false,reason:"pdf_generation_failed"};
   const pdf=await pdfResponse.blob();
@@ -161,7 +177,6 @@ export async function finalizeRemoteProposal(state:CommercialState,simulation:Si
 
   return {...saved,ok:true,pdfPath:path,pdf};
 }
-
 
 export async function finalizeRemoteProposalWithPdf(state:CommercialState,simulation:Simulation,pdf:Blob):Promise<RepoResult>{
   const saved=await saveRemoteProposal(state,simulation);
