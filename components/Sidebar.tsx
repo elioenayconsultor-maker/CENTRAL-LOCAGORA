@@ -1,14 +1,13 @@
 "use client";
 import Image from "next/image";
 import CloudSyncStatus from "./CloudSyncStatus";
-import { Activity, BarChart3, BookOpenText, BriefcaseBusiness, Gauge, Newspaper, Network, ShieldQuestion, Scale } from "lucide-react";
+import { Activity, BarChart3, BookOpenText, Gauge, Newspaper, Network, ShieldQuestion, Scale } from "lucide-react";
 
-type Page = "news"|"journey"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
+type Page = "news"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
 export default function Sidebar({page,onChange}:{page:Page,onChange:(p:Page)=>void}) {
  const items = [
   ["news","LOCNEWS",Newspaper,"Mercado"],
-  ["journey","Jornada Comercial",BriefcaseBusiness,"Atendimento"],
-  ["solutions","Negócios & Investimentos",BarChart3,"Portfólio"],
+  ["solutions","Investimentos & Franquias",BarChart3,"Portfólio"],
   ["network","Rede Locagora",Network,"Rede"],
   ["history","História",BookOpenText,"Apresentação"],
   ["benchmark","Benchmark",Gauge,"Inteligência"],
