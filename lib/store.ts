@@ -18,7 +18,10 @@ export const defaultState: CommercialState = {
     notes: "",
   },
   selectedProductRoute: "",
+  selectedPresentationId: null,
   activeSimulationId: null,
+  selectedComparisonScenarioId: null,
+  comparisonSnapshot: null,
   simulations: [],
   proposal: {
     title: "Proposta Locagora",
@@ -41,7 +44,7 @@ export function useCommercialState() {
       const raw = localStorage.getItem(KEY);
 
       if (raw) {
-        // Hidratação inicial intencional a partir de armazenamento externo.
+        // Hidratação retrocompatível: campos V9.3.2 ausentes recebem os defaults.
         setState({
           ...defaultState,
           ...JSON.parse(raw),
@@ -60,8 +63,6 @@ export function useCommercialState() {
             localStorage.getItem("locagora_active_proposal_sim") || 0
           ) || null;
 
-        // Migração única de dados legados durante a hidratação.
-         
         setState((current) => ({
           ...current,
           client: legacyClient
@@ -75,8 +76,6 @@ export function useCommercialState() {
       // Mantém defaultState se os dados persistidos forem inválidos.
     }
 
-    // A flag ready faz parte do protocolo de hidratação deste hook.
-     
     setReady(true);
   }, []);
 
