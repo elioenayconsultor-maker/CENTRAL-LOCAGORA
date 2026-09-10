@@ -1,0 +1,5 @@
+
+> locagora-central-v14@14.0.0-phase5 lint
+> eslint .
+
+sh: 1: eslint: not found

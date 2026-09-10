@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const css=fs.readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+test('mantem proposta em 16:9',()=>assert.match(css,/aspect-ratio:16\/9!important/));
+test('capa premium amplia nome',()=>assert.match(css,/font-size:clamp\(38px,5\.2vw,98px\)!important/));
+test('capa usa bloco vertical esquerdo',()=>assert.match(css,/min-height:76%!important/));
+test('paginas internas usam texto branco de alto contraste',()=>assert.match(css,/color:#fff!important/));
+test('tipografia responsiva preserva proporcao no app',()=>assert.match(css,/font-size:clamp\(30px,3\.45vw,66px\)!important/));
+test('impressao preserva cores',()=>assert.match(css,/print-color-adjust:exact!important/));

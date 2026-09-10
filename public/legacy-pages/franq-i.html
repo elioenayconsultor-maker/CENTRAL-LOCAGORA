@@ -1,0 +1,219 @@
+
+<div class="topbar">
+  <div>
+    <div class="eyebrow">Locagora • Franquia Internacional</div>
+    <h1 class="h1">Franquia Internacional 2 em 1</h1>
+    <div class="sub">Uma única franquia com duas praças: Brasil + Europa. A praça europeia pode operar em Portugal ou Espanha, com até duas opções de motocicletas por praça.</div>
+  </div>
+  <div class="pill">Brasil + Portugal/Espanha • 2 DREs</div>
+</div>
+
+<div class="grid">
+
+<section class="card span-5">
+  <h3>Premissas comerciais</h3>
+
+  <div class="form-grid">
+    <div class="field">
+      <label>Taxa de franquia 2 em 1</label>
+      <select id="fee">
+        <option value="119990">R$ 119.990</option>
+        <option value="104990">R$ 104.990</option>
+        <option value="97000">R$ 97.000</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Praça internacional</label>
+      <select id="euCountry">
+        <option value="Portugal">Portugal</option>
+        <option value="Espanha">Espanha</option>
+      </select>
+      <div class="helper">Escolha onde as motos da operação internacional serão alocadas.</div>
+    </div>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Praça Brasil • até 2 modelos de motos</strong>
+    <div class="form-grid" style="margin-top:10px">
+      <div class="field">
+        <label>Modelo Brasil 1</label>
+        <select id="brModel1"><option>Yamaha 150 Factor</option>
+<option>Honda Pop 100</option>
+<option>Honda Bros</option>
+<option>Aveloz 160</option>
+<option>Suzuki 150</option></select>
+      </div>
+      <div class="field"><label>Quantidade Brasil 1</label><input id="brQty1" type="number" min="0" value="3"></div>
+      <div class="field"><label>Valor unitário Brasil 1</label><input id="brVal1" type="number" value="16990"><div class="helper">Editável conforme a cotação do modelo.</div></div>
+
+      <div class="field">
+        <label>Modelo Brasil 2</label>
+        <select id="brModel2"><option>Honda Pop 100</option>
+<option>Yamaha 150 Factor</option>
+<option>Honda Bros</option>
+<option>Aveloz 160</option>
+<option>Suzuki 150</option></select>
+      </div>
+      <div class="field"><label>Quantidade Brasil 2</label><input id="brQty2" type="number" min="0" value="3"></div>
+      <div class="field"><label>Valor unitário Brasil 2</label><input id="brVal2" type="number" value="16990"><div class="helper">Editável conforme a cotação do modelo.</div></div>
+
+      <div class="field"><label>Intermediação / moto — Brasil</label><input id="interBr" type="number" value="4000"></div>
+      <div class="field"><label>Capital de giro / moto — Brasil</label><input id="workingBr" type="number" value="600"></div><div class="field"><label>Cidade de abertura do CNPJ — Brasil</label><select id="cnpjCityIntl"><option value="Aracaju">Aracaju • R$ 59.00</option><option value="Salvador">Salvador • R$ 45.00</option><option value="Maceió">Maceió • R$ 84.00</option><option value="João Pessoa">João Pessoa • R$ 79.00</option><option value="Manaus">Manaus • R$ 80.00</option><option value="Porto Alegre">Porto Alegre • R$ 69.00</option><option value="Campo Grande">Campo Grande • R$ 80.00</option><option value="Natal">Natal • R$ 80.00</option><option value="Goiânia">Goiânia • R$ 89.00</option><option value="São Luís">São Luís • R$ 90.00</option></select></div>
+    </div>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Praça Internacional • 2 motos / até 2 modelos</strong>
+    <div class="form-grid" style="margin-top:10px">
+      <div class="field">
+        <label>Modelo Internacional 1</label>
+        <select id="euModel1"><option value="pcx">Honda PCX</option>
+<option value="loceletric">LocEletric</option></select>
+      </div>
+      <div class="field"><label>Quantidade Internacional 1</label><input id="euQty1" type="number" min="0" value="1"></div>
+      <div class="field"><label>Valor unitário Internacional 1 (R$)</label><input id="euVal1" type="number" value="24999"><div class="helper">Editável conforme cotação/local/modelo.</div></div>
+
+      <div class="field">
+        <label>Modelo Internacional 2</label>
+        <select id="euModel2"><option value="loceletric">LocEletric</option>
+<option value="pcx">Honda PCX</option></select>
+      </div>
+      <div class="field"><label>Quantidade Internacional 2</label><input id="euQty2" type="number" min="0" value="1"></div>
+      <div class="field"><label>Valor unitário Internacional 2 (R$)</label><input id="euVal2" type="number" value="18999"><div class="helper">Editável conforme cotação/local/modelo.</div></div>
+
+      <div class="field"><label>Intermediação / moto — Internacional</label><input id="interEu" type="number" value="4000"></div>
+      <div class="field"><label>Capital de giro / moto — Internacional</label><input id="workingEu" type="number" value="600"></div>
+      <div class="field"><label>Câmbio EUR/BRL</label><input id="fx" type="number" step="0.01" value="6.20"></div>
+    </div>
+    <div id="fiEuQtyNotice" class="notice info" style="margin-top:10px"></div>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Investimento — duas praças</strong>
+    <div class="rowline"><span>Taxa de franquia</span><strong id="fiFeeOut"></strong></div>
+    <div class="rowline"><span>Praça Brasil</span><strong id="fiBrInvest"></strong></div><div class="rowline"><span>Abertura de CNPJ — Brasil</span><strong id="fiCnpjOut"></strong></div>
+    <div class="rowline"><span>Praça internacional</span><strong id="fiEuInvest"></strong></div>
+    <div class="rowline"><span>Investimento total</span><strong id="invest"></strong></div>
+  </div>
+
+  <div class="notice ok" style="margin-top:14px">
+    <strong>Implantação da frota</strong><br>
+    Pagamento da taxa de franquia → onboarding e estruturação das duas praças → faturamento das motos → pagamento → pronta entrega → emplacamento, bloqueador e rastreador → entrada das motos na esteira de locação.
+  </div>
+
+  <div class="actions"><button class="btn primary" onclick="addCurrent()">Carregar proposta</button></div>
+</section>
+
+<section class="card span-7">
+  <div class="eyebrow">VISÃO CONSOLIDADA</div>
+  <h2 class="section-title">Brasil + <span id="fiCountryTitle">Portugal</span></h2>
+
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi blue"><div class="label">Motos Brasil</div><div id="fiBrQtyTotal" class="value"></div></div>
+    <div class="kpi blue"><div class="label">Motos Internacional</div><div id="fiEuQtyTotal" class="value"></div></div>
+    <div class="kpi"><div class="label">Motos totais</div><div id="fiTotalMotos" class="value"></div></div>
+    <div class="kpi green"><div class="label">Lucro líquido mensal combinado</div><div id="fiMonthlyTotal" class="value"></div></div>
+    <div class="kpi"><div class="label">Lucro mensal Brasil</div><div id="fiBrProfit" class="value"></div></div>
+    <div class="kpi"><div class="label">Lucro mensal Internacional</div><div id="fiEuProfit" class="value"></div></div>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Composição das frotas</strong>
+    <div class="rowline"><span>Brasil</span><strong id="fiBrMix"></strong></div>
+    <div class="rowline"><span id="fiEuCountryLabel">Portugal</span><strong id="fiEuMix"></strong></div>
+  </div>
+
+  <div class="notice info" style="margin-top:14px">
+    A DRE Brasil utiliza o modelo operacional da Franquia Nacional Exclusive. A DRE internacional usa como referência a DRE LocAgora Internacional e é escalada pela quantidade de motos informada.
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">DRE 1 • BRASIL</div>
+  <h2 class="section-title">DRE Nacional Exclusive</h2>
+
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi blue"><div class="label">Receita média / mês</div><div id="fiBrRevenue" class="value"></div></div>
+    <div class="kpi"><div class="label">Custos + despesas / mês</div><div id="fiBrCosts" class="value"></div></div>
+    <div class="kpi green"><div class="label">Lucro líquido médio / mês</div><div id="fiBrProfit2" class="value"></div></div>
+    <div class="kpi"><div class="label">Lucro operacional 36 meses</div><div id="fiBrProfit36" class="value"></div></div>
+  </div>
+
+  <div style="overflow:auto;margin-top:14px">
+    <table class="table">
+      <thead><tr><th>Indicador mensal</th><th>Meses 1–6</th><th>Meses 7–12</th><th>Meses 13–24</th><th>Meses 25–36</th></tr></thead>
+      <tbody id="fiBrDreRows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">DRE 2 • INTERNACIONAL</div>
+  <h2 class="section-title">DRE <span id="fiEuDreTitle">Portugal</span></h2>
+
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi blue"><div class="label">Receita bruta / mês</div><div id="fiEuRevenue" class="value"></div></div>
+    <div class="kpi"><div class="label">Despesas / mês</div><div id="fiEuCosts" class="value"></div></div>
+    <div class="kpi green"><div class="label">Lucro líquido / mês</div><div id="fiEuProfit2" class="value"></div></div>
+    <div class="kpi"><div class="label">Margem líquida</div><div id="fiEuMargin2" class="value"></div></div>
+  </div>
+
+  <div class="split" style="margin-top:14px">
+    <div class="soft">
+      <strong>Receitas mensais</strong>
+      <div class="rowline"><span>Aluguel por Moto (frota)</span><strong id="fiEuRent"></strong></div>
+      <div class="rowline"><span>Multa contrato</span><strong id="fiEuPenalty"></strong></div>
+      <div class="rowline"><span>Juros</span><strong id="fiEuInterest"></strong></div>
+      <div class="rowline"><span>Caução</span><strong id="fiEuDeposit"></strong></div>
+      <div class="rowline"><span>Receita bruta total</span><strong id="fiEuRevenue2"></strong></div>
+    </div>
+
+    <div class="soft">
+      <strong>Despesas operacionais mensais</strong>
+      <div class="rowline"><span>Taxa de espaço</span><strong id="fiEuSpace"></strong></div>
+      <div class="rowline"><span>Royalties</span><strong id="fiEuRoyalties"></strong></div>
+      <div class="rowline"><span>Marketing</span><strong id="fiEuMarketing"></strong></div>
+      <div class="rowline"><span>Sistema</span><strong id="fiEuSystem"></strong></div>
+      <div class="rowline"><span>Contabilidade</span><strong id="fiEuAccounting"></strong></div>
+      <div class="rowline"><span>Tarifas</span><strong id="fiEuFees"></strong></div>
+      <div class="rowline"><span>Impostos</span><strong id="fiEuTaxes"></strong></div>
+      <div class="rowline"><span>Deságio ocupação</span><strong id="fiEuOccupancy"></strong></div>
+      <div class="rowline"><span>Depreciação</span><strong id="fiEuDep"></strong></div>
+      <div class="rowline"><span>Manutenção</span><strong id="fiEuMaintenance"></strong></div>
+      <div class="rowline"><span>Total despesas</span><strong id="fiEuCosts2"></strong></div>
+    </div>
+  </div>
+
+  <div style="overflow:auto;margin-top:14px">
+    <table class="table">
+      <thead><tr><th>Indicador</th><th>EUR</th><th>BRL</th><th>% da receita</th></tr></thead>
+      <tbody id="fiEuDreRows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">PROJEÇÃO 36 MESES</div>
+  <h2 class="section-title">Resultado das duas praças</h2>
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi"><div class="label">Brasil • lucro 36 meses</div><div id="fiBr36" class="value"></div></div>
+    <div class="kpi"><div class="label">Internacional • lucro 36 meses</div><div id="fiEu36" class="value"></div></div>
+    <div class="kpi green"><div class="label">Lucro combinado 36 meses</div><div id="fiCombined36" class="value"></div></div>
+    <div class="kpi blue"><div class="label">Investimento total</div><div id="fiInvestBottom" class="value"></div></div>
+  </div>
+</section>
+
+</div>
+
+<div class="footer-note">Os modelos de motos podem ser combinados em até duas opções por praça. Como não foram fornecidos valores específicos por modelo, os valores unitários permanecem editáveis e devem ser ajustados conforme a cotação real de cada moto e praça.</div>
+
+<section class="connected-next-step no-print">
+  <div>
+    <span>PRÓXIMO PASSO</span>
+    <strong>Simulação pronta? Transforme os números em proposta comercial.</strong>
+  </div>
+  <div class="connected-next-actions">
+    <button type="button" class="btn primary" onclick="addCurrent()">Carregar proposta</button>
+    <button type="button" class="btn secondary" onclick="location.hash='#objecoes'">Ver objeções</button>
+  </div>
+</section>

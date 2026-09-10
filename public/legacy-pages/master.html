@@ -1,0 +1,199 @@
+
+<div class="topbar">
+  <div>
+    <div class="eyebrow">Locagora • Master Regional</div>
+    <h1 class="h1">Master Regional</h1>
+    <div class="sub">Visão de implantação, expansão regional e fontes de receita da operação Master.</div>
+  </div>
+  <div class="pill">Contrato 10 anos • Royalties 0%</div>
+</div>
+
+<div class="grid">
+
+<section class="card span-5">
+  <div class="eyebrow">IMPLANTAÇÃO</div>
+  <h2 class="section-title">Estrutura inicial</h2>
+
+  <div class="form-grid">
+    <div class="field"><label>Taxa Master</label><input id="fee" type="number" value="600000"></div>
+    <div class="field"><label>Validade contratual</label><input value="10 anos" readonly></div>
+    <div class="field"><label>Reforma do ponto</label><input id="reform" type="number" value="120000"></div>
+    <div class="field"><label>Oficina</label><input id="shop" type="number" value="100000"></div>
+    <div class="field"><label>Capital de giro</label><input id="cg" type="number" value="100000"></div>
+    <div class="field"><label>Licenças e impostos</label><input id="tax" type="number" value="8000"></div>
+    <div class="field master-region-field" style="grid-column:1/-1">
+      <label>Cidade ou região onde será aberta a Master</label>
+      <input id="masterRegion" placeholder="Ex.: Campinas - SP, Região Metropolitana de Goiânia">
+      <div class="helper">Obrigatório. A calculadora consulta a base territorial e tenta verificar referências públicas na internet antes de liberar a proposta.</div>
+    </div>
+    <div class="master-availability-box" style="grid-column:1/-1">
+      <div>
+        <span class="availability-label">Disponibilidade territorial</span>
+        <strong id="masterAvailabilityTitle">Ainda não verificada</strong>
+        <p id="masterAvailabilityText">Informe a cidade ou região e clique em “Consultar praça”.</p>
+      </div>
+      <div class="availability-actions">
+        <button type="button" class="btn secondary" onclick="checkMasterAvailability('master')">Consultar praça</button>
+        <button type="button" class="btn secondary" onclick="openMasterWebSearch('master')">Pesquisar na internet ↗</button>
+      </div>
+    </div>
+    <label id="masterManualAvailabilityWrap" class="availability-manual" style="display:none;grid-column:1/-1">
+      <input id="masterManualAvailability" type="checkbox">
+      <span>Consultei a internet e confirmo que não encontrei Master Locagora ativa ou em implantação nesta região.</span>
+    </label>
+
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Investimento de implantação</strong>
+    <div class="rowline"><span>Taxa Master</span><strong id="masterFeeOut"></strong></div>
+    <div class="rowline"><span>Reforma + oficina</span><strong id="masterStructureOut"></strong></div>
+    <div class="rowline"><span>Capital de giro</span><strong id="masterCgOut"></strong></div>
+    <div class="rowline"><span>Licenças e impostos</span><strong id="masterTaxOut"></strong></div>
+    <div class="rowline"><span>Total de implantação</span><strong id="initial"></strong></div>
+  </div>
+
+  <div class="notice warn" style="margin-top:14px">
+    <strong>Regras para ser Master:</strong> cidade com no mínimo 400 mil habitantes, aprovação da franqueadora e experiência como empresário.
+  </div>
+  <div class="actions"><button id="masterAddProposalBtn" class="btn primary" onclick="addCurrent()" disabled>Carregar proposta</button></div>
+</section>
+
+<section class="card span-7">
+  <div class="eyebrow">REDE REGIONAL</div>
+  <h2 class="section-title">Escala da operação</h2>
+
+  <div class="form-grid">
+    <div class="field"><label>Franqueados ativos</label><input id="franchisees" type="number" value="50"></div>
+    <div class="field"><label>Frota total</label><input id="motos" type="number" value="600"></div>
+    <div class="field"><label>Taxa média de franquia</label><input id="frFee" type="number" value="79990"></div>
+    <div class="field"><label>Novas franquias / mês</label><input id="newFranchises" type="number" value="1"></div>
+  </div>
+
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
+    <div class="kpi blue"><div class="label">Rede simulada</div><div id="network" class="value" style="font-size:20px"></div></div>
+    <div class="kpi green"><div class="label">Receita mensal estimada</div><div id="rev" class="value"></div></div>
+    <div class="kpi"><div class="label">Receita anual estimada</div><div id="annual" class="value"></div></div>
+  </div>
+
+  <div class="notice info" style="margin-top:14px">
+    A taxa de espaço é recebida integralmente pela Master para frota de até 300 motos. Acima desse volume, o material não define a mesma regra para o excedente.
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">FONTES DE RECEITA</div>
+  <h2 class="section-title">Acordos de repasse da Master</h2>
+
+  <div class="form-grid">
+    <div class="field"><label>Participação Master na taxa de franquia (%)</label><input id="masterFrShare" type="number" value="50"></div>
+    <div class="field"><label>Taxa de espaço / moto</label><input id="space" type="number" value="300"></div>
+    <div class="field"><label>Instalação GPS / moto</label><input id="gps" type="number" value="150"></div>
+    <div class="field"><label>Tarifa de retirada / moto</label><input id="withdraw" type="number" value="49.90"></div>
+
+    <div class="field"><label>Intermediações via Locagora / mês</label><input id="locInter" type="number" value="10"></div>
+    <div class="field"><label>Valor-base intermediação Locagora</label><input id="locInterBase" type="number" value="3000"></div>
+    <div class="field"><label>Repasse intermediação Locagora (%)</label><input id="locInterPct" type="number" value="4"></div>
+
+    <div class="field"><label>Intermediações concessionária / mês</label><input id="dealerInter" type="number" value="20"></div>
+    <div class="field"><label>Valor-base intermediação concessionária</label><input id="dealerInterBase" type="number" value="3000"></div>
+    <div class="field"><label>Repasse concessionária (%)</label><input id="dealerInterPct" type="number" value="28"></div>
+
+    <div class="field"><label>Motos montadas / mês</label><input id="assembledQty" type="number" value="0"></div>
+    <div class="field"><label>NF média da moto</label><input id="assemblyInvoice" type="number" value="0"></div>
+    <div class="field"><label>Repasse montagem (%)</label><input id="assemblyPct" type="number" value="2"></div>
+
+    <div class="field"><label>Lucro mensal da oficina</label><input id="workshopProfit" type="number" value="0"></div>
+    <div class="field"><label>Participação da Master na oficina (%)</label><input id="workshopPct" type="number" value="100"></div>
+  </div>
+
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr);margin-top:14px">
+    <div class="kpi"><div class="label">Franquias</div><div id="masterFrRevenue" class="value"></div></div>
+    <div class="kpi"><div class="label">Espaço</div><div id="masterSpaceRevenue" class="value"></div></div>
+    <div class="kpi"><div class="label">GPS + retirada</div><div id="masterServiceRevenue" class="value"></div></div>
+    <div class="kpi"><div class="label">Intermediações</div><div id="masterInterRevenue" class="value"></div></div>
+    <div class="kpi"><div class="label">Montagem</div><div id="masterAssemblyRevenue" class="value"></div></div>
+    <div class="kpi"><div class="label">Oficina</div><div id="masterWorkshopRevenue" class="value"></div></div>
+    <div class="kpi green"><div class="label">Receita mensal total</div><div id="masterTotalRevenue" class="value"></div></div>
+    <div class="kpi blue"><div class="label">Retorno anual / implantação</div><div id="margin" class="value"></div></div>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Repasses informados no material</strong>
+    <div class="rowline"><span>Taxa de franquia — Master Regional</span><strong>50%</strong></div>
+    <div class="rowline"><span>Taxa de franquia — Franquiador</span><strong>10%</strong></div>
+    <div class="rowline"><span>Taxa de espaço</span><strong>100% até 300 motos</strong></div>
+    <div class="rowline"><span>Oficina mecânica</span><strong>100%</strong></div>
+    <div class="rowline"><span>Montagem de moto sobre NF da fábrica</span><strong>2%</strong></div>
+    <div class="rowline"><span>Instalação GPS</span><strong>100%</strong></div>
+    <div class="rowline"><span>Tarifa de retirada</span><strong>100%</strong></div>
+    <div class="rowline"><span>Intermediação via Locagora</span><strong>4%</strong></div>
+    <div class="rowline"><span>Intermediação via concessionária</span><strong>28%</strong></div>
+    <div class="rowline"><span>Cooperloc / royalties / marketing / Visiun</span><strong>0%</strong></div>
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">MARCOS DE MATURAÇÃO</div>
+  <h2 class="section-title">Referências comerciais do plano Master</h2>
+
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi">
+      <div class="label">6 meses após inauguração</div>
+      <div class="value">R$ 19.900</div>
+      <div class="helper">30 franqueados • referência de 10 motos cada</div>
+    </div>
+    <div class="kpi blue">
+      <div class="label">12 meses após inauguração</div>
+      <div class="value">R$ 39.600</div>
+      <div class="helper">50 franqueados • 600 motos no total</div>
+    </div>
+    <div class="kpi green">
+      <div class="label">24 meses após inauguração</div>
+      <div class="value">R$ 81.000</div>
+      <div class="helper">80 franqueados • 1.000 motos no total</div>
+    </div>
+  </div>
+
+  <div class="notice info" style="margin-top:14px">
+    Estes valores são referências comerciais do documento e não são recalculados automaticamente pela simulação. A receita dinâmica acima é calculada a partir dos acordos de repasse informados.
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">PONTOS DE QUALIFICAÇÃO</div>
+  <h2 class="section-title">O que é relevante para o candidato Master</h2>
+
+  <div class="split">
+    <div class="soft">
+      <strong>Pré-requisitos</strong>
+      <div class="rowline"><span>População mínima da cidade</span><strong>400 mil habitantes</strong></div>
+      <div class="rowline"><span>Aprovação da empresa</span><strong>Obrigatória</strong></div>
+      <div class="rowline"><span>Experiência empresarial</span><strong>Necessária</strong></div>
+      <div class="rowline"><span>Prazo da franquia</span><strong>10 anos</strong></div>
+      <div class="rowline"><span>Royalties</span><strong>0%</strong></div>
+    </div>
+    <div class="soft">
+      <strong>Alavancas de crescimento</strong>
+      <div class="rowline"><span>Expansão da rede</span><strong>Novos franqueados</strong></div>
+      <div class="rowline"><span>Escala operacional</span><strong>Mais motos na região</strong></div>
+      <div class="rowline"><span>Receitas acessórias</span><strong>Oficina, GPS, retirada e montagem</strong></div>
+      <div class="rowline"><span>Intermediações</span><strong>Locagora e concessionárias</strong></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="footer-note">Simulação comercial baseada no material Master Locagora 2026. Os marcos de rentabilidade são referências do documento; os valores dinâmicos dependem das premissas preenchidas na calculadora.</div>
+
+<section class="connected-next-step no-print">
+  <div>
+    <span>PRÓXIMO PASSO</span>
+    <strong>Simulação pronta? Transforme os números em proposta comercial.</strong>
+  </div>
+  <div class="connected-next-actions">
+    <button type="button" class="btn primary" onclick="addCurrent()">Carregar proposta</button>
+    <button type="button" class="btn secondary" onclick="location.hash='#objecoes'">Ver objeções</button>
+  </div>
+</section>

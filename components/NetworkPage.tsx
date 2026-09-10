@@ -1,0 +1,55 @@
+"use client";
+import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { ExternalLink, MapPin, Phone, Search } from "lucide-react";
+import { NETWORK_POINTS, type NetworkPoint } from "@/lib/network";
+import PageHero from "./PageHero";
+import GoMarker from "./GoMarker";
+import ModuleSkeleton from "./ModuleSkeleton";
+const LeafletNetworkMap = dynamic(()=>import("./LeafletNetworkMap"),{ssr:false,loading:()=> <div className="mapSkeleton"><div className="skeleton skeletonMap"/></div>});
+
+function googleQuery(p?:NetworkPoint|null){
+  if(!p) return "Locagora Brasil";
+  if(Number.isFinite(p.lat)&&Number.isFinite(p.lng)) return `${p.lat},${p.lng}`;
+  return p.address||`${p.city} ${p.state||""} ${p.country}`;
+}
+function googleLink(p:NetworkPoint){return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(googleQuery(p))}`;}
+function tone(p:NetworkPoint):"active"|"master"|"future"{return p.future?"future":(p.type==="master"||p.type==="international")?"master":"active";}
+
+export default function NetworkPage(){
+ const [q,setQ]=useState("");
+ const [country,setCountry]=useState("Todos");
+ const [selected,setSelected]=useState<NetworkPoint|null>(null);
+ const filtered=useMemo(()=>NETWORK_POINTS.filter(p=>{
+   const okCountry=country==="Todos"||p.country===country;
+   const hay=[p.name,p.city,p.state,p.country,p.address,p.status,p.type].join(" ").toLowerCase();
+   return okCountry&&hay.includes(q.toLowerCase().trim());
+ }),[q,country]);
+ const stats=useMemo(()=>({total:filtered.length,active:filtered.filter(p=>p.status.toLowerCase().includes("opera")).length,territorial:filtered.filter(p=>p.type==="master"||p.type==="international"||p.name.toLowerCase().includes("master")).length}),[filtered]);
+
+ return <main className="workspace">
+  <PageHero kicker="REDE LOCAGORA • PRESENÇA E EXPANSÃO" title="Onde a Locagora está presente." description="Unidades, Masters e territórios em uma visão única, com localização vinculada ao Google Maps e identidade visual própria da rede." actions={<div className="heroStatLine"><span><b>{stats.total}</b> pontos</span><span><b>{stats.active}</b> em operação</span><span><b>{stats.territorial}</b> Masters</span></div>}/>
+  <section className="panel networkHeroPanel">
+   <div className="networkFilters"><label><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Cidade, estado, unidade, tipo ou endereço"/></label><div>{["Todos","Brasil","Portugal","Espanha"].map(c=><button type="button" key={c} className={country===c?"active":""} onClick={()=>{setCountry(c);setSelected(null)}}>{c}</button>)}</div></div>
+  </section>
+
+  <section className="networkLayout googleNetworkLayout">
+   <div className="googleMapShell brandedGoogleMap leafletShell">
+     <LeafletNetworkMap points={filtered} selected={selected} onSelect={setSelected}/>
+     <div className="googleMapOverlay">
+       <div className="mapOverlayTitle"><GoMarker tone={selected?tone(selected):"active"} small/><div><b>{selected?selected.name:"Rede Locagora"}</b><span>{selected?(selected.address||`${selected.city} • ${selected.country}`):"Clique em um GO para ver a unidade"}</span></div></div>
+       {selected&&<a href={googleLink(selected)} target="_blank" rel="noreferrer"><ExternalLink size={14}/> Abrir no Google Maps</a>}
+     </div>
+     <div className="goLegend"><span><GoMarker tone="active" small/> Em operação</span><span><GoMarker tone="master" small/> Master</span><span><GoMarker tone="future" small/> Futura</span></div>
+   </div>
+
+   <div className="networkList">{filtered.map(p=><article key={p.id} className={selected?.id===p.id?"selected":""} onClick={()=>setSelected(p)}>
+     <div className="networkCardTop"><GoMarker tone={tone(p)}/><div><div className="networkType">{p.future?"FUTURA MASTER":p.type.toUpperCase()}</div><h3>{p.name}</h3></div></div>
+     <p><MapPin size={15}/><span>{p.address||`${p.city} • ${p.country}`}</span></p>
+     {p.phone&&p.phone!=="—"&&<p><Phone size={15}/><span>{p.phone}</span></p>}
+     <div className="networkMeta"><b>{p.city}{p.state?` / ${p.state}`:""}</b><span className={`networkStatus ${tone(p)}`}>{p.status}</span></div>
+     <a onClick={e=>e.stopPropagation()} target="_blank" rel="noreferrer" href={googleLink(p)}>Google Maps ↗</a>
+   </article>)}</div>
+  </section>
+ </main>
+}

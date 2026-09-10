@@ -1,0 +1,123 @@
+
+<div class="topbar"><div><div class="eyebrow">Locagora Internacional</div><h1 class="h1">EUROLOC</h1><div class="sub">Operação internacional conectada ao Movimento EuroLoc, com Barcelona como sede central europeia e resultado projetado em euro.</div></div><div class="pill">Barcelona • Europa</div></div>
+<div class="hero-blue"><div class="eyebrow" style="color:#8fb0ff">CRESCIMENTO SEM FRONTEIRAS</div><h2 style="font-size:30px;margin:6px 0 8px">Patrimônio em duas moedas.</h2><div class="sub">Uma mesma lógica operacional conectando Brasil e Europa, com governança, contrato e suporte estruturado.</div><div class="country-row country-flags" style="margin-top:18px"><span><i>🇧🇷</i>Brasil</span><span><i>🇵🇹</i>Portugal</span><span><i>🇪🇸</i>Espanha</span><span><i>🇮🇹</i>Itália</span><span><i>🇫🇷</i>França</span><span><i>🇬🇧</i>Inglaterra</span></div></div>
+<div class="grid" style="margin-top:18px">
+<section class="card span-7">
+<h3>Simulação EUROLOC</h3>
+<div class="form-grid">
+  <div class="field"><label>Valor disponível para aporte / investimento</label><input id="euroCapital" type="number" value="220000"></div>
+  <div class="field"><label>Plano EUROLOC</label>
+    <select id="plan">
+      <option value="start">Start • 1–2 motos</option>
+      <option value="exclusive">Exclusive • 3–4 motos</option>
+      <option value="premium">Premium • 5–9 motos</option>
+      <option value="black">Black • 10–15 motos</option>
+    </select>
+  </div>
+  <div class="field"><label>Quantidade de motos</label><input id="qty" type="number" min="1" max="15" value="1"><div id="euroQtyHint" class="helper">Digite a quantidade ou escolha o plano.</div></div><div class="field"><label>Modelo da moto</label><input id="euroModel" value="Honda PCX" readonly><div class="helper">Modelo definido para a operação EUROLOC.</div></div>
+  <div class="field"><label>Taxa de administração</label><select id="adm"></select><div class="helper">Opções vinculadas ao plano selecionado.</div></div>
+  <div class="field"><label>Câmbio EUR/BRL</label><input id="fx" type="number" step="0.01" value="6.20"></div>
+  <div class="field"><label>Operação</label><input value="Master Barcelona" readonly></div>
+  <div class="field"><label>Cidade-base</label><input value="Barcelona, Espanha" readonly></div>
+</div>
+
+<details class="soft fee-collapse" style="margin-top:14px">
+  <summary><strong>Taxas disponíveis por plano</strong><span class="collapse-arrow">⌄</span></summary>
+  <div class="fee-plan-grid" style="margin-top:12px">
+    <div><span>Start</span><b>R$ 8.999 • R$ 7.999 • R$ 6.999</b></div>
+    <div><span>Exclusive</span><b>R$ 14.000 • R$ 13.500 • R$ 13.000</b></div>
+    <div><span>Premium</span><b>R$ 9.999 • R$ 9.499 • R$ 8.999</b></div>
+    <div><span>Black</span><b>R$ 16.000 • R$ 15.500 • R$ 15.000</b></div>
+  </div>
+</details>
+
+<div class="soft" style="margin-top:14px">
+  <strong>Rentabilidade base EUROLOC</strong>
+  <div style="overflow:auto;margin-top:10px">
+    <table class="table">
+      <thead><tr><th>Plano</th><th>Quantidade</th><th>Rentabilidade / moto / mês</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Start</strong></td><td>1–2 motos</td><td><strong>R$ 450</strong></td></tr>
+        <tr><td><strong>Exclusive</strong></td><td>3–4 motos</td><td><strong>R$ 490</strong></td></tr>
+        <tr><td><strong>Premium</strong></td><td>5–9 motos</td><td><strong>R$ 530</strong></td></tr>
+        <tr><td><strong>Black</strong></td><td>10–15 motos</td><td><strong>R$ 580</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="upgrade" class="notice info" style="margin-top:14px"></div>
+<div id="euroCapitalStatus"></div>
+<div class="actions"><button class="btn primary" onclick="addCurrent()">Carregar proposta</button></div>
+</section>
+
+<section class="card span-5">
+<h3>Resultado EUROLOC</h3>
+<div class="kpis" style="grid-template-columns:repeat(2,1fr)">
+  <div class="kpi"><div class="label">Plano / faixa</div><div id="euroPlanApplied" class="value"></div></div>
+  <div class="kpi green"><div class="label">Rentabilidade base / moto</div><div id="euroIncomeBase" class="value"></div></div>
+  <div class="kpi blue"><div class="label">Investimento em ativos</div><div id="euroAssetsInvest" class="value"></div></div>
+  <div class="kpi"><div class="label">Taxa ADM</div><div id="euroAdmDisplay" class="value"></div></div>
+  <div class="kpi blue"><div class="label">Investimento total</div><div id="invest" class="value"></div></div>
+  <div class="kpi green"><div class="label">Renda mensal</div><div id="monthly" class="value"></div></div>
+  <div class="kpi"><div class="label">Rentabilidade mensal</div><div id="roi" class="value"></div></div>
+  <div class="kpi"><div class="label">Rentabilidade anual simples</div><div id="annual" class="value"></div></div>
+</div>
+<div class="notice ok" style="margin-top:14px">Equivalente aproximado do investimento em euro: <strong id="eur"></strong></div>
+</section>
+<section class="card span-12">
+  <div class="eyebrow">RECOMENDAÇÃO PELO APORTE</div>
+  <h2 class="section-title">Estrutura indicada para o valor informado</h2>
+  <div class="kpis" style="grid-template-columns:repeat(5,1fr)">
+    <div class="kpi blue"><div class="label">Modelo</div><div id="euroRecModel" class="value">Honda PCX</div></div>
+    <div class="kpi"><div class="label">Plano</div><div id="euroRecPlan" class="value"></div></div>
+    <div class="kpi"><div class="label">Quantidade</div><div id="euroRecQty" class="value"></div></div>
+    <div class="kpi green"><div class="label">Rentabilidade / moto</div><div id="euroRecIncome" class="value"></div></div>
+    <div class="kpi"><div class="label">Taxa ADM aplicada</div><div id="euroRecFee" class="value"></div></div>
+  </div>
+  <div class="soft" style="margin-top:14px">
+    <div class="rowline"><span>Valor informado</span><strong id="euroRecCapital"></strong></div>
+    <div class="rowline"><span>Investimento em motos</span><strong id="euroRecAssets"></strong></div>
+    <div class="rowline"><span>Taxa de administração</span><strong id="euroRecAdm"></strong></div>
+    <div class="rowline"><span>Total utilizado</span><strong id="euroRecUsed"></strong></div>
+    <div class="rowline"><span>Valor a ser devolvido ao cliente</span><strong id="euroRecRefund"></strong></div>
+    <div class="rowline"><span>Renda mensal estimada</span><strong id="euroRecMonthly"></strong></div>
+  </div>
+  <div id="euroRecNotice" class="notice info" style="margin-top:14px"></div>
+</section>
+<section class="card span-12"><h2 class="section-title">Movimento EuroLoc</h2><div class="split"><div class="soft"><strong>Barcelona</strong><div class="sub" style="font-size:13px;margin-top:6px">Sede central do movimento, hub de suporte à rede e ponto de encontro oficial da operação europeia.</div></div><div class="soft"><strong>Rota de expansão</strong><div class="sub" style="font-size:13px;margin-top:6px">Portugal como porta de entrada; Espanha/Barcelona como centro; depois Itália, França e Inglaterra.</div></div></div></section>
+<section class="card span-12">
+<h2 class="section-title">Composição da operação EUROLOC</h2>
+<div class="sub" style="margin-bottom:14px">Modelo definido: <strong>Honda PCX</strong>. Toda a quantidade informada no plano é calculada com Honda PCX.</div>
+<div class="eu-grid" style="grid-template-columns:1fr">
+  <div class="eu-bike">
+    <h4>Honda PCX • 100% da frota</h4>
+    <div class="rowline"><span>Modelo</span><strong>Honda PCX</strong></div>
+    <div class="rowline"><span>Valor do ativo / moto</span><strong>R$ 24.999</strong></div>
+    <div class="rowline"><span>Quantidade</span><strong id="pcxQty75">0 motos</strong></div>
+    <div class="rowline"><span>Investimento em Honda PCX</span><strong id="pcxAsset75">R$ 0,00</strong></div>
+    <div class="rowline"><span>Rentabilidade base / moto</span><strong id="pcxRentBase">R$ 0,00</strong></div>
+    <div class="rowline"><span>Rentabilidade mensal da frota</span><strong id="pcxRentTotal">R$ 0,00</strong></div>
+  </div>
+</div>
+<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
+  <div class="kpi blue"><div class="label">Investimento total em Honda PCX</div><div id="euAssetTotal75" class="value"></div></div>
+  <div class="kpi green"><div class="label">Rentabilidade mensal</div><div id="euRentTotal75" class="value"></div></div>
+  <div class="kpi"><div class="label">Rentabilidade anual simples</div><div id="euRentAnnual75" class="value"></div></div>
+</div>
+</section>
+<section class="card span-12"><h2 class="section-title">Carteira 75/25 — escala de 4 a 40 motos</h2><div style="overflow:auto"><table class="table"><thead><tr><th>Frota</th><th>Composição</th><th>Investimento em frota</th><th>Líquido/mês</th><th>Líquido/ano</th></tr></thead><tbody><tr><td>4</td><td>3 PCX + 1 elétrica</td><td>R$ 93.996</td><td>€ 560</td><td>€ 6.720</td></tr><tr><td>8</td><td>6 PCX + 2 elétricas</td><td>R$ 187.992</td><td>€ 1.120</td><td>€ 13.440</td></tr><tr><td>20</td><td>15 PCX + 5 elétricas</td><td>R$ 469.980</td><td>€ 2.800</td><td>€ 33.600</td></tr><tr><td>40</td><td>30 PCX + 10 elétricas</td><td>R$ 939.960</td><td>€ 5.600</td><td>€ 67.200</td></tr></tbody></table></div></section>
+<section class="card span-12"><h2 class="section-title">Estrutura de suporte internacional</h2><div class="timeline"><div class="step"><b>6M</b><strong>Encontro na Europa</strong><div class="sub" style="font-size:12px;margin-top:5px">Alinhamento presencial e visitas às operações.</div></div><div class="step"><b>12M</b><strong>Convenção no Brasil</strong><div class="sub" style="font-size:12px;margin-top:5px">Integração anual das redes brasileira e europeia.</div></div><div class="step"><b>90D</b><strong>Mentoria trimestral</strong><div class="sub" style="font-size:12px;margin-top:5px">Leitura de mercado e desenvolvimento comercial.</div></div><div class="step"><b>∞</b><strong>Consultoria in loco</strong><div class="sub" style="font-size:12px;margin-top:5px">Suporte de implantação e operação na Europa.</div></div></div></section>
+<section class="card span-12"><h2 class="section-title">Integração com os planos LocInvest</h2><div class="split"><div class="soft"><strong>Premium</strong><div class="sub" style="font-size:13px;margin-top:6px">O material anexado prevê direito a ter uma moto em Barcelona.</div></div><div class="soft"><strong>Exclusive</strong><div class="sub" style="font-size:13px;margin-top:6px">O material anexado prevê direito a ter metade da frota em Barcelona.</div></div></div></section>
+</div><div class="footer-note">As referências de retorno e payback são premissas do material comercial anexado. Câmbio, ocupação, custos e condições contratuais podem alterar o resultado.</div>
+
+<section class="connected-next-step no-print">
+  <div>
+    <span>PRÓXIMO PASSO</span>
+    <strong>Simulação pronta? Transforme os números em proposta comercial.</strong>
+  </div>
+  <div class="connected-next-actions">
+    <button type="button" class="btn primary" onclick="addCurrent()">Carregar proposta</button>
+    <button type="button" class="btn secondary" onclick="location.hash='#objecoes'">Ver objeções</button>
+  </div>
+</section>

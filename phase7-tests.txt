@@ -1,0 +1,1 @@
+12/12 testes aprovados via npm test; componentes alterados sem diagnostics sintaticos TSX.

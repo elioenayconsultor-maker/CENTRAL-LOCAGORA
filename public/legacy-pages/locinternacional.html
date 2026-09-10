@@ -1,0 +1,116 @@
+
+<div class="topbar">
+ <div>
+  <div class="eyebrow">Locagora Internacional • Cotas</div>
+  <h1 class="h1">Cotas LocInternacional</h1>
+  <div class="sub">Simulação da oportunidade de participação na expansão internacional da Locagora. O investimento começa em R$ 100 mil e pode ser ampliado sem limite comercial definido nesta calculadora.</div>
+ </div>
+ <div class="pill">Expansão Europa • 2026–2027</div>
+</div>
+
+<div class="grid">
+ <section class="card span-5">
+  <div class="eyebrow">ESTRUTURA DA COTA</div>
+  <h2 class="section-title">Escolha o investimento</h2>
+  <div class="form-grid">
+   <div class="field">
+    <label>Valor do investimento</label>
+    <input id="liCapitalInput" type="number" min="100000" step="100000" value="100000">
+    <div class="helper">Aporte mínimo: R$ 100 mil. Exemplos: R$ 100 mil, R$ 200 mil, R$ 300 mil, R$ 600 mil, R$ 1 milhão ou mais.</div>
+   </div>
+   <div class="field">
+    <label>Rentabilidade mensal (%)</label>
+    <input id="liRateInput" type="number" step="0.10" value="1.50">
+    <div id="liRateHint" class="helper">Base comercial: 1,5% a.m. para R$ 100 mil.</div>
+   </div>
+  </div>
+  <div class="notice ok" style="margin-top:14px">
+   <strong>Regra de rentabilidade:</strong> R$ 100 mil = <strong>1,5% a.m.</strong> • A partir de R$ 200 mil = <strong>2% a.m.</strong>. O consultor pode aumentar a rentabilidade na simulação, mas o sistema não permite reduzir abaixo da base do aporte.
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+   <strong>Condições informadas no material</strong>
+   <div class="rowline"><span>Rentabilidade mínima inicial</span><strong id="liRateLabel">1,5% a.m.</strong></div>
+   <div class="rowline"><span>Rentabilidade garantida</span><strong>Primeiros 13 meses</strong></div>
+   <div class="rowline"><span>Carência</span><strong>45 dias</strong></div>
+   <div class="rowline"><span>Pagamento</span><strong>Todo dia 20</strong></div>
+   <div class="rowline"><span>Prazo de saída</span><strong>60 dias</strong></div>
+  </div>
+
+  <div class="notice info" style="margin-top:14px">
+   Após o período de rentabilidade garantida, o material prevê distribuição de lucros quando o resultado estimado superar a rentabilidade mínima.
+  </div>
+  <div class="actions"><button class="btn primary" onclick="addCurrent()">Carregar proposta</button></div>
+ </section>
+
+ <section class="card span-7">
+  <div class="eyebrow">SIMULAÇÃO</div>
+  <h2 class="section-title">Retorno do investimento</h2>
+  <div class="kpis" style="grid-template-columns:repeat(2,1fr)">
+   <div class="kpi blue"><div class="label">Capital investido</div><div id="liCapital" class="value"></div></div>
+   <div class="kpi green"><div class="label">Ganho mensal projetado</div><div id="liMonthly" class="value"></div></div>
+   <div class="kpi"><div class="label">Retorno anualizado simples</div><div id="liAnnualRate" class="value"></div></div>
+   <div class="kpi"><div class="label">Recebimentos nos 13 meses</div><div id="li13Months" class="value"></div></div>
+  </div>
+
+  <div id="liProjectionBox" class="soft" style="margin-top:14px"></div>
+
+  <div class="notice warn" style="margin-top:14px">
+   A carência de 45 dias afeta o início do fluxo de pagamento. A calculadora usa a rentabilidade definida para o aporte. Valores acima da rentabilidade-base devem ser tratados como condição comercial simulada e validados antes da proposta.
+  </div>
+ </section>
+
+ <section class="card span-12">
+  <div class="eyebrow">OPORTUNIDADE INTERNACIONAL</div>
+  <h2 class="section-title">Indicadores apresentados para a expansão europeia</h2>
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+   <div class="kpi blue"><div class="label">Valuation informado</div><div class="value">€ 17 milhões</div><div class="helper">Equivalente indicado: R$ 100 milhões</div></div>
+   <div class="kpi"><div class="label">Cotas disponíveis</div><div class="value">15%</div><div class="helper">R$ 15 milhões em cotas</div></div>
+   <div class="kpi green"><div class="label">Já captado</div><div class="value">R$ 2,5 mi</div><div class="helper">17% da captação indicada</div></div>
+   <div class="kpi"><div class="label">Meta de valuation</div><div class="value">R$ 500 mi</div><div class="helper">Horizonte apresentado: 3 anos</div></div>
+  </div>
+ </section>
+
+ <section class="card span-12">
+  <div class="eyebrow">EUROPA • ROADMAP</div>
+  <h2 class="section-title">Tração e expansão informadas no material</h2>
+  <div class="split">
+   <div class="soft">
+    <strong>Operação / tração</strong>
+    <div class="rowline"><span>Lisboa</span><strong>400 motos • Master franqueado</strong></div>
+    <div class="rowline"><span>Porto</span><strong>180 motos • Master franqueado</strong></div>
+    <div class="rowline"><span>Portugal</span><strong>27 franquias vendidas</strong></div>
+    <div class="rowline"><span>Barcelona</span><strong>60 franqueados previstos • 1.000 motos projetadas</strong></div>
+   </div>
+   <div class="soft">
+    <strong>Meta Europa — 12 meses</strong>
+    <div class="rowline"><span>Taxas de franquia</span><strong>€ 1,5 mi</strong></div>
+    <div class="rowline"><span>Motos em sociedade</span><strong>€ 1,7 mi</strong></div>
+    <div class="rowline"><span>Outras receitas</span><strong>€ 500 mil</strong></div>
+    <div class="rowline"><span>Meta de faturamento</span><strong>€ 3,7 milhões</strong></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="card span-12">
+  <div class="eyebrow">REFERÊNCIA CORPORATIVA</div>
+  <h2 class="section-title">Estrutura apresentada no material</h2>
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+   <div class="kpi"><div class="label">Receita mensal média da matriz</div><div class="value">R$ 20,5 mi</div></div>
+   <div class="kpi blue"><div class="label">Participação investidores</div><div class="value">13%</div><div class="helper">Fundador indicado no material: 87%</div></div>
+   <div class="kpi green"><div class="label">Repasse anual aos investidores</div><div class="value">R$ 7 mi</div><div class="helper">Referência geral apresentada no documento</div></div>
+  </div>
+ </section>
+</div>
+<div class="footer-note">Simulação comercial baseada na apresentação “Cotas Locagora”. Valuation, metas, projeções e rentabilidades reproduzem premissas do material e não devem ser interpretados como garantia além das condições expressamente indicadas.</div>
+
+<section class="connected-next-step no-print">
+  <div>
+    <span>PRÓXIMO PASSO</span>
+    <strong>Simulação pronta? Transforme os números em proposta comercial.</strong>
+  </div>
+  <div class="connected-next-actions">
+    <button type="button" class="btn primary" onclick="addCurrent()">Carregar proposta</button>
+    <button type="button" class="btn secondary" onclick="location.hash='#objecoes'">Ver objeções</button>
+  </div>
+</section>

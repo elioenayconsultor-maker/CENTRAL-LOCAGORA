@@ -1,0 +1,280 @@
+
+<div class="topbar no-print">
+  <div>
+    <div class="eyebrow">Locagora • Proposta Comercial</div>
+    <h1 class="h1">Criador de Proposta</h1>
+    <div class="sub">A proposta usa automaticamente os dados da simulação carregada. Complete apenas os dados do cliente, closer e informações adicionais.</div>
+  </div>
+  <div class="pill">8 páginas • Vertical ou Horizontal</div>
+</div>
+
+<div class="grid no-print proposal-controls">
+<section class="card span-4">
+  <h3>Identificação</h3>
+  <div class="form-grid" style="grid-template-columns:1fr">
+    <div class="field"><label>Investidor / cliente</label><input id="proposalClient" placeholder="Nome do cliente"></div>
+    <div class="field"><label>Simulação escolhida</label><select id="proposalSimulation"></select></div>
+    <div class="field"><label>Título comercial</label><input id="proposalTitle" value="Proposta Locagora"></div>
+    <div class="field"><label>Data da proposta</label><input id="proposalDate" type="date"></div>
+    <div class="field"><label>Validade (dias)</label><input id="proposalValidityDays" type="number" min="1" value="7"></div>
+    <div class="field"><label>Formato da proposta</label>
+      <select id="proposalOrientation">
+        <option value="landscape">Horizontal • proporção da arte</option>
+        <option value="portrait">Vertical • proporção da arte</option>
+      </select>
+      <div class="helper">O PDF respeita a proporção original das imagens enviadas, sem cortar ou deformar.</div>
+    </div>
+  </div>
+</section>
+
+<section class="card span-4">
+  <h3>Dados do closer</h3>
+  <div class="form-grid" style="grid-template-columns:1fr">
+    <div class="field"><label>Nome do closer</label><input id="proposalConsultant" placeholder="Nome do closer"></div>
+    <div class="field"><label>WhatsApp</label><input id="proposalCloserPhone" type="tel" placeholder="(00) 00000-0000"></div>
+    <div class="field"><label>Foto</label><input id="proposalCloserPhoto" type="file" accept="image/*"><div class="helper">Nome, telefone e foto aparecem somente na página 8.</div></div>
+  </div>
+</section>
+
+<section class="card span-4">
+  <h3>Finalização</h3>
+  <div class="field">
+    <label>Informações adicionais</label>
+    <textarea id="proposalExtraInfo" rows="6" placeholder="Condição negociada, observações do cliente, particularidades da praça, próximos passos..."></textarea>
+  </div>
+  <div class="proposal-import-summary" style="margin-top:12px">
+    <div><span>Dados carregados</span><strong id="proposalImportedSource">Nenhuma simulação carregada</strong></div>
+    <div><span>Captura</span><strong id="proposalImportedDate">—</strong></div>
+  </div>
+  <div class="actions">
+    <button class="btn primary" onclick="loadAndOpenProposal()">Carregar dados e abrir proposta</button>
+    <button class="btn green" onclick="exportProposalPDF()">Exportar PDF</button>
+  </div>
+</section>
+
+
+<section class="card span-12 ai-proposal-card">
+  <div class="ai-proposal-head">
+    <div>
+      <div class="eyebrow">ASSISTENTE DE PROPOSTA</div>
+      <h2 class="section-title">Gerar texto da proposta com IA</h2>
+      <div class="sub" style="font-size:13px">Use os dados já carregados da calculadora e acrescente instruções em linguagem natural.</div>
+    </div>
+    <span class="ai-proposal-badge">IA • PROPOSTA</span>
+  </div>
+
+  <div class="field">
+    <label>O que você quer que a IA faça?</label>
+    <textarea id="proposalAiPrompt" placeholder="Ex.: Crie uma proposta mais executiva para um investidor conservador. Destaque ganho mensal, segurança, prazo, liquidez e próximos passos. Use linguagem objetiva e profissional."></textarea>
+  </div>
+
+  <div class="ai-proposal-actions">
+    <button class="btn primary" type="button" onclick="generateProposalDraft()">Gerar rascunho automático</button>
+    <button class="btn green" type="button" onclick="generateProposalWithAI()">Gerar com IA online</button>
+  </div>
+
+  <div id="proposalAiStatus" class="ai-proposal-status">
+    O rascunho automático funciona neste arquivo. Para usar uma IA generativa real, a central precisa estar publicada e conectada a um endpoint seguro.
+  </div>
+
+  <div class="ai-mode-note">
+    A IA recebe: produto escolhido, valores da simulação, dados do cliente, observações do closer e o prompt acima. Ela pode devolver título comercial, resumo executivo, texto final e observações personalizadas.
+  </div>
+</section>
+
+<section class="card span-12">
+  <details>
+    <summary style="cursor:pointer;font-weight:900;color:#1642a1">Dados importados e ajustes avançados</summary>
+    <div class="form-grid" style="margin-top:14px">
+      <div class="field"><label>Quantidade de motos / unidades</label><input id="proposalQty" type="number" min="0" value="0"></div>
+      <div class="field"><label>Modelo / ativo</label><input id="proposalModel"></div>
+      <div class="field"><label>Valor unitário</label><input id="proposalUnitValue" type="number" min="0" value="0"></div>
+      <div class="field"><label>Investimento em ativos</label><input id="proposalAssets" type="number" min="0" value="0"></div>
+      <div class="field"><label>Taxa / entrada Brasil</label><input id="proposalBrazilFee" type="number" min="0" value="0"></div>
+      <div class="field"><label>Taxa / entrada 2 em 1</label><input id="proposalTwoInOneFee" type="number" min="0" value="0"></div>
+      <div class="field"><label>Possibilidade internacional</label><input id="proposalInternational"></div>
+      <div class="field"><label>% reinvestimento</label><input id="proposalReinvestPct" type="number" min="0" max="100" value="50"></div>
+      <div class="field"><label>Faturamento bruto</label><input id="proposalGross" type="number" value="0"></div>
+      <div class="field"><label>Despesas operacionais</label><input id="proposalOpExpenses" type="number" value="0"></div>
+      <div class="field"><label>Seguro / proteção</label><input id="proposalInsurance" type="number" value="0"></div>
+      <div class="field"><label>Contabilidade</label><input id="proposalAccounting" type="number" value="0"></div>
+      <div class="field"><label>Resultado líquido operacional</label><input id="proposalNetOperational" type="number" value="0"></div>
+      <div class="field"><label>Rentabilidade do investidor</label><input id="proposalInvestorIncome" type="number" value="0"></div>
+      <div class="field"><label>Margem / reserva</label><input id="proposalReserve" type="number" value="0"></div>
+    </div>
+  </details>
+</section>
+</div>
+
+<div id="proposalPrintArea" class="proposal-deck complete-deck landscape">
+
+<!-- PG 1 -->
+<section class="proposal-slide proposal-page proposal-page-1">
+  <div class="proposal-panel cover-panel">
+    <div class="proposal-tag">PROPOSTA COMERCIAL</div>
+    <h1 id="pCoverTitle">Proposta Locagora</h1>
+    <p class="proposal-lead">Preparado para <strong id="pClient">—</strong></p>
+    <div class="proposal-gain">
+      <span>GANHO MENSAL PROJETADO</span>
+      <strong id="pMonthly">R$ 0,00</strong>
+    </div>
+    <div class="proposal-mini-grid">
+      <div><span>Modelo</span><strong id="pCoverOperation">—</strong></div>
+      <div><span>Frota / ativos</span><strong id="pCoverFleet">—</strong></div>
+      <div><span>Investimento em ativos</span><strong id="pCoverAssets">R$ 0,00</strong></div>
+      <div><span>Validade</span><strong id="pValidityCover">—</strong></div>
+    </div>
+  </div>
+  <div class="slide-number">01</div>
+</section>
+
+<!-- PG 2 -->
+<section class="proposal-slide proposal-page proposal-page-2">
+  <div class="proposal-panel executive-panel">
+    <div class="proposal-tag">RESUMO EXECUTIVO</div>
+    <h2>Resultado e estrutura em uma única visão</h2>
+    <div class="proposal-stat-grid">
+      <div class="accent"><span>Ganho mensal</span><strong id="pSummaryIncome">R$ 0,00/mês</strong></div>
+      <div><span>Frota inicial</span><strong id="pSummaryFleet">—</strong></div>
+      <div><span>Valor unitário</span><strong id="pSummaryUnit">R$ 0,00</strong></div>
+      <div><span>Ativos</span><strong id="pSummaryAssets">R$ 0,00</strong></div>
+      <div><span>Taxa Brasil</span><strong id="pSummaryBrazilFee">R$ 0,00</strong></div>
+      <div><span>Taxa 2 em 1</span><strong id="pSummaryTwoFee">R$ 0,00</strong></div>
+      <div><span>Internacional</span><strong id="pSummaryInternational">—</strong></div>
+      <div><span>Validade</span><strong id="pSummaryValidity">—</strong></div>
+    </div>
+  </div>
+  <div class="slide-number">02</div>
+</section>
+
+<!-- PG 3 -->
+<section class="proposal-slide proposal-page proposal-page-3">
+  <div class="proposal-panel capital-panel">
+    <div class="proposal-tag">COMPOSIÇÃO DO CAPITAL</div>
+    <h2 id="pCapitalFleet">—</h2>
+    <div class="proposal-capital-main"><span>Investimento em ativos</span><strong id="pCapitalAssets">R$ 0,00</strong></div>
+    <div class="proposal-option-grid">
+      <div>
+        <span>Opção Brasil</span>
+        <strong id="pBrazilTotal">R$ 0,00</strong>
+        <small>Ativos <b id="pBrazilAssets">R$ 0,00</b> • Taxa <b id="pBrazilFee2">R$ 0,00</b></small>
+      </div>
+      <div>
+        <span>Opção 2 em 1</span>
+        <strong id="pTwoTotal">R$ 0,00</strong>
+        <small>Ativos <b id="pTwoAssets">R$ 0,00</b> • Taxa <b id="pTwoFee2">R$ 0,00</b></small>
+      </div>
+    </div>
+    <div class="proposal-footline"><span>Valor unitário: <strong id="pCapitalUnit">R$ 0,00</strong></span><span id="pCapitalInternational">—</span></div>
+  </div>
+  <div class="slide-number">03</div>
+</section>
+
+<!-- PG 4 -->
+<section class="proposal-slide proposal-page proposal-page-4">
+  <div class="proposal-panel dre-panel">
+    <div class="proposal-tag">DRE E RETORNO</div>
+    <h2>Resultado mensal projetado</h2>
+    <div class="proposal-dre-table">
+      <div><span>Faturamento bruto</span><strong id="pDreGross">R$ 0,00</strong></div>
+      <div><span>Despesas operacionais</span><strong id="pDreOp">R$ 0,00</strong></div>
+      <div><span>Seguro / proteção</span><strong id="pDreInsurance">R$ 0,00</strong></div>
+      <div><span>Contabilidade</span><strong id="pDreAccounting">R$ 0,00</strong></div>
+      <div class="accent"><span>Resultado líquido operacional</span><strong id="pDreNet">R$ 0,00</strong></div>
+      <div class="accent"><span>Rentabilidade do investidor</span><strong id="pDreInvestor">R$ 0,00</strong></div>
+      <div><span>Margem / reserva</span><strong id="pDreReserve">R$ 0,00</strong></div>
+    </div>
+    <div class="proposal-indicators">
+      <div><span>Mensal</span><strong id="pIndicatorMonthly">R$ 0,00</strong></div>
+      <div><span>Retorno anual</span><strong id="pIndicatorReturn">0%</strong></div>
+      <div><span>36 meses</span><strong id="pIndicator36">R$ 0,00</strong></div>
+      <div><span>Payback</span><strong id="pIndicatorPayback">—</strong></div>
+    </div>
+  </div>
+  <div class="slide-number">04</div>
+</section>
+
+<!-- PG 5 -->
+<section class="proposal-slide proposal-page proposal-page-5">
+  <div class="proposal-panel safeguards-panel">
+    <div class="proposal-tag">SEGURANÇAS DA OPERAÇÃO</div>
+    <h2>Estrutura e responsabilidades</h2>
+    <div class="proposal-six-grid">
+      <div><b>01</b><strong>Ativos</strong><span>Titularidade e vínculo conforme o produto e o contrato.</span></div>
+      <div><b>02</b><strong>Operação</strong><span>Locação, cobrança e apoio operacional conforme a modalidade.</span></div>
+      <div><b>03</b><strong>Gestão</strong><span>Acompanhamento dos indicadores disponíveis da operação.</span></div>
+      <div><b>04</b><strong>Modalidade</strong><span>Brasil ou estrutura internacional quando aplicável.</span></div>
+      <div><b>05</b><strong>Contrato</strong><span>Garantias, recompra e liquidez somente quando formalmente previstas.</span></div>
+      <div><b>06</b><strong>Internacional</strong><span id="pSecurityInternational">Sob consulta das condições aplicáveis.</span></div>
+    </div>
+  </div>
+  <div class="slide-number">05</div>
+</section>
+
+<!-- PG 6 -->
+<section class="proposal-slide proposal-page proposal-page-6">
+  <div class="proposal-panel clauses-panel">
+    <div class="proposal-tag">CLÁUSULAS RECOMENDADAS</div>
+    <h2>Pontos para formalização</h2>
+    <div class="proposal-four-grid">
+      <div><b>01</b><strong>Rentabilidade</strong><span>Base de cálculo, periodicidade e forma de pagamento.</span></div>
+      <div><b>02</b><strong>Recompra / liquidez</strong><span>Quando aplicável, prazo, responsável e fórmula de saída.</span></div>
+      <div><b>03</b><strong>Transparência</strong><span>Relatórios, indicadores e informações operacionais disponíveis.</span></div>
+      <div><b>04</b><strong>Expansão internacional</strong><span>Condições específicas de praça, moeda, prazo e operação.</span></div>
+    </div>
+    <p class="proposal-note">Cláusulas e aditivos devem ser validados juridicamente antes de integrar o instrumento contratual.</p>
+  </div>
+  <div class="slide-number">06</div>
+</section>
+
+<!-- PG 7 -->
+<section class="proposal-slide proposal-page proposal-page-7">
+  <div class="proposal-panel growth-panel">
+    <div class="proposal-tag">CRESCIMENTO</div>
+    <h2>Projeção de frota em 36 meses</h2>
+    <p>Simulação considerando reinvestimento de <strong id="pGrowthPct">50%</strong> do ganho mensal.</p>
+    <div id="proposalGrowthTimeline" class="proposal-growth-timeline"></div>
+    <div class="proposal-growth-options">
+      <div><span>Renda</span><strong>0% reinvestido</strong><b id="pGrowthRenda">—</b></div>
+      <div class="accent"><span>Equilíbrio</span><strong id="pGrowthBalanceLabel">50% reinvestido</strong><b id="pGrowthBalance">—</b></div>
+      <div><span>Expansão</span><strong>100% reinvestido</strong><b id="pGrowthExpansion">—</b></div>
+    </div>
+  </div>
+  <div class="slide-number">07</div>
+</section>
+
+<!-- PG 8 -->
+<section class="proposal-slide proposal-page proposal-page-8">
+  <div class="proposal-panel close-panel">
+    <div class="proposal-tag">CONCLUSÃO</div>
+    <h2>Proposta personalizada para <span id="pClientFinal">o cliente</span></h2>
+    <p id="pWhy">—</p>
+    <div class="proposal-close-grid">
+      <div><span>Modelo</span><strong id="pCloseProduct">—</strong></div>
+      <div class="accent"><span>Ganho mensal</span><strong id="pCloseMonthly">R$ 0,00</strong></div>
+      <div><span>Investimento</span><strong id="pCloseCapital">R$ 0,00</strong></div>
+      <div><span>Validade</span><strong id="pCloseValidity">—</strong></div>
+    </div>
+
+    <div id="pExtraInfoBox" class="proposal-extra-box-clean">
+      <span>INFORMAÇÕES ADICIONAIS</span>
+      <p id="pExtraInfo">—</p>
+    </div>
+
+    <div class="proposal-closer-only">
+      <div class="proposal-closer-photo-wrap">
+        <img id="pCloserPhotoFinal" class="proposal-closer-photo" alt="Foto do closer">
+        <div id="pCloserInitialsFinal" class="proposal-closer-initials">LC</div>
+      </div>
+      <div>
+        <span>Closer responsável</span>
+        <strong id="pCloserNameFinal">—</strong>
+        <a id="pCloserWhatsappFinal" href="#" target="_blank" rel="noopener">WhatsApp: —</a>
+      </div>
+    </div>
+    <div class="proposal-international-final" id="pConclusionInternational">—</div>
+  </div>
+  <div class="slide-number">08</div>
+</section>
+
+</div>

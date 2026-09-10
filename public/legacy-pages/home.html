@@ -1,0 +1,272 @@
+
+<div class="locagora-news-home">
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">LOCAGORA NEWS</div>
+      <h1 class="h1">Locagora News</h1>
+      <div class="sub">Novidades da Locagora, mídias oficiais e Radar de Mercado em uma única página.</div>
+    </div>
+    <div class="pill" id="homeNewsMode">Atualização a cada 1 hora</div>
+  </div>
+
+  <section class="home-news-hero">
+    <div>
+      <span class="home-live-dot"></span>
+      <b>LOCAGORA NEWS</b>
+      <h2>Fotos, vídeos, notícias<br>e inteligência de mercado.</h2>
+      <p>Acompanhe publicações da marca e, logo abaixo, notícias de mercado, concorrência, reputação e tendências.</p>
+    </div>
+    <div class="home-social-links">
+<a href="https://www.instagram.com/locagoraoficial/" target="_blank" rel="noopener" class="home-social-card instagram"><span class="social-brand-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle class="fill-dot" cx="17.4" cy="6.8" r="1.1"/></svg></span>
+  <strong>@locagoraoficial</strong>
+</a>
+<a href="https://www.instagram.com/fillipefelixf/" target="_blank" rel="noopener" class="home-social-card instagram"><span class="social-brand-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle class="fill-dot" cx="17.4" cy="6.8" r="1.1"/></svg></span>
+  <strong>@fillipefelixf</strong>
+</a>
+
+      
+      
+      <a href="https://www.linkedin.com/company/locagora-moto/posts/" target="_blank" rel="noopener"><span class="social-brand-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7.2 10v7M7.2 7.2v.1M10.5 17v-7m0 3.1c.8-2 5.3-2.2 5.3 1.3V17"/></svg></span><strong>Locagora</strong></a>
+      <a href="https://www.tiktok.com/@locagoraveiculos" target="_blank" rel="noopener"><span class="social-brand-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 4v10.2a4.1 4.1 0 1 1-3.3-4"/><path d="M14.2 4c.6 2.6 2.2 4.1 4.8 4.5"/></svg></span><strong>@locagoraveiculos</strong></a>
+    </div>
+  </section>
+
+  <section class="home-news-kpis">
+    <div class="kpi blue"><div class="label">Notícias exibidas</div><div class="value" id="homeNewsCount">—</div></div>
+    <div class="kpi"><div class="label">Fontes</div><div class="value" id="homeNewsSources">—</div></div>
+    <div class="kpi green"><div class="label">Última atualização</div><div class="value home-news-updated" id="homeNewsUpdated">—</div></div>
+  </section>
+
+  <section class="card">
+    <div class="home-news-head">
+      <div>
+        <div class="eyebrow">FOTOS E VÍDEOS</div>
+        <h2 class="section-title">Locagora em imagens</h2>
+      </div>
+      <div class="actions">
+        <button class="btn primary" onclick="fetchLocagoraNews()">Atualizar agora</button>
+        <button class="btn secondary" onclick="openLocagoraNewsSearch()">Pesquisar na internet ↗</button>
+      </div>
+    </div>
+    <div id="homeNewsStatus" class="notice info">Carregando notícias da Locagora...</div>
+    <div id="homeNewsFeed" class="home-news-grid"></div>
+  </section>
+
+  
+<section class="card official-media-strip">
+  <div>
+    <div class="eyebrow">CANAIS OFICIAIS</div>
+    <h2 class="section-title">Ver mais fotos e vídeos</h2>
+    <p>Abra os perfis oficiais para acompanhar publicações completas, Reels e vídeos.</p>
+  </div>
+  <div class="official-media-actions">
+    <a href="https://www.instagram.com/locagoraoficial/" target="_blank" rel="noopener">Instagram • Locagora</a>
+    <a href="https://www.instagram.com/fillipefelixf/" target="_blank" rel="noopener">Instagram • @fillipefelixf</a>
+    <a href="https://www.tiktok.com/@locagoraveiculos" target="_blank" rel="noopener">TikTok • Locagora</a>
+    <a href="https://www.linkedin.com/company/locagora-moto/posts/" target="_blank" rel="noopener">LinkedIn • Locagora</a>
+  </div>
+</section>
+</div>
+
+<section class="locagora-news-radar-divider"><div class="eyebrow">INTELIGÊNCIA</div><h2>Radar do Mercado</h2><p>Mercado, concorrentes, delivery, investimentos, Portugal e Espanha.</p></section>
+<h1 class="h1">Radar de Mercado</h1>
+    <div class="sub">Manchetes, concorrência, reputação pública e tendências que podem impactar delivery, locação de motos, franchising e operações em Portugal/Espanha.</div>
+  </div>
+  <div class="pill" id="radarModePill">Atualização contínua</div>
+</div>
+
+<section class="headline-strip">
+  <div class="headline-live"><i></i> MANCHETES</div>
+  <div class="headline-window"><div id="headlineTicker" class="headline-ticker"></div></div>
+</section>
+
+<section class="card radar-filter-card">
+  <div class="radar-filter-head">
+    <div>
+      <div class="eyebrow">FILTROS</div>
+      <h2 class="section-title">O que monitorar</h2>
+    </div>
+    <div id="radarStatus" class="radar-status-inline">Carregando manchetes...</div>
+  </div>
+
+  <div class="radar-filter-grid">
+    <div class="field">
+      <label>Categoria</label>
+      <select id="radarCategory">
+        <option value="all">Todos os temas</option>
+        <option value="delivery">Delivery</option>
+        <option value="competitors">Concorrentes Locagora</option>
+        <option value="motos">Locação de motos</option>
+        <option value="investments">Investimentos no Brasil</option>
+        <option value="portugal">Portugal</option>
+        <option value="spain">Espanha</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Período</label>
+      <select id="radarDays">
+        <option value="1">24 horas</option>
+        <option value="7" selected>7 dias</option>
+        <option value="30">30 dias</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Palavras adicionais</label>
+      <input id="radarExtra" placeholder="Ex.: entregadores, franquia, Barcelona">
+    </div>
+    <div class="radar-filter-actions">
+      <button class="btn primary" onclick="fetchMarketNews()">Atualizar agora</button>
+      <button class="btn secondary" onclick="openRadarSearch()">Google Notícias ↗</button>
+    </div>
+  </div>
+</section>
+
+<section class="radar-kpi-row">
+  <div class="kpi blue"><div class="label">Manchetes exibidas</div><div id="radarCount" class="value">—</div></div>
+  <div class="kpi"><div class="label">Fontes</div><div id="radarSources" class="value">—</div></div>
+  <div class="kpi green"><div class="label">Última atualização</div><div id="radarUpdated" class="value radar-updated-value">—</div></div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">MANCHETES</div>
+  <h2 class="section-title">Notícias recentes</h2>
+  <div id="radarFeed" class="radar-feed"></div>
+</section>
+
+
+
+<section class="card">
+  <div class="eyebrow">RECLAME AQUI</div>
+  <h2 class="section-title">Locagora x Mottu</h2>
+  <div class="sub" style="font-size:12px;margin-bottom:14px">Dados do período de 01/03/2026 a 31/08/2026. Os números devem ser lidos em conjunto com o porte e o volume de clientes de cada empresa.</div>
+
+  <div class="ra-ranking two-company">
+    <article class="ra-company locagora-ra">
+      <div class="ra-rank">01</div>
+      <div class="ra-company-head">
+        <div><strong>LocAgora Veículos</strong><span>Reputação Boa</span></div>
+        <b>618 reclamações</b>
+      </div>
+      <div class="ra-metrics">
+        <div><span>Reputação</span><strong>7,3/10</strong></div>
+        <div><span>Respondidas</span><strong>99,7%</strong></div>
+        <div><span>Resolvidas</span><strong>74,6%</strong></div>
+        <div><span>Avaliadas</span><strong>343</strong></div>
+        <div><span>Nota consumidor</span><strong>6,13</strong></div>
+        <div><span>Voltariam</span><strong>61,2%</strong></div>
+        <div><span>Aguardando</span><strong>1</strong></div>
+        <div><span>Tempo resposta</span><strong>5d 11h</strong></div>
+      </div>
+      <div class="ra-total-active"><span>Reclamações ativas listadas no histórico</span><strong>1.321</strong></div>
+      <a href="https://www.reclameaqui.com.br/empresa/locagora-veiculos/" target="_blank" rel="noopener">Abrir Reclame Aqui ↗</a>
+    </article>
+
+    <article class="ra-company">
+      <div class="ra-rank">02</div>
+      <div class="ra-company-head">
+        <div><strong>Mottu</strong><span>Não Recomendada • empresa não verificada</span></div>
+        <b>3.726 reclamações</b>
+      </div>
+      <div class="ra-metrics">
+        <div><span>Reputação</span><strong>Não Recomendada</strong></div>
+        <div><span>Respondidas</span><strong>0%</strong></div>
+        <div><span>Resolvidas</span><strong>8,2%</strong></div>
+        <div><span>Avaliadas</span><strong>846</strong></div>
+        <div><span>Nota consumidor</span><strong>—</strong></div>
+        <div><span>Voltariam</span><strong>—</strong></div>
+        <div><span>Aguardando</span><strong>846</strong></div>
+        <div><span>Tempo resposta</span><strong>—</strong></div>
+      </div>
+      <div class="ra-total-active"><span>Reclamações ativas listadas no histórico</span><strong>18.833+</strong></div>
+      <a href="https://www.reclameaqui.com.br/empresa/mottu/" target="_blank" rel="noopener">Abrir Reclame Aqui ↗</a>
+    </article>
+  </div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">BENCHMARK DE FRANQUIAS</div>
+  <h2 class="section-title">Principais redes de franquia no Brasil • Reclame Aqui</h2>
+  <div class="sub" style="font-size:12px;margin-bottom:14px">Referência reputacional para comparar atendimento ao consumidor em marcas franqueadas de grande escala.</div>
+
+  <div class="franchise-ra-grid">
+    <article>
+      <div class="franchise-ra-head"><strong>O Boticário</strong><b>Boa • 7,1/10</b></div>
+      <div class="franchise-ra-number">14.301 <span>reclamações recebidas</span></div>
+      <div class="franchise-ra-mini"><span>Respondidas <b>84,1%</b></span><span>Resolvidas <b>76,4%</b></span><span>Avaliadas <b>5.109</b></span><span>Nota <b>6,04</b></span></div>
+      <a href="https://www.reclameaqui.com.br/empresa/boticario/" target="_blank" rel="noopener">Ver no Reclame Aqui ↗</a>
+    </article>
+
+    <article>
+      <div class="franchise-ra-head"><strong>Cacau Show</strong><b>Regular</b></div>
+      <div class="franchise-ra-number">8.217 <span>reclamações recebidas</span></div>
+      <div class="franchise-ra-mini"><span>Respondidas <b>100%</b></span><span>Resolvidas <b>66,3%</b></span><span>Avaliadas <b>3.596</b></span><span>Nota <b>5,1</b></span></div>
+      <a href="https://www.reclameaqui.com.br/empresa/cacau-show/" target="_blank" rel="noopener">Ver no Reclame Aqui ↗</a>
+    </article>
+
+    <article>
+      <div class="franchise-ra-head"><strong>Chilli Beans</strong><b>Regular</b></div>
+      <div class="franchise-ra-number">— <span>reclamações recebidas no painel resumido</span></div>
+      <div class="franchise-ra-mini"><span>Resolvidas <b>65,9%</b></span><span>Avaliadas <b>1.924</b></span><span>Nota <b>5,29</b></span><span>Voltariam <b>52,5%</b></span></div>
+      <a href="https://www.reclameaqui.com.br/empresa/chilli-beans-loja-fisica/" target="_blank" rel="noopener">Ver no Reclame Aqui ↗</a>
+    </article>
+
+    <article>
+      <div class="franchise-ra-head"><strong>OAKBERRY</strong><b>Referência complementar</b></div>
+      <div class="franchise-ra-number">925 <span>reclamações ativas listadas</span></div>
+      <div class="franchise-ra-mini"><span>Resolvidas <b>58,8%</b></span><span>Voltariam <b>58,8%</b></span><span>Tempo resposta <b>3d 13h</b></span></div>
+      <a href="https://www.reclameaqui.com.br/empresa/oak-berry/" target="_blank" rel="noopener">Ver no Reclame Aqui ↗</a>
+    </article>
+  </div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">CONCORRÊNCIA DIRETA</div>
+  <h2 class="section-title">Locação de motos • benchmark de posicionamento</h2>
+  <div class="competitor-cards">
+    <article class="competitor-card featured">
+      <div class="competitor-name">Locagora</div>
+      <div class="competitor-label">Posicionamento</div>
+      <p>Locação de motos + franquias + estruturas de investimento.</p>
+      <div class="competitor-label">Modelo</div>
+      <p>Operação local, franquias e produtos de capital.</p>
+      <div class="competitor-label">Acompanhar</div>
+      <p>Escala territorial, suporte e experiência do locatário/franqueado.</p>
+    </article>
+    <article class="competitor-card">
+      <div class="competitor-name">Mottu</div>
+      <div class="competitor-label">Posicionamento</div>
+      <p>Aluguel de motos e soluções digitais para entregadores.</p>
+      <div class="competitor-label">Modelo</div>
+      <p>Planos semanais/mensais e opções de longo prazo.</p>
+      <div class="competitor-label">Acompanhar</div>
+      <p>Escala, preço, capilaridade e experiência digital.</p>
+    </article>
+    <article class="competitor-card">
+      <div class="competitor-name">Blustar / Grupo Yamaha</div>
+      <div class="competitor-label">Posicionamento</div>
+      <p>Aluguel e assinatura de motocicletas Yamaha.</p>
+      <div class="competitor-label">Modelo</div>
+      <p>Planos mensal/anual, Factor 150, manutenção inclusa e jornada por app.</p>
+      <div class="competitor-label">Acompanhar</div>
+      <p>Força de marca da montadora, rede de retirada e preço por dia.</p>
+    </article>
+  </div>
+</section>
+
+<section class="card">
+  <div class="eyebrow">BENCHMARK DE FRANCHISING</div>
+  <h2 class="section-title">Locagora versus referências de escala no Brasil</h2>
+  <div class="benchmark-franchise-grid">
+    <div><strong>Cacau Show</strong><span>4.713 operações</span></div>
+    <div><strong>O Boticário</strong><span>3.898 operações</span></div>
+    <div><strong>McDonald's</strong><span>2.774 operações</span></div>
+    <div class="accent"><strong>Franchising Brasil</strong><span>202.444 operações • 3.297 redes</span></div>
+  </div>
+  <div class="notice info" style="margin-top:14px">
+    Benchmark de escala e maturidade do franchising. Não representa comparação direta de rentabilidade entre setores.
+  </div>
+</section>
+
+<div class="footer-note">
+  Quando publicada em HTTPS, a central tenta atualizar os feeds automaticamente a cada 10 minutos. Aberta como arquivo local, mantém as manchetes-snapshot visíveis e oferece links para pesquisa externa.
+</div>

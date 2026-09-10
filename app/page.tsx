@@ -1,0 +1,37 @@
+import Link from "next/link";
+import { ArrowRight, BookOpenText, Building2, Calculator, LogIn, TrendingUp } from "lucide-react";
+import PublicShell from "@/components/PublicShell";
+
+export default function PublicHome(){
+  return <PublicShell>
+    <main className="publicMain publicHomeMain">
+      <section className="publicHero publicHomeHero">
+        <div>
+          <small>LOCAGORA • CENTRAL PÚBLICA</small>
+          <h1>Conheça, compare e simule seu próximo investimento.</h1>
+          <p>Acesse a história da Locagora, conheça os modelos de franquias e investimentos, veja a apresentação de cada produto e só depois avance para a simulação.</p>
+          <div className="publicHeroActions">
+            <Link href="/negocios" className="ctaPrimary">Ver negócios e investimentos <ArrowRight size={17}/></Link>
+            <Link href="/simulador" className="ctaGhost"><Calculator size={17}/> Começar pelo simulador</Link>
+          </div>
+        </div>
+        <div className="publicHeroStats">
+          <div><BookOpenText/><b>Conheça</b><span>história e posicionamento</span></div>
+          <div><Building2/><b>Apresentações</b><span>produto antes da simulação</span></div>
+          <div><TrendingUp/><b>Simule</b><span>cenários de investimento</span></div>
+        </div>
+      </section>
+
+      <section className="publicHomeGrid" aria-label="Caminhos da Central Pública">
+        <Link href="/historia" className="publicHomeCard"><BookOpenText/><div><small>01 • HISTÓRIA</small><h2>Conheça a Locagora</h2><p>Veja a trajetória, a expansão da rede e os depoimentos selecionados.</p><span>Ver história <ArrowRight size={16}/></span></div></Link>
+        <Link href="/negocios" className="publicHomeCard"><Building2/><div><small>02 • PORTFÓLIO</small><h2>Negócios & Investimentos</h2><p>Compare franquias, modelos de expansão e oportunidades de investimento.</p><span>Explorar modelos <ArrowRight size={16}/></span></div></Link>
+        <Link href="/simulador" className="publicHomeCard"><Calculator/><div><small>03 • SIMULADOR</small><h2>Apresentação → Simulação</h2><p>Escolha o modelo, veja sua apresentação e avance para o simulador correspondente.</p><span>Iniciar jornada <ArrowRight size={16}/></span></div></Link>
+      </section>
+
+      <section className="publicCta publicCorporateCta">
+        <div><small>ÁREA CORPORATIVA</small><h2>Colaborador Locagora?</h2><p>O acesso interno continua protegido e separado da experiência pública do cliente.</p></div>
+        <Link href="/acesso" className="ctaPrimary"><LogIn size={17}/> Entrar na área corporativa</Link>
+      </section>
+    </main>
+  </PublicShell>;
+}

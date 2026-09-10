@@ -1,0 +1,147 @@
+
+<div class="topbar">
+  <div>
+    <div class="eyebrow">Locagora • Mini Master</div>
+    <h1 class="h1">Mini Master</h1>
+    <div class="sub">Operação regional com frota própria e motos de terceiros, receita por administração, oficina e participação da Locagora.</div>
+  </div>
+  <div class="pill">Até 300 motos • 20–25 franqueados</div>
+</div>
+
+<div class="grid">
+
+<section class="card span-5">
+  <div class="eyebrow">ESTRUTURA DA OPERAÇÃO</div>
+  <h2 class="section-title">Premissas Mini Master</h2>
+
+  <div class="form-grid">
+    <div class="field"><label>Taxa de franquia</label><input id="miniFee" type="number" value="300000"></div>
+    <div class="field"><label>Estruturação da unidade</label><input id="miniStructure" type="number" value="80000"></div>
+
+    <div class="field"><label>Motos próprias</label><input id="miniOwnQty" type="number" min="0" max="300" value="0"></div>
+    <div class="field"><label>Motos de terceiros</label><input id="miniThirdQty" type="number" min="0" max="300" value="300"></div>
+
+    <div class="field"><label>Rentabilidade média / moto própria</label><input id="miniOwnRent" type="number" value="1300"></div>
+    <div class="field"><label>Rentabilidade média / moto de terceiro</label><input id="miniThirdRent" type="number" value="250"></div>
+
+    <div class="field"><label>Quantidade máxima de motos</label><input id="miniCapacity" type="number" value="300" readonly></div>
+    <div class="field"><label>Quantidade de franqueados</label><input id="miniFranchisees" type="number" min="20" max="25" value="20"><div class="helper">Faixa prevista: 20 a 25 franqueados.</div></div>
+
+    <div class="field"><label>Participação sobre lucro da oficina</label><input id="miniWorkshopPct" type="number" value="15"></div>
+    <div class="field"><label>Pagamento à Locagora</label><input id="miniLocagoraPct" type="number" value="5"></div>
+
+    <div class="field"><label>Lucro bruto mensal da oficina</label><input id="miniWorkshopProfit" type="number" value="0"><div class="helper">Informe o lucro-base da oficina para calcular os 15%.</div></div>
+    <div class="field master-region-field" style="grid-column:1/-1">
+      <label>Cidade ou região da Mini Master</label>
+      <input id="miniMasterRegion" placeholder="Ex.: Uberlândia - MG, Região de Campinas - SP">
+      <div class="helper">Obrigatório. A praça precisa ser consultada antes de enviar a simulação para a proposta.</div>
+    </div>
+    <div class="master-availability-box" style="grid-column:1/-1">
+      <div>
+        <span class="availability-label">Disponibilidade territorial</span>
+        <strong id="miniAvailabilityTitle">Ainda não verificada</strong>
+        <p id="miniAvailabilityText">Informe a cidade ou região e clique em “Consultar praça”.</p>
+      </div>
+      <div class="availability-actions">
+        <button type="button" class="btn secondary" onclick="checkMasterAvailability('mini')">Consultar praça</button>
+        <button type="button" class="btn secondary" onclick="openMasterWebSearch('mini')">Pesquisar na internet ↗</button>
+      </div>
+    </div>
+    <label id="miniManualAvailabilityWrap" class="availability-manual" style="display:none;grid-column:1/-1">
+      <input id="miniManualAvailability" type="checkbox">
+      <span>Consultei a internet e confirmo que não encontrei Master Locagora ativa ou em implantação nesta região.</span>
+    </label>
+
+  </div>
+
+  <div id="miniCapacityNotice" class="notice info" style="margin-top:14px"></div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Investimento inicial</strong>
+    <div class="rowline"><span>Taxa de franquia</span><strong id="miniFeeOut"></strong></div>
+    <div class="rowline"><span>Estrutura / implantação</span><strong id="miniStructureOut"></strong></div>
+    <div class="rowline"><span>Investimento total</span><strong id="miniInvest"></strong></div>
+  </div>
+
+  <div class="actions"><button id="miniAddProposalBtn" class="btn primary" onclick="addCurrent()" disabled>Carregar proposta</button></div>
+</section>
+
+<section class="card span-7">
+  <div class="eyebrow">RECEITAS</div>
+  <h2 class="section-title">Composição da rentabilidade mensal</h2>
+
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi blue"><div class="label">Motos próprias</div><div id="miniOwnRevenue" class="value"></div><div id="miniOwnMeta" class="helper"></div></div>
+    <div class="kpi blue"><div class="label">Motos de terceiros</div><div id="miniThirdRevenue" class="value"></div><div id="miniThirdMeta" class="helper"></div></div>
+    <div class="kpi green"><div class="label">Receita operacional de motos</div><div id="miniBikeRevenue" class="value"></div></div>
+
+    <div class="kpi"><div class="label">Participação na oficina</div><div id="miniWorkshopShare" class="value"></div><div class="helper">15% sobre o lucro informado</div></div>
+    <div class="kpi"><div class="label">Pagamento Locagora</div><div id="miniLocagoraPayment" class="value"></div><div class="helper">5% sobre a base operacional</div></div>
+    <div class="kpi green"><div class="label">Resultado mensal estimado</div><div id="miniNetProfit" class="value"></div></div>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <div class="rowline"><span>Receita com motos próprias</span><strong id="miniRowOwn"></strong></div>
+    <div class="rowline"><span>Receita com motos de terceiros</span><strong id="miniRowThird"></strong></div>
+    <div class="rowline"><span>Participação de 15% na oficina</span><strong id="miniRowWorkshop"></strong></div>
+    <div class="rowline"><span>Receita operacional total</span><strong id="miniRowGross"></strong></div>
+    <div class="rowline"><span>(-) Pagamento Locagora 5%</span><strong id="miniRowLocagora"></strong></div>
+    <div class="rowline"><span>Resultado mensal estimado</span><strong id="miniRowNet"></strong></div>
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">INDICADORES DA MINI MASTER</div>
+  <h2 class="section-title">Visão executiva</h2>
+
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi blue"><div class="label">Motos administradas</div><div id="miniTotalQty" class="value"></div></div>
+    <div class="kpi"><div class="label">Capacidade utilizada</div><div id="miniCapacityUse" class="value"></div></div>
+    <div class="kpi"><div class="label">Franqueados</div><div id="miniFranchiseeDisplay" class="value"></div></div>
+    <div class="kpi green"><div class="label">Resultado anual estimado</div><div id="miniAnnualProfit" class="value"></div></div>
+
+    <div class="kpi"><div class="label">Investimento inicial</div><div id="miniInvest2" class="value"></div></div>
+    <div class="kpi"><div class="label">Payback simples</div><div id="miniSimplePayback" class="value"></div></div>
+    <div class="kpi"><div class="label">ROI anual simples</div><div id="miniRoiAnnual" class="value"></div></div>
+    <div class="kpi green"><div class="label">Resultado em 36 meses</div><div id="miniProfit36" class="value"></div></div>
+  </div>
+
+  <div class="notice ok" style="margin-top:14px">
+    <strong>Regra operacional:</strong> a soma de motos próprias + motos de terceiros não pode ultrapassar 300 motocicletas.
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">QUALIFICAÇÃO DA OPERAÇÃO</div>
+  <h2 class="section-title">Informações comerciais úteis</h2>
+
+  <div class="split">
+    <div class="soft">
+      <strong>Estrutura de frota</strong>
+      <div class="rowline"><span>Rentabilidade moto própria</span><strong>R$ 1.300 / mês</strong></div>
+      <div class="rowline"><span>Rentabilidade média moto de terceiro</span><strong>R$ 250 / mês</strong></div>
+      <div class="rowline"><span>Capacidade máxima</span><strong>300 motos</strong></div>
+    </div>
+    <div class="soft">
+      <strong>Estrutura da rede</strong>
+      <div class="rowline"><span>Quantidade prevista de franqueados</span><strong>20 a 25</strong></div>
+      <div class="rowline"><span>Participação sobre lucro da oficina</span><strong>15%</strong></div>
+      <div class="rowline"><span>Pagamento Locagora</span><strong>5%</strong></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="footer-note">Simulação comercial da Mini Master. As premissas podem ser ajustadas conforme a praça e a estrutura final da operação.</div>
+
+<section class="connected-next-step no-print">
+  <div>
+    <span>PRÓXIMO PASSO</span>
+    <strong>Simulação pronta? Transforme os números em proposta comercial.</strong>
+  </div>
+  <div class="connected-next-actions">
+    <button type="button" class="btn primary" onclick="addCurrent()">Carregar proposta</button>
+    <button type="button" class="btn secondary" onclick="location.hash='#objecoes'">Ver objeções</button>
+  </div>
+</section>

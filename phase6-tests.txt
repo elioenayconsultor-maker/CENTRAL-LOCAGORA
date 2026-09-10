@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: papéis de menor privilégio não publicam premissas
+ok 1 - papéis de menor privilégio não publicam premissas
+  ---
+  duration_ms: 1.501136
+  type: 'test'
+  ...
+# Subtest: somente admin gerencia usuários
+ok 2 - somente admin gerencia usuários
+  ---
+  duration_ms: 0.28472
+  type: 'test'
+  ...
+# Subtest: fase 5 preserva captura e adiciona auditoria de notificacao
+ok 3 - fase 5 preserva captura e adiciona auditoria de notificacao
+  ---
+  duration_ms: 2.549449
+  type: 'test'
+  ...
+# Subtest: destino de lead e configuravel e nao hardcoded no frontend
+ok 4 - destino de lead e configuravel e nao hardcoded no frontend
+  ---
+  duration_ms: 0.957831
+  type: 'test'
+  ...
+# Subtest: crm possui atividades e tarefas vinculadas ao lead
+ok 5 - crm possui atividades e tarefas vinculadas ao lead
+  ---
+  duration_ms: 0.988336
+  type: 'test'
+  ...
+# Subtest: fase 6 define contrato de eventos do funil
+ok 6 - fase 6 define contrato de eventos do funil
+  ---
+  duration_ms: 2.50447
+  type: 'test'
+  ...
+# Subtest: analytics nao envia PII do formulario
+ok 7 - analytics nao envia PII do formulario
+  ---
+  duration_ms: 1.078492
+  type: 'test'
+  ...
+# Subtest: simulador valida email completo antes do submit
+ok 8 - simulador valida email completo antes do submit
+  ---
+  duration_ms: 5.681804
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 335.108782

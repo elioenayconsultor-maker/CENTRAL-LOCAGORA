@@ -1,0 +1,152 @@
+
+<div class="topbar">
+  <div>
+    <div class="eyebrow">Locagora • Franquia Nacional</div>
+    <h1 class="h1">Franquia Nacional Exclusive</h1>
+    <div class="sub">DRE operacional de 36 meses vinculada à quantidade de motos, baseada nos cenários de 1 e 6 motos dos relatórios fornecidos.</div>
+  </div>
+  <div class="pill">DRE • 36 meses</div>
+</div>
+
+<div class="grid">
+<section class="card span-5">
+  <h3>Premissas comerciais</h3>
+  <div class="form-grid">
+    <div class="field">
+      <label>Taxa de franquia</label>
+      <select id="fee">
+        <option value="79990">R$ 79.990</option>
+        <option value="74990">R$ 74.990</option>
+        <option value="69999">R$ 69.999</option>
+      </select>
+    </div>
+    <div class="field"><label>Quantidade de motos</label><input id="qty" type="number" min="1" value="1"></div>
+    <div class="field"><label>Valor da moto</label><input id="bike" type="number" value="16990"></div>
+    <div class="field"><label>Taxa de intermediação / moto</label><input id="intermediation" type="number" value="4000"></div>
+    <div class="field"><label>Capital de giro / moto</label><input id="workingPerBikeFr" type="number" value="600"><div class="helper">Padrão: R$ 600 por moto.</div></div><div class="field"><label>Cidade para abertura do CNPJ</label><select id="cnpjCity"><option value="Aracaju">Aracaju • R$ 59.00</option><option value="Salvador">Salvador • R$ 45.00</option><option value="Maceió">Maceió • R$ 84.00</option><option value="João Pessoa">João Pessoa • R$ 79.00</option><option value="Manaus">Manaus • R$ 80.00</option><option value="Porto Alegre">Porto Alegre • R$ 69.00</option><option value="Campo Grande">Campo Grande • R$ 80.00</option><option value="Natal">Natal • R$ 80.00</option><option value="Goiânia">Goiânia • R$ 89.00</option><option value="São Luís">São Luís • R$ 90.00</option></select><div class="helper">Custo de abertura conforme a cidade selecionada.</div></div>
+    <div class="field"><label>Venda estimada / moto no mês 36</label><input id="salePerBike" type="number" value="17000"><div class="helper">Referência usada nas DREs anexadas.</div></div>
+    <div class="field"><label>% motos fidelidade</label><input id="loyaltyPct" type="number" min="0" max="100" value="80"></div>
+    <div class="field"><label>% motos anual</label><input id="annualPct" type="number" min="0" max="100" value="10"></div>
+    <div class="field"><label>% motos mensal</label><input id="monthlyPct" type="number" min="0" max="100" value="10"></div>
+    <div class="field"><label>Estratégia de frota</label><select id="fleetGrowth"><option value="none">Sem aumento da frota</option><option value="growth">Com aumento da frota</option></select></div>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Investimento inicial</strong>
+    <div class="rowline"><span>Taxa de franquia</span><strong id="frFeeOut"></strong></div>
+    <div class="rowline"><span>Motos</span><strong id="frBikesOut"></strong></div>
+    <div class="rowline"><span>Intermediação</span><strong id="frInterOut"></strong></div>
+    <div class="rowline"><span>Capital de giro</span><strong id="frWorkingOut"></strong></div><div class="rowline"><span>Abertura de CNPJ</span><strong id="frCnpjOut"></strong></div>
+    <div class="rowline"><span>Total</span><strong id="invest"></strong></div>
+  </div>
+
+  <div class="notice info" style="margin-top:14px">
+    A DRE operacional segue os relatórios. O investimento inicial usa os valores comerciais atuais desta calculadora.
+  </div>
+
+  <div class="notice ok" style="margin-top:14px">
+  <strong>Implantação da frota</strong><br>
+  Após o pagamento da taxa de franquia, inicia-se o onboarding com abertura do CNPJ, treinamento Vision e preparação da operação. As motos são faturadas pela montadora diretamente para o CNPJ do franqueado e, após o pagamento, seguem para pronta entrega, emplacamento, instalação de bloqueador e rastreador e entrada na esteira de locação.
+</div>
+<div class="soft" style="margin-top:14px">
+  <strong>Fluxo de aquisição e implantação</strong>
+  <div class="rowline"><span>1. Adesão</span><strong>Pagamento da taxa de franquia</strong></div>
+  <div class="rowline"><span>2. Onboarding</span><strong>Abertura do CNPJ, treinamento Vision e preparação da operação</strong></div>
+  <div class="rowline"><span>3. Faturamento</span><strong>Faturamento das motos pela montadora para o CNPJ do franqueado</strong></div>
+  <div class="rowline"><span>4. Pagamento</span><strong>Pagamento das motos pelo franqueado</strong></div>
+  <div class="rowline"><span>5. Pronta entrega</span><strong>Disponibilização das motos pela montadora</strong></div>
+  <div class="rowline"><span>6. Ativação</span><strong>Emplacamento, instalação de bloqueador e rastreador</strong></div>
+  <div class="rowline"><span>7. Operação</span><strong>Motos disponíveis na esteira de locação</strong></div>
+</div>
+<div class="actions"><button class="btn primary" onclick="addCurrent()">Carregar proposta</button></div>
+</section>
+
+<section class="card span-7">
+  <div class="eyebrow">RESUMO EXECUTIVO</div>
+  <h2 class="section-title">Resultado projetado em 36 meses</h2>
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi blue"><div class="label">Receita média / mês</div><div id="dreRevenueMonth" class="value"></div></div>
+    <div class="kpi"><div class="label">Custos + despesas / mês</div><div id="dreCostsMonth" class="value"></div></div>
+    <div class="kpi green"><div class="label">Lucro líquido médio / mês</div><div id="profit" class="value"></div></div>
+    <div class="kpi"><div class="label">Margem líquida média</div><div id="dreMargin" class="value"></div></div>
+    <div class="kpi green"><div class="label">Lucro operacional 36 meses</div><div id="dreProfit36" class="value"></div></div>
+    <div class="kpi"><div class="label">Venda estimada da frota</div><div id="dreSale36" class="value"></div></div>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <div class="rowline"><span>Receita acumulada em 36 meses</span><strong id="dreRevenue36"></strong></div>
+    <div class="rowline"><span>Custos e despesas acumulados</span><strong id="dreCosts36"></strong></div>
+    <div class="rowline"><span>Lucro operacional acumulado</span><strong id="dreProfit36b"></strong></div>
+    <div class="rowline"><span>Venda estimada da frota no mês 36</span><strong id="dreSale36b"></strong></div>
+    <div class="rowline"><span>Caixa gerado em 36 meses + venda</span><strong id="dreCash36"></strong></div>
+    <div class="rowline"><span>Resultado após investimento inicial</span><strong id="dreNetAfterInvestment"></strong></div>
+  </div>
+</section>
+
+
+<section class="card span-12">
+  <div class="eyebrow">RESULTADOS • 36 MESES</div>
+  <h2 class="section-title">Indicadores executivos</h2>
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi green"><div class="label">Lucro acumulado 36m</div><div id="frResProfit36" class="value"></div></div>
+    <div class="kpi green"><div class="label">Lucro médio mensal</div><div id="frResAvgProfit" class="value"></div></div>
+    <div class="kpi"><div class="label">Margem líquida</div><div id="frResMargin" class="value"></div></div>
+    <div class="kpi blue"><div class="label">Investimento total</div><div id="frResInvest" class="value"></div></div>
+    <div class="kpi"><div class="label">ROI total</div><div id="frResROI" class="value"></div></div>
+    <div class="kpi"><div class="label">Payback estimado</div><div id="frResPayback" class="value"></div></div>
+    <div class="kpi"><div class="label">Frota inicial</div><div id="frResFleet" class="value"></div></div>
+    <div class="kpi green"><div class="label">Receita total 36m</div><div id="frResRevenue36" class="value"></div></div>
+  </div>
+  <div class="soft" style="margin-top:14px">
+    <strong>Fechamento do ciclo</strong>
+    <div class="rowline"><span>Lucro operacional acumulado</span><strong id="frCloseProfit"></strong></div>
+    <div class="rowline"><span>Venda estimada da frota</span><strong id="frCloseSale"></strong></div>
+    <div class="rowline"><span>Caixa operacional + venda</span><strong id="frCloseCash"></strong></div>
+    <div class="rowline"><span>Investimento inicial</span><strong id="frCloseInvest"></strong></div>
+    <div class="rowline"><span>Resultado líquido após investimento</span><strong id="frCloseNet"></strong></div>
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">DRE POR FASE</div>
+  <h2 class="section-title">Evolução operacional</h2>
+  <div style="overflow:auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Indicador mensal</th>
+          <th>Meses 1–6</th>
+          <th>Meses 7–12</th>
+          <th>Meses 13–24</th>
+          <th>Meses 25–36</th>
+        </tr>
+      </thead>
+      <tbody id="dreDetailRows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">LUCRO POR PERÍODO</div>
+  <h2 class="section-title">Acúmulo em 36 meses</h2>
+  <div style="overflow:auto">
+    <table class="table">
+      <thead><tr><th>Período</th><th>Lucro líquido / mês</th><th>Meses</th><th>Lucro do período</th><th>Acumulado</th></tr></thead>
+      <tbody id="drePeriods"></tbody>
+    </table>
+  </div>
+</section>
+</div>
+
+<div class="footer-note">Projeção comercial baseada nas DREs fornecidas para 1 e 6 motos. Para outras quantidades, os componentes que não são diretamente proporcionais são interpolados entre os dois cenários-base.</div>
+
+<section class="connected-next-step no-print">
+  <div>
+    <span>PRÓXIMO PASSO</span>
+    <strong>Simulação pronta? Transforme os números em proposta comercial.</strong>
+  </div>
+  <div class="connected-next-actions">
+    <button type="button" class="btn primary" onclick="addCurrent()">Carregar proposta</button>
+    <button type="button" class="btn secondary" onclick="location.hash='#objecoes'">Ver objeções</button>
+  </div>
+</section>

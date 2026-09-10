@@ -1,0 +1,4 @@
+
+> locagora-central-v14@14.0.0-phase4 typecheck
+> tsc --noEmit
+

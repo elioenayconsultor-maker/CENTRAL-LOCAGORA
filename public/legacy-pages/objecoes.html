@@ -1,0 +1,111 @@
+
+<div class="topbar">
+  <div>
+    <div class="eyebrow">Locagora • Apoio Comercial</div>
+    <h1 class="h1">Principais Objeções & Melhores Respostas</h1>
+    <div class="sub">Escolha rapidamente uma objeção no menu e receba a resposta sugerida, a pergunta de investigação e o próximo passo.</div>
+  </div>
+  <div class="pill">Equipe Águia • Uso comercial</div>
+</div>
+
+<div class="grid">
+<section class="card span-5">
+  <div class="eyebrow">ACESSO RÁPIDO</div>
+  <h2 class="section-title">Qual objeção o cliente apresentou?</h2>
+
+  <div class="field">
+    <label>Escolher objeção</label>
+    <select id="objectionQuickSelect">
+      <option value="">Selecione uma objeção...</option>
+    </select>
+  </div>
+
+  <div class="objection-category-buttons" style="margin-top:14px">
+    <button type="button" onclick="setObjectionCategory('financeiro')">Financeiro</button>
+    <button type="button" onclick="setObjectionCategory('risco')">Risco</button>
+    <button type="button" onclick="setObjectionCategory('operacao')">Operação</button>
+    <button type="button" onclick="setObjectionCategory('decisao')">Decisão</button>
+    <button type="button" onclick="setObjectionCategory('prova')">Prova social</button>
+    <button type="button" onclick="setObjectionCategory('juridico')">Contrato</button>
+    <button type="button" class="all" onclick="setObjectionCategory('all')">Ver todas</button>
+  </div>
+
+  <div class="field" style="margin-top:14px">
+    <label>Ou buscar por palavra</label>
+    <input id="objectionSearch" placeholder="Ex.: contrato, caro, lucro, medo">
+  </div>
+
+  <div class="field" style="margin-top:12px">
+    <label>Categoria</label>
+    <select id="objectionCategory">
+      <option value="all">Todas</option>
+      <option value="financeiro">Financeiro</option>
+      <option value="risco">Risco e segurança</option>
+      <option value="operacao">Operação</option>
+      <option value="decisao">Decisão</option>
+      <option value="prova">Prova social e validação</option>
+      <option value="juridico">Contrato e jurídico</option>
+    </select>
+  </div>
+
+  <div class="soft" style="margin-top:14px">
+    <strong>Regra de ouro</strong>
+    <p style="margin:8px 0 0;line-height:1.55;color:#56627a">
+      Objeção não é rejeição. Primeiro identifique a preocupação real; depois responda com fatos, processo, condições oficiais e uma pergunta que faça a conversa avançar.
+    </p>
+  </div>
+</section>
+
+<section class="card span-7 objection-spotlight-card">
+  <div class="eyebrow">RESPOSTA IMEDIATA</div>
+  <h2 class="section-title" id="objectionSpotTitle">Escolha uma objeção no menu</h2>
+  <div id="objectionSpotlight" class="objection-spotlight">
+    <div class="notice info">Selecione uma objeção à esquerda para abrir a resposta sugerida.</div>
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">MÉTODO</div>
+  <h2 class="section-title">Como responder bem</h2>
+  <div class="proposal-steps objection-method">
+    <div><b>01</b><span><strong>Acolher</strong><br>Mostre que a preocupação é legítima.</span></div>
+    <div><b>02</b><span><strong>Investigar</strong><br>Descubra o que realmente gerou a insegurança.</span></div>
+    <div><b>03</b><span><strong>Contextualizar</strong><br>Responda com informação verificável.</span></div>
+    <div><b>04</b><span><strong>Conduzir</strong><br>Retome modelo, números e próximo passo.</span></div>
+  </div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">PLAYBOOK COMPLETO</div>
+  <h2 class="section-title">Todas as objeções</h2>
+  <div id="objectionsCount" class="helper" style="margin-bottom:12px"></div>
+  <div id="objectionsGrid" class="objections-grid"></div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">RECLAME AQUI</div>
+  <h2 class="section-title">Como trabalhar reclamações e avaliações negativas</h2>
+  <div class="split">
+    <div class="soft">
+      <strong>Condução recomendada</strong>
+      <div class="rowline"><span>1. Acolher</span><strong>“Entendo sua preocupação. É importante pesquisar antes de investir.”</strong></div>
+      <div class="rowline"><span>2. Investigar</span><strong>“Qual reclamação você viu? O que exatamente te deixou inseguro?”</strong></div>
+      <div class="rowline"><span>3. Contextualizar</span><strong>Explicar o caso com informações verificáveis</strong></div>
+      <div class="rowline"><span>4. Mostrar processo</span><strong>Atendimento, suporte, pós-venda e resolução</strong></div>
+      <div class="rowline"><span>5. Retomar o foco</span><strong>Modelo, responsabilidades, números e contrato</strong></div>
+    </div>
+    <div class="soft">
+      <strong>Frases que o closer deve evitar</strong>
+      <div class="rowline"><span>Evitar</span><strong>“Isso é mentira.”</strong></div>
+      <div class="rowline"><span>Evitar</span><strong>“Não precisa olhar o Reclame Aqui.”</strong></div>
+      <div class="rowline"><span>Evitar</span><strong>“Todo mundo reclama mesmo.”</strong></div>
+      <div class="rowline"><span>Evitar</span><strong>“Pode confiar em mim.” sem fundamento</strong></div>
+      <div class="rowline"><span>Evitar</span><strong>Promessas não comprovadas</strong></div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="footer-note">
+  Guia interno de apoio ao atendimento. Adapte a linguagem ao perfil do lead e use somente informações oficiais, verificáveis e compatíveis com o produto apresentado.
+</div>

@@ -1,0 +1,26 @@
+
+> locagora-central-v14@14.0.0-phase4 test
+> node --test tests/*.test.mjs
+
+TAP version 13
+# Subtest: papéis de menor privilégio não publicam premissas
+ok 1 - papéis de menor privilégio não publicam premissas
+  ---
+  duration_ms: 1.805132
+  type: 'test'
+  ...
+# Subtest: somente admin gerencia usuários
+ok 2 - somente admin gerencia usuários
+  ---
+  duration_ms: 0.299847
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 248.60001

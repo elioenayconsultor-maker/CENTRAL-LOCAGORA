@@ -1,0 +1,187 @@
+
+<div class="topbar">
+  <div><div class="eyebrow">Locagora • LocInvest</div><h1 class="h1">LocInvest</h1>
+  <div class="sub">Simule a composição ideal pelo capital disponível e veja renda, frota, giro e projeção.</div></div>
+  <div class="pill">12 anos • ciclos de 36 meses</div>
+</div>
+
+<div class="hero-blue">
+  <div class="eyebrow" style="color:#8fb0ff">SIMULAÇÃO INTELIGENTE</div>
+  <h2 style="font-size:32px;margin:6px 0 8px">Transforme capital em renda mensal.</h2>
+  <div class="sub">A ferramenta estima quantas Yamaha Factor 150 entram na operação, a renda líquida do investidor e a evolução financeira do projeto.</div>
+  <div class="metric-strip"><div class="mini"><span>Horizonte</span><b>12 anos</b></div><div class="mini"><span>Renda</span><b>Líquida</b></div><div class="mini"><span>Renovação</span><b>36 meses</b></div></div>
+</div>
+
+<div class="grid" style="margin-top:18px">
+<section class="card span-7">
+  <h3>Quanto você deseja investir?</h3>
+  <div class="form-grid">
+    <div class="field"><label>Valor disponível</label><input id="capitalInput" type="number" value="137594"></div>
+    <div class="field"><label>Plano</label><select id="plan">
+      <option value="start">Start • 1–2 motos</option>
+      <option value="premium">Premium • 3–4 motos</option>
+      <option value="exclusive" selected>Exclusive • 5–6 motos</option>
+    </select></div>
+    <div class="field"><label>Quantidade de motos</label><input id="qty" type="number" min="5" max="6" value="6"><div id="locQtyHint" class="helper">Exclusive: escolha 5 ou 6 motos. Ao digitar a quantidade, o plano é selecionado automaticamente.</div></div>
+    <div class="field"><label>Modelo</label><input id="model" value="Yamaha 150" readonly></div>
+    <div class="field"><label>Valor por moto</label><input id="bike" type="number" value="19999" readonly></div>
+    <div class="field"><label>Taxa de administração</label><input id="fee" type="number" value="17600" readonly></div>
+    <div class="field"><label>Taxa de apropriação</label><input id="appropriation" type="number" value="0" readonly><div id="appropriationHint" class="helper">Isento no plano Exclusive.</div></div>
+    <div class="field"><label>Rentabilidade estimada / moto / mês</label><input id="income" type="number" value="470" readonly></div>
+    <div class="field"><label>Recebimento</label><input value="A partir de 45 dias" readonly></div>
+    <div class="field"><label>Reajuste</label><input value="Anual conforme IPCA" readonly></div>
+    <div class="field"><label>Capital de giro / moto</label><input id="workingPerBike" type="number" value="600"></div>
+  </div>
+
+  <details class="soft fee-collapse" style="margin-top:14px">
+    <summary><strong>Condições dos planos LocInvest</strong><span class="collapse-arrow">⌄</span></summary>
+    <div style="overflow:auto;padding:0 18px 18px">
+      <table class="table">
+        <thead><tr><th>Plano</th><th>Motos</th><th>Valor / moto</th><th>Rentab. / moto</th><th>Taxa ADM</th><th>Apropriação</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Start</strong></td><td>1–2</td><td>R$ 21.999</td><td>R$ 410/mês</td><td>R$ 8.599</td><td>R$ 1.000 por moto</td></tr>
+          <tr><td><strong>Premium</strong></td><td>3–4</td><td>R$ 20.999</td><td>R$ 430/mês</td><td>R$ 11.299</td><td>Isento</td></tr>
+          <tr><td><strong>Exclusive</strong></td><td>5–6</td><td>R$ 19.999</td><td>R$ 470/mês</td><td>R$ 17.600</td><td>Isento</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  <div class="actions">
+    <button class="btn secondary" onclick="applyLocQuick(70000)">R$ 70 mil</button>
+    <button class="btn secondary" onclick="applyLocQuick(130000)">R$ 130 mil</button>
+    <button class="btn secondary" onclick="applyLocQuick(300000)">R$ 300 mil</button>
+    <button class="btn secondary" onclick="applyLocQuick(500000)">R$ 500 mil</button><button class="btn green" onclick="applyLocRecommendation();calc()">Calcular investimento</button>
+    <button class="btn primary" onclick="addCurrent()">Carregar proposta</button>
+  </div>
+  <div class="notice info">Escolha o plano ou informe a quantidade de motos. Valor da moto, rentabilidade, Taxa ADM e taxa de apropriação são atualizados automaticamente e permanecem ligados aos demais cálculos.</div>
+<div class="soft" style="margin-top:14px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div><strong>Composição automática</strong><div class="helper">Maior quantidade de motos possível. Start não é combinado com Exclusive.</div></div>
+    <span class="badge-green" id="autoStatus">CALCULANDO</span>
+  </div>
+  <div id="autoComposition" style="margin-top:8px"></div>
+  <div class="rowline"><span>Valor usado nos planos</span><strong id="autoUsed">R$ 0,00</strong></div><div class="rowline"><span>Taxa de administração total</span><strong id="autoAdm">R$ 0,00</strong></div><div class="rowline"><span>Taxa de apropriação total</span><strong id="autoAppropriation">R$ 0,00</strong></div>
+  <div class="rowline"><span>Sobra do capital</span><strong id="autoLeft">R$ 0,00</strong></div>
+  <div class="rowline"><span>Capital de giro necessário</span><strong id="autoWorking">R$ 0,00</strong></div>
+  <div class="rowline"><span>Necessidade total com giro</span><strong id="autoNeed">R$ 0,00</strong></div><div class="rowline"><span>Falta / sobra para completar o giro</span><strong id="autoGap">R$ 0,00</strong></div><div id="autoGapNotice"></div>
+</div>
+<div class="soft" style="margin-top:14px">
+  <strong>LocInvest individuais que cabem neste valor</strong>
+  <div class="helper">O closer pode aplicar qualquer uma das opções abaixo. Em composições automáticas, Start e Exclusive não são combinados.</div>
+  <div id="eligibleLocOptions" style="margin-top:10px;overflow:auto"></div>
+</div>
+</section>
+
+<section class="card span-5">
+  <div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h3>Estrutura recomendada</h3><span class="badge-green">RENTABILIDADE LÍQUIDA</span></div>
+  <div class="compact-structure"><div id="structureTitle" class="big"></div><div id="structureMeta" class="muted"></div></div>
+  <div class="kpis" style="grid-template-columns:repeat(2,1fr)">
+    <div class="kpi blue"><div class="label">Renda líquida mensal</div><div id="monthly" class="value"></div><div class="helper" id="motosOp"></div></div>
+    <div class="kpi"><div class="label">Renda líquida anual</div><div id="annual" class="value"></div><div class="helper">Ano 1</div></div>
+    <div class="kpi"><div class="label">ROI operacional</div><div id="roi" class="value"></div><div class="helper">Ano 1</div></div>
+    <div class="kpi"><div class="label">Total de motos</div><div id="totalMotos" class="value"></div><div class="helper">na carteira</div></div>
+    <div class="kpi blue"><div class="label">Rentabilidade sobre investimento total</div><div id="rentTotal" class="value"></div><div class="helper" id="rentTotalAnnual"></div></div>
+    <div class="kpi blue"><div class="label">Rentabilidade sobre valor em motos</div><div id="rentMotos" class="value"></div><div class="helper" id="rentMotosAnnual"></div></div>
+  </div>
+  <div class="notice ok"><strong>Imposto debitado na fonte.</strong><br>A renda apresentada ao investidor é tratada nesta simulação como líquida, conforme a condição comercial informada.</div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">COMPOSIÇÃO</div><h2 class="section-title">Como seu capital é distribuído</h2>
+  <div class="split">
+    <div class="soft">
+      <div class="rowline"><span>Plano escolhido</span><strong id="compPlan"></strong></div>
+      <div class="rowline"><span>Motos</span><strong id="compQty"></strong></div>
+      <div class="rowline"><span>Valor das motos</span><strong id="compBikes"></strong></div>
+      <div class="rowline"><span>Taxa de administração</span><strong id="compFee"></strong></div>
+    </div>
+    <div class="soft">
+      <div class="rowline"><span>Capital de giro necessário</span><strong id="compWorking"></strong></div>
+      <div class="rowline"><span>Plano</span><strong id="invest"></strong></div>
+      <div class="rowline"><span>Plano + giro</span><strong id="compTotalWorking"></strong></div>
+      <div class="rowline"><span>Capital informado</span><strong id="compCapital"></strong></div>
+    </div>
+  </div>
+</section>
+
+<section class="card span-7">
+  <div class="eyebrow">COMO A RENTABILIDADE ACONTECE</div><h2 class="section-title">Base econômica mensal da frota</h2>
+  <div class="rowline"><span>Faturamento bruto da locação</span><strong id="gross"></strong></div>
+  <div class="rowline"><span>Despesas operacionais Invest.</span><strong id="opExp"></strong></div>
+  <div class="rowline"><span>Despesas com seguro</span><strong id="insurance"></strong></div>
+  <div class="rowline"><span>Despesas contábeis</span><strong id="accounting"></strong></div>
+  <div class="rowline"><span>Total de despesas</span><strong id="expenses"></strong></div>
+  <div class="notice ok"><strong>Lucro líquido operacional da frota</strong><span id="netProfit" style="float:right;font-weight:900"></span></div>
+  <div class="footer-note">Base unitária usada no demonstrativo: R$ 1.797,00 de faturamento, R$ 985,00 de despesas e R$ 812,00 de lucro líquido por moto.</div>
+</section>
+
+<section class="card span-5">
+  <h3>Distribuição do cenário simulado</h3>
+  <div class="kpis" style="grid-template-columns:repeat(2,1fr)">
+    <div class="kpi blue"><div class="label">Investidor / mês</div><div id="distInvestor" class="value"></div><div class="helper" id="distInvBike"></div><strong id="distInvPct" style="font-size:12px;color:var(--blue)"></strong></div>
+    <div class="kpi"><div class="label">Locagora / mês</div><div id="distLoc" class="value"></div><div class="helper" id="distLocBike"></div><strong id="distLocPct" style="font-size:12px;color:var(--blue)"></strong></div>
+  </div>
+  <div class="notice info">Lucro líquido operacional da frota: <strong id="distNet"></strong></div>
+  <div class="sub" id="distRule" style="margin-top:10px;font-size:13px"></div>
+</section>
+
+<section class="card span-12">
+  <h3>Distribuição mensal — somente o modelo escolhido</h3>
+  <table class="table"><thead><tr><th>Plano</th><th>Motos</th><th>Lucro líquido</th><th>Investidor/mês</th><th>% Investidor</th><th>Locagora/mês</th><th>% Locagora</th><th>Investidor por moto</th><th>Locagora por moto</th></tr></thead><tbody id="chosenPlanRow"></tbody></table>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">VISÃO DE LONGO PRAZO</div><h2 class="section-title">Projeção financeira em 12 anos</h2>
+  <div class="form-grid" style="max-width:520px">
+    <div class="field"><label>IPCA projetado (% a.a.)</label><input id="ipca" type="number" step="0.01" value="4.64"></div>
+    <div class="field"><label>Capital de giro na renovação / moto</label><input id="renewWorking" type="number" value="600"></div>
+  </div>
+  <div class="kpis" style="margin-top:14px">
+    <div class="kpi"><div class="label">Investimento inicial</div><div id="projInitial" class="value"></div></div>
+    <div class="kpi green"><div class="label">Renda acumulada do investidor</div><div id="projIncome" class="value"></div></div>
+    <div class="kpi"><div class="label">Devoluções brutas acumuladas</div><div id="projReturns" class="value"></div></div>
+    <div class="kpi blue"><div class="label">Total líquido após renovações</div><div id="projNet" class="value"></div></div>
+  </div>
+  <div style="overflow:auto;margin-top:14px"><table class="table"><thead><tr><th>Ano</th><th>Renda mensal</th><th>Renda anual</th><th>Devolução motos</th><th>Novas motos</th><th>Giro renovação</th><th>Fluxo do ano</th><th>Acumulado</th></tr></thead><tbody id="projRows"></tbody></table></div>
+  <div class="footer-note">Anos 3, 6 e 9 representam renovação da frota. O ano 12 encerra o projeto sem nova aquisição.</div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">COMPARATIVO ILUSTRATIVO</div><h2 class="section-title">Compare o mesmo capital</h2>
+  <div class="form-grid">
+    <div class="field"><label>Selic (% a.a.)</label><input id="selicRef" type="number" step="0.01" value="14"></div>
+    <div class="field"><label>CDI (% a.a.)</label><input id="cdiRef" type="number" step="0.01" value="13.90"></div>
+    <div class="field"><label>IR estimado renda fixa (%)</label><input id="irRef" type="number" step="0.01" value="15"></div>
+  </div>
+  <div style="overflow:auto;margin-top:14px"><table class="table"><thead><tr><th>Cenário</th><th>Capital</th><th>Resultado anual estimado</th><th>Taxa líquida estimada</th></tr></thead><tbody id="locCompareRows"></tbody></table></div>
+  <div class="notice warn">Comparação meramente ilustrativa. Risco, liquidez, tributação e garantias são diferentes entre os produtos.</div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">OPORTUNIDADE LOCAGORA</div><h2 class="section-title">Avalie também o modelo de franquias</h2>
+  <div class="sub">Quando a simulação indicar um capital mais elevado, o closer pode incluir franquias Locagora na comparação final do cliente.</div>
+  <div class="actions"><a class="btn secondary" href="#franq-n">Franquia Nacional</a><a class="btn secondary" href="#master">Master Regional</a></div>
+</section>
+
+<details class="card span-12">
+  <summary>Painel comercial / premissas editáveis</summary>
+  <div class="sub" style="margin:12px 0">Nesta demonstração, preço da moto, taxa de administração, renda por moto, capital de giro, IPCA e benchmarks podem ser alterados diretamente. Na versão de produção, essas regras devem ficar protegidas por autenticação e banco de dados.</div>
+</details>
+
+<section class="card span-12">
+  <div class="eyebrow">PRÓXIMO PASSO</div><h2 class="section-title">Gostou da simulação?</h2>
+  <div class="actions"><button class="btn primary" onclick="addCurrent()">Adicionar à Projeção do Cliente</button><a class="btn secondary" href="#projection">Abrir comparação final</a></div>
+</section>
+</div>
+<div class="footer-note">Ferramenta informativa. Projeções dependem das premissas utilizadas e não constituem garantia de rentabilidade futura.</div>
+
+<section class="connected-next-step no-print">
+  <div>
+    <span>PRÓXIMO PASSO</span>
+    <strong>Simulação pronta? Transforme os números em proposta comercial.</strong>
+  </div>
+  <div class="connected-next-actions">
+    <button type="button" class="btn primary" onclick="addCurrent()">Carregar proposta</button>
+    <button type="button" class="btn secondary" onclick="location.hash='#objecoes'">Ver objeções</button>
+  </div>
+</section>

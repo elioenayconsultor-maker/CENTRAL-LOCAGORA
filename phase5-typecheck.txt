@@ -1,0 +1,31 @@
+
+> locagora-central-v14@14.0.0-phase5 typecheck
+> tsc --noEmit
+
+error TS2688: Cannot find type definition file for 'estree'.
+  The file is in the program because:
+    Entry point for implicit type library 'estree'
+error TS2688: Cannot find type definition file for 'json-schema'.
+  The file is in the program because:
+    Entry point for implicit type library 'json-schema'
+error TS2688: Cannot find type definition file for 'json5'.
+  The file is in the program because:
+    Entry point for implicit type library 'json5'
+error TS2688: Cannot find type definition file for 'node'.
+  The file is in the program because:
+    Entry point for implicit type library 'node'
+error TS2688: Cannot find type definition file for 'pako'.
+  The file is in the program because:
+    Entry point for implicit type library 'pako'
+error TS2688: Cannot find type definition file for 'raf'.
+  The file is in the program because:
+    Entry point for implicit type library 'raf'
+error TS2688: Cannot find type definition file for 'react'.
+  The file is in the program because:
+    Entry point for implicit type library 'react'
+error TS2688: Cannot find type definition file for 'react-dom'.
+  The file is in the program because:
+    Entry point for implicit type library 'react-dom'
+error TS2688: Cannot find type definition file for 'trusted-types'.
+  The file is in the program because:
+    Entry point for implicit type library 'trusted-types'

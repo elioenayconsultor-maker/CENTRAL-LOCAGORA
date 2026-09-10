@@ -1,0 +1,1 @@
+npm ci: bloqueado neste runtime por EAI_AGAIN registry.npmjs.org

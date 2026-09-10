@@ -1,0 +1,95 @@
+
+<div class="topbar">
+  <div>
+    <div class="eyebrow">Locagora • Rede e Expansão Territorial</div>
+    <h1 class="h1">Mapa da Rede Locagora</h1>
+    <div class="sub">Diretório nacional de unidades, Seminovos, escritórios, galpões e Masters, com endereço, telefone, status e acesso rápido ao mapa.</div>
+  </div>
+  <div class="pill">Base pública + territorial • 2026</div>
+</div>
+
+<div class="grid network-map-page">
+<section class="card span-4">
+  <div class="eyebrow">FILTROS</div>
+  <h2 class="section-title">Localizar unidade</h2>
+
+  <div class="field">
+    <label>Tipo de estrutura</label>
+    <select id="networkTypeFilter">
+      <option value="all">Todas as estruturas</option>
+      <option value="locadora">Locadoras</option>
+      <option value="seminovos">Locagora Seminovos</option>
+      <option value="escritorio">Escritórios</option>
+      <option value="galpao">Galpões</option>
+      <option value="master">Masters</option>
+    </select>
+  </div>
+
+  <div class="field" style="margin-top:12px">
+    <label>Cidade, estado, nome ou endereço</label>
+    <input id="networkSearch" placeholder="Ex.: Brasília, SP, Seminovos...">
+  </div>
+
+  <div class="network-type-chips">
+    <button onclick="setNetworkType('locadora')">Locadoras</button>
+    <button onclick="setNetworkType('seminovos')">Seminovos</button>
+    <button onclick="setNetworkType('escritorio')">Escritórios</button>
+    <button onclick="setNetworkType('galpao')">Galpões</button>
+    <button onclick="setNetworkType('master')">Masters</button>
+    <button class="all" onclick="setNetworkType('all')">Todos</button>
+  </div>
+
+  <div class="network-stats">
+    <div><span>Resultados</span><strong id="networkCount">0</strong></div>
+    <div><span>Estados</span><strong id="networkStates">0</strong></div>
+  </div>
+
+  <div class="notice info" style="margin-top:14px">
+    <strong>Como usar:</strong> clique em qualquer unidade para abrir o endereço no mapa ao lado. Telefones locais são exibidos quando encontrados; caso contrário, aparece o contato central da Locagora.
+  </div>
+</section>
+
+
+<section class="card span-8">
+  <div class="eyebrow">MAPA DO BRASIL</div>
+  <h2 class="section-title">Rede Locagora no território nacional</h2>
+  <div class="sub" style="font-size:12px;margin-bottom:10px">Cada marcador verde “GO” representa uma estrutura. A legenda abaixo do marcador identifica se é Locadora, Master, Escritório, Seminovos ou Galpão.</div>
+  <div id="brazilNetworkMap" class="brazil-network-map"></div>
+  <div class="network-map-legend">
+    <span><i class="locadora"></i>Locadora</span><span><i class="master"></i>Master</span><span><i class="escritorio"></i>Escritório</span><span><i class="seminovos"></i>Seminovos</span><span><i class="galpao"></i>Galpão</span>
+  </div>
+</section>
+
+<div id="masterDetailModal" class="master-detail-modal" aria-hidden="true">
+  <div class="master-detail-backdrop" onclick="closeMasterDetail()"></div>
+  <div class="master-detail-dialog">
+    <button class="master-detail-close" onclick="closeMasterDetail()">×</button>
+    <div class="eyebrow">MASTER LOCAGORA</div>
+    <h2 id="masterDetailName">Master</h2>
+    <div id="masterDetailData" class="master-detail-data"></div>
+    <div class="master-detail-map"><iframe id="masterDetailFrame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+  </div>
+</div>
+
+<section class="card span-12">
+  <div class="eyebrow">DIRETÓRIO</div>
+  <h2 class="section-title">Endereços da rede</h2>
+  <div id="networkDirectory" class="network-directory"></div>
+</section>
+
+<section class="card span-12">
+  <div class="eyebrow">DISPONIBILIDADE MASTER</div>
+  <h2 class="section-title">Consulta de nova praça</h2>
+  <div class="network-master-check">
+    <div class="field"><label>Cidade ou região</label><input id="placeCity" placeholder="Digite a cidade ou região"></div>
+    <div class="field"><label>UF</label><input id="placeState" maxlength="2" placeholder="Ex.: SP"></div>
+    <div class="field"><label>População estimada</label><input id="placePopulation" type="number" min="0" step="10000" placeholder="Ex.: 500000"></div>
+    <div class="actions"><button class="btn primary" onclick="checkPlaceAvailability()">Verificar praça</button></div>
+  </div>
+  <div id="placeResult" class="notice info" style="margin-top:12px">Informe uma cidade para verificar disponibilidade preliminar.</div>
+</section>
+</div>
+
+<div class="footer-note">
+  Endereços das locadoras foram consolidados a partir da página pública de unidades da Locagora. Seminovos, escritórios e galpões usam cadastros públicos quando localizados. A relação de Masters combina sinais públicos e a base territorial comercial já cadastrada na central. Quando não existe endereço público confirmado, isso é indicado expressamente.
+</div>

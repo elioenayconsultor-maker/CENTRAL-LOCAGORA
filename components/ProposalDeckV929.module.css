@@ -1,0 +1,129 @@
+/* V9.2.9 — restaura composição premium no app sem tocar no gerador de PDF. */
+.v929Fix :global(.proposalPage) {
+  container-type: inline-size;
+}
+
+/* CAPA: dimensionamento baseado na própria página, não no viewport do navegador. */
+.v929Fix :global(.proposalCoverV13 .proposalPageContent) {
+  padding: 0 !important;
+  display: block !important;
+}
+
+.v929Fix :global(.proposalCoverMetadata) {
+  position: absolute !important;
+  left: 6.1% !important;
+  top: 13.5% !important;
+  bottom: auto !important;
+  width: 59% !important;
+  min-height: 73% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  gap: clamp(7px, 0.9cqw, 18px) !important;
+  transform: none;
+}
+
+.v929Fix :global(.proposalCoverMetadata > small) {
+  font-size: clamp(12px, 1.10cqw, 22px) !important;
+  line-height: 1.1 !important;
+  letter-spacing: .12em !important;
+  font-weight: 950 !important;
+  color: #7deb42 !important;
+}
+
+.v929Fix :global(.proposalCoverMetadata > span) {
+  font-size: clamp(11px, .94cqw, 19px) !important;
+  line-height: 1.1 !important;
+  letter-spacing: .14em !important;
+  font-weight: 900 !important;
+  color: #fff !important;
+}
+
+.v929Fix :global(.proposalCoverMetadata h1) {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  font-size: clamp(42px, 5.35cqw, 102px) !important;
+  line-height: .90 !important;
+  letter-spacing: -.045em !important;
+  font-weight: 950 !important;
+  color: #fff !important;
+  text-shadow: 0 4px 30px rgba(0,0,0,.5) !important;
+}
+
+.v929Fix :global(.proposalCoverFacts) {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: clamp(10px, 1.35cqw, 26px) !important;
+  margin-top: clamp(8px, .9cqw, 18px) !important;
+}
+
+.v929Fix :global(.proposalCoverFacts > b) {
+  min-width: 0 !important;
+  padding-top: clamp(7px, .65cqw, 13px) !important;
+  border-top: 1px solid rgba(125,235,66,.72) !important;
+  font-size: clamp(16px, 1.72cqw, 33px) !important;
+  line-height: 1.06 !important;
+  font-weight: 950 !important;
+  white-space: nowrap !important;
+  color: #fff !important;
+}
+
+.v929Fix :global(.proposalCoverFacts small) {
+  display: block !important;
+  margin-top: 3px !important;
+  font-size: clamp(8px, .65cqw, 13px) !important;
+  line-height: 1.15 !important;
+  color: #d6e3f2 !important;
+}
+
+/* PÁGINA 8: identidade do closer fica aqui, com destaque e sem moldura na foto. */
+.v929Fix :global(.proposalCloserPage .proposalConsultantIdentity) {
+  position: absolute !important;
+  right: 4.2% !important;
+  bottom: 5.2% !important;
+  width: 34% !important;
+  max-width: 520px !important;
+  min-height: 15% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: clamp(10px, 1cqw, 18px) !important;
+  padding: clamp(10px, 1.05cqw, 18px) !important;
+  background: linear-gradient(135deg, rgba(4,29,72,.93), rgba(8,57,119,.88)) !important;
+  border: 1px solid rgba(125,235,66,.9) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 32px rgba(0,0,0,.24) !important;
+}
+
+.v929Fix :global(.proposalCloserPage .proposalConsultantIdentity img) {
+  width: clamp(62px, 6.8cqw, 110px) !important;
+  height: clamp(76px, 8.4cqw, 136px) !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.v929Fix :global(.proposalCloserPage .proposalConsultantIdentity b) {
+  font-size: clamp(16px, 1.45cqw, 28px) !important;
+  line-height: 1.05 !important;
+}
+
+.v929Fix :global(.proposalCloserPage .proposalConsultantIdentity span) {
+  font-size: clamp(9px, .78cqw, 15px) !important;
+  line-height: 1.25 !important;
+}
+
+.v929Fix :global(.proposalCloserPage .proposalConsultantIdentity small) {
+  font-size: clamp(8px, .64cqw, 12px) !important;
+  letter-spacing: .11em !important;
+}
+
+/* Garante que o closer não reapareça na página 7 por CSS/markup legado. */
+.v929Fix :global(.proposalV13Page[data-proposal-page="7"] .proposalConsultantIdentity) {
+  display: none !important;
+}
