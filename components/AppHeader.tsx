@@ -3,11 +3,10 @@ import { CircleHelp, Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-type Page = "news"|"journey"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
+type Page = "news"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
 const labels:Record<Page,{eyebrow:string;title:string}>={
   news:{eyebrow:"Inteligência comercial",title:"LOCNEWS"},
-  journey:{eyebrow:"Central comercial",title:"Jornada Comercial"},
-  solutions:{eyebrow:"Portfólio",title:"Negócios & Investimentos"},
+  solutions:{eyebrow:"Portfólio",title:"Investimentos & Franquias"},
   network:{eyebrow:"Expansão",title:"Rede Locagora"},
   history:{eyebrow:"Institucional",title:"História"},
   benchmark:{eyebrow:"Inteligência",title:"Benchmark"},
