@@ -16,10 +16,12 @@ export type Projection = {
   monthlyEquivalent: number;
 };
 
+// V9.3.2: taxas e tributação começam neutras. Nenhuma alíquota comercial é inventada no frontend;
+// valores publicados pelo ADM/mercado são carregados pelo comparador em tempo de execução.
 export const DEFAULT_BENCHMARKS: CapitalBenchmark[] = [
-  { id: "cdi-cdb", label: "CDI / CDB", kind: "renda_fixa", annualRate: 0, taxOnGain: 15, enabled: true },
-  { id: "tesouro-selic", label: "Tesouro Selic", kind: "renda_fixa", annualRate: 0, taxOnGain: 15, enabled: true },
-  { id: "ipca", label: "Tesouro IPCA+", kind: "renda_fixa", annualRate: 0, taxOnGain: 15, enabled: true },
+  { id: "cdi-cdb", label: "CDI / CDB", kind: "renda_fixa", annualRate: 0, taxOnGain: 0, enabled: true },
+  { id: "tesouro-selic", label: "Tesouro Selic", kind: "renda_fixa", annualRate: 0, taxOnGain: 0, enabled: true },
+  { id: "ipca", label: "Tesouro IPCA+", kind: "renda_fixa", annualRate: 0, taxOnGain: 0, enabled: true },
   { id: "fii", label: "FII", kind: "fii", annualRate: 0, taxOnGain: 0, enabled: true },
   { id: "imovel", label: "Imóvel para renda", kind: "imovel", annualRate: 0, taxOnGain: 0, enabled: true },
 ];
