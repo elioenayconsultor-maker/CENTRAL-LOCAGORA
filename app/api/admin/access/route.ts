@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireCommercialRole } from "@/lib/server-access";
 
-const validRoles=new Set(["admin","gestor","closer","visualizacao"]);
+const validRoles=new Set(["admin","gestor","sdr","closer"]);
 const cleanEmail=(v:unknown)=>String(v??"").trim().toLowerCase().slice(0,180);
 const cleanName=(v:unknown)=>String(v??"").trim().replace(/\s+/g," ").slice(0,160);
 const cleanTeam=(v:unknown)=>String(v??"").trim().slice(0,120);
 const emailOk=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.endsWith("@locgrupo.com.br");
+const dbRole=(role:string)=>({admin:"ADMIN",gestor:"GESTOR",sdr:"SDR",closer:"CLOSER"}[role]||"CLOSER");
+const apiRole=(role:unknown)=>String(role||"CLOSER").toLowerCase();
 
 async function listAllUsers(admin:any){
   const out:any[]=[];
@@ -25,7 +27,7 @@ export async function GET(request:Request){
     const authUsers=await listAllUsers(access.admin);
     const {data:memberships,error}=await access.admin.from("commercial_memberships").select("auth_user_id,app_user_id,role,active,team_name,created_at,updated_at");
     if(error)throw error;
-    const {data:profiles,error:profileError}=await access.admin.from("users").select("id,auth_user_id,name,email,active,team_name,created_at,updated_at").order("created_at",{ascending:true});
+    const {data:profiles,error:profileError}=await access.admin.from("users").select("id,auth_user_id,name,email,role,active,team_name,created_at,updated_at").order("created_at",{ascending:true});
     if(profileError)throw profileError;
     const membershipByAuth=new Map((memberships||[]).map((m:any)=>[m.auth_user_id,m]));
     const authById=new Map(authUsers.map((u:any)=>[u.id,u]));
@@ -37,7 +39,7 @@ export async function GET(request:Request){
         userId:p.auth_user_id||"",
         email:String(p.email||auth?.email||""),
         name:String(p.name||auth?.user_metadata?.full_name||""),
-        role:m?.role||"closer",
+        role:m?.role||apiRole(p.role),
         active:p.active!==false&&m?.active!==false,
         teamName:String(m?.team_name||p.team_name||""),
         accessCreated:Boolean(p.auth_user_id),
@@ -56,6 +58,8 @@ export async function POST(request:Request){
     const body=await request.json() as Record<string,unknown>;
     const action=String(body.action||"update");
     const teamName=cleanTeam(body.teamName);
+    const role=String(body.role||"closer").trim().toLowerCase();
+    if(!validRoles.has(role))return NextResponse.json({ok:false,reason:"invalid_role",message:"Permissão inválida."},{status:400});
 
     if(action==="create"){
       const name=cleanName(body.name);
@@ -64,14 +68,12 @@ export async function POST(request:Request){
       if(!emailOk(email))return NextResponse.json({ok:false,reason:"invalid_email",message:"Use um e-mail corporativo @locgrupo.com.br válido."},{status:400});
       const {data:existing}=await access.admin.from("users").select("id").ilike("email",email).maybeSingle();
       if(existing)return NextResponse.json({ok:false,reason:"already_exists",message:"Este e-mail já está cadastrado."},{status:409});
-      const {data:created,error:createError}=await access.admin.from("users").insert({name,email,role:"CLOSER",active:true,must_change_password:true,team_name:teamName||null}).select("id").single();
+      const {data:created,error:createError}=await access.admin.from("users").insert({name,email,role:dbRole(role),active:true,must_change_password:true,team_name:teamName||null}).select("id").single();
       if(createError)throw createError;
-      await access.admin.from("commercial_audit_log").insert({action:"access_preregistered",entity_type:"user",entity_id:created.id,actor_user_id:access.user.id,actor_email:access.user.email||null,metadata:{target_email:email,target_name:name,role:"closer",team_name:teamName||null}});
-      return NextResponse.json({ok:true,profileId:created.id,message:"Colaborador cadastrado. O primeiro acesso será como Closer e exigirá troca de senha."});
+      await access.admin.from("commercial_audit_log").insert({action:"access_preregistered",entity_type:"user",entity_id:created.id,actor_user_id:access.user.id,actor_email:access.user.email||null,metadata:{target_email:email,target_name:name,role,team_name:teamName||null}});
+      return NextResponse.json({ok:true,profileId:created.id,message:`Colaborador cadastrado como ${role.toUpperCase()}. O primeiro acesso exigirá troca de senha.`});
     }
 
-    const role=String(body.role||"closer").trim();
-    if(!validRoles.has(role))return NextResponse.json({ok:false,reason:"invalid_role"},{status:400});
     const profileId=String(body.profileId||"").trim();
     const userId=String(body.userId||"").trim();
     let profile:any=null;
@@ -84,7 +86,7 @@ export async function POST(request:Request){
     }
     if(!profile)return NextResponse.json({ok:false,reason:"user_not_found",message:"Colaborador não encontrado."},{status:404});
     const now=new Date().toISOString();
-    const {error:profileUpdateError}=await access.admin.from("users").update({active:true,team_name:teamName||null,updated_at:now}).eq("id",profile.id);
+    const {error:profileUpdateError}=await access.admin.from("users").update({role:dbRole(role),active:true,team_name:teamName||null,updated_at:now}).eq("id",profile.id);
     if(profileUpdateError)throw profileUpdateError;
     if(profile.auth_user_id){
       const {error}=await access.admin.from("commercial_memberships").upsert({auth_user_id:profile.auth_user_id,app_user_id:profile.id,role,team_name:teamName||null,active:true,updated_at:now,updated_by:access.user.id},{onConflict:"auth_user_id"});
