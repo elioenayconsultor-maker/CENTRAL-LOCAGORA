@@ -28,9 +28,25 @@ export type MarketAssumption = {
   metadata: Record<string, unknown>;
 };
 
+const financialSlugByCanonicalId: Record<string,string> = {
+  locinvest: "locinvest",
+  euroloc: "locinvest-europa",
+  locmillion: "locmillion",
+  locinternacional: "cotas-internacionais",
+  franquia_nacional: "exclusive-brasil",
+  exclusive_internacional: "exclusive-internacional",
+  franquia_internacional_2x1: "exclusive-2x1",
+  mini_master: "mini-master",
+  master_regional: "master",
+};
+
+function financialSlug(route:string){
+  const identity=resolveProductIdentity(route);
+  return identity ? (financialSlugByCanonicalId[identity.id] || identity.primaryPublicSlug) : route;
+}
+
 export async function loadProductFinancialProfile(route: string) {
-  const identity = resolveProductIdentity(route);
-  const slug = identity?.primaryPublicSlug || route;
+  const slug = financialSlug(route);
   const supabase = createClient();
   const { data, error } = await supabase
     .from("commercial_product_financial_profiles")
@@ -70,11 +86,10 @@ export async function persistComparisonScenario(input: {
 }): Promise<ComparisonSnapshot> {
   const sessionId = localStorage.getItem("locagora_commercial_session_id");
   const user = await getCurrentAppUser();
-  const identity = resolveProductIdentity(input.simulation.sourceRoute);
   const snapshot: ComparisonSnapshot = {
     scenarioType: input.scenarioType,
     label: input.label,
-    productSlug: input.scenarioType === "product" ? (identity?.primaryPublicSlug || input.simulation.sourceRoute) : undefined,
+    productSlug: input.scenarioType === "product" ? financialSlug(input.simulation.sourceRoute) : undefined,
     benchmarkKey: input.benchmarkKey,
     capital: input.simulation.capital,
     grossMonthlyIncome: input.simulation.monthly,
