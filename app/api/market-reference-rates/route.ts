@@ -78,7 +78,7 @@ async function latestTesouroIpcaReal(): Promise<LiveRate | null> {
     if ([idxType, idxBase, idxRate].some(i => i < 0)) return null;
 
     const now = Date.now();
-    const candidates = lines.slice(1).map(parseCsvLine).map(cols => ({
+    const candidates = lines.slice(1).map(line => parseCsvLine(line)).map(cols => ({
       type: cols[idxType] || "",
       base: cols[idxBase] || "",
       maturity: idxMaturity >= 0 ? cols[idxMaturity] || "" : "",
@@ -116,6 +116,7 @@ async function latestIfix12m(): Promise<LiveRate | null> {
     if (closes.length < 2) return null;
     const first = closes[0];
     const last = closes.at(-1);
+    if (!last) return null;
     const annualRate = ((last.close / first.close) - 1) * 100;
     if (!Number.isFinite(annualRate)) return null;
     return {
