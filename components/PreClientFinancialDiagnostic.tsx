@@ -31,13 +31,17 @@ export default function PreClientFinancialDiagnostic({simulation,onBack,onContin
     const qty=Number(details.qty||0);
     return {capital,availableCapital,leftover,monthly,annual,monthlyReturn,annualReturn,paybackMonths,breakEvenValue,marginOfSafety,model,qty};
   },[simulation]);
-  const continueFlow=()=>{localStorage.setItem("locagora_preclient_diagnostic",JSON.stringify({simulation,comparison:selected,createdAt:new Date().toISOString()}));onContinue(selected)};
+  const continueFlow=()=>{
+    if(!selected)return;
+    localStorage.setItem("locagora_preclient_diagnostic",JSON.stringify({simulation,comparison:selected,createdAt:new Date().toISOString()}));
+    onContinue(selected);
+  };
 
   return <main className={`workspace ${styles.workspace}`}>
     <section className={styles.hero}><div><small>V9.3.3 • DIAGNÓSTICO FINANCEIRO PRÉ-CLIENTE</small><h1>Visão completa antes do cadastro do cliente</h1><p>Analise modelo, capital alocado, rentabilidade, payback, ponto de equilíbrio operacional e alternativas de capital antes de iniciar o atendimento nominal.</p></div><button className="secondary" onClick={onBack}><ArrowLeft size={16}/> Voltar à simulação</button></section>
     <section className={styles.metrics}><article><TrendingUp/><span>Rentabilidade mensal</span><b>{pct(metrics.monthlyReturn)}</b><small>{money(metrics.monthly)} de renda/mês</small></article><article><BarChart3/><span>Rentabilidade anual simples</span><b>{pct(metrics.annualReturn)}</b><small>{money(metrics.annual)} no ano 1</small></article><article><Clock3/><span>Payback estimado</span><b>{metrics.paybackMonths?`${metrics.paybackMonths.toLocaleString("pt-BR",{maximumFractionDigits:1})} meses`:"N/D"}</b><small>Capital efetivamente alocado ÷ renda mensal, sem reinvestimento.</small></article><article><Gauge/><span>Break-even operacional</span><b>{metrics.breakEvenValue?money(metrics.breakEvenValue):"N/D"}</b><small>{metrics.marginOfSafety!=null?`Margem de segurança estimada: ${pct(metrics.marginOfSafety)}`:"Exige receita e custos operacionais detalhados no produto."}</small></article></section>
     <section className={`panel ${styles.readout}`}><div><span>Capital informado</span><b>{money(metrics.availableCapital)}</b><small>{metrics.leftover>0?`Saldo não alocado: ${money(metrics.leftover)}`:"Integralmente alocado neste cenário"}</small></div><div><span>Capital efetivamente alocado</span><b>{money(metrics.capital)}</b><small>Base usada na comparação</small></div><div><span>Renda mensal simulada</span><b>{money(metrics.monthly)}</b><small>{metrics.qty>0?`${metrics.qty} ativo${metrics.qty===1?"":"s"} • ${metrics.model}`:metrics.model}</small></div></section>
     <section className={`panel ${styles.comparator}`}><div className="sectionHead"><small>COMPARAÇÃO DE OPORTUNIDADES</small><h2>Mesmo capital, mesmo horizonte</h2><p>A comparação usa o capital efetivamente alocado. As referências abaixo vêm das premissas publicadas no sistema; selecione um cenário para levá-lo ao atendimento.</p></div><CapitalOpportunityComparator embedded simulation={simulation} selected={selected} onSelect={setSelected}/></section>
-    <section className={styles.next}><div><b>Diagnóstico pronto</b><span>O cadastro do cliente só será solicitado a partir do próximo passo.</span></div><button className="primary" onClick={continueFlow}>Cliente interessado • continuar <ArrowRight size={16}/></button></section>
+    <section className={styles.next}><div><b>{selected?"Diagnóstico pronto":"Selecione um cenário para continuar"}</b><span>{selected?`Cenário escolhido: ${selected.label}. O cadastro do cliente será solicitado no próximo passo.`:"Clique em “Selecionar” em uma das oportunidades acima. Essa escolha será preservada no atendimento e na proposta."}</span></div><button className="primary" disabled={!selected} onClick={continueFlow}>{selected?"Cliente interessado • continuar":"Selecione um cenário acima"} <ArrowRight size={16}/></button></section>
   </main>;
 }
