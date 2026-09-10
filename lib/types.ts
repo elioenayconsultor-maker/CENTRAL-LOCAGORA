@@ -1,5 +1,5 @@
 export type IncomeProfile = "fixed" | "variable" | "entrepreneur";
-export type JourneyStep = "client" | "solution" | "simulation" | "confirmation" | "proposal";
+export type JourneyStep = "client" | "solution" | "simulation" | "confirmation" | "comparison" | "proposal";
 
 export interface ClientProfile {
   name: string;
@@ -32,6 +32,40 @@ export interface Simulation {
   updatedAt?: string;
 }
 
+export type ComparisonScenarioType =
+  | "product"
+  | "cdi_cdb"
+  | "tesouro_selic"
+  | "tesouro_ipca_plus"
+  | "fii"
+  | "rental_property"
+  | "custom";
+
+export interface ComparisonSnapshot {
+  scenarioId?: string;
+  scenarioType: ComparisonScenarioType;
+  label: string;
+  productSlug?: string;
+  benchmarkKey?: string;
+  capital: number;
+  grossMonthlyIncome?: number;
+  netMonthlyIncome?: number;
+  annualReturnPct?: number;
+  horizonMonths: number;
+  reinvestment: boolean;
+  grossFinalValue?: number;
+  taxAmount: number;
+  netFinalValue: number;
+  netGain: number;
+  accumulatedReturnPct: number;
+  monthlyEquivalent: number;
+  taxationSnapshot?: Record<string, unknown>;
+  assumptionsSnapshot?: Record<string, unknown>;
+  sourceName?: string;
+  sourceReferenceDate?: string;
+  selectedAt: string;
+}
+
 export interface ProposalNarrative {
   opportunityTitle: string;
   opportunityText: string;
@@ -62,7 +96,10 @@ export interface CommercialState {
   step: JourneyStep;
   client: ClientProfile;
   selectedProductRoute: string;
+  selectedPresentationId: string | null;
   activeSimulationId: number | null;
+  selectedComparisonScenarioId: string | null;
+  comparisonSnapshot: ComparisonSnapshot | null;
   simulations: Simulation[];
   proposal: ProposalState;
 }
