@@ -28,6 +28,18 @@ export type MarketAssumption = {
   metadata: Record<string, unknown>;
 };
 
+type LiveRate = { annualRate: number; date: string; source: string; sourceUrl: string };
+type LiveRatePayload = {
+  ok: boolean;
+  selic?: LiveRate | null;
+  cdi?: LiveRate | null;
+  ipca12m?: LiveRate | null;
+  ipcaPlusReal?: LiveRate | null;
+  fii12m?: LiveRate | null;
+  propertyRentalYield?: LiveRate | null;
+  updatedAt?: string;
+};
+
 const financialSlugByCanonicalId: Record<string,string> = {
   locinvest: "locinvest",
   euroloc: "locinvest-europa",
@@ -45,6 +57,24 @@ function financialSlug(route:string){
   return identity ? (financialSlugByCanonicalId[identity.id] || identity.primaryPublicSlug) : route;
 }
 
+function isoDate(value: string) {
+  const m = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : value;
+}
+
+function liveAssumption(key: string, label: string, rate: LiveRate): MarketAssumption {
+  return {
+    assumption_key: key,
+    label,
+    value: rate.annualRate,
+    value_unit: "pct_aa",
+    source_name: rate.source,
+    source_url: rate.sourceUrl,
+    reference_date: isoDate(rate.date),
+    metadata: { origin: "automatic_market_reference", fetchedAt: new Date().toISOString() },
+  };
+}
+
 export async function loadProductFinancialProfile(route: string) {
   const slug = financialSlug(route);
   const supabase = createClient();
@@ -58,11 +88,29 @@ export async function loadProductFinancialProfile(route: string) {
 }
 
 export async function loadMarketAssumptions() {
-  const { data, error } = await createClient()
+  const supabasePromise = createClient()
     .from("commercial_market_assumptions")
     .select("assumption_key,label,value,value_unit,source_name,source_url,reference_date,metadata")
     .eq("active", true);
-  return error ? [] : ((data || []) as MarketAssumption[]);
+
+  const livePromise = fetch("/api/market-reference-rates", { cache: "no-store" })
+    .then(async response => response.ok ? await response.json() as LiveRatePayload : null)
+    .catch(() => null);
+
+  const [{ data, error }, live] = await Promise.all([supabasePromise, livePromise]);
+  const stored = error ? [] : ((data || []) as MarketAssumption[]);
+  if (!live?.ok) return stored;
+
+  const automatic: MarketAssumption[] = [];
+  if (live.cdi) automatic.push(liveAssumption("CDI", "CDI anualizado", live.cdi));
+  if (live.selic) automatic.push(liveAssumption("SELIC", "Selic anualizada", live.selic));
+  if (live.ipca12m) automatic.push(liveAssumption("IPCA", "IPCA acumulado em 12 meses", live.ipca12m));
+  if (live.ipcaPlusReal) automatic.push(liveAssumption("IPCA_PLUS_REAL", "Tesouro IPCA+ • taxa real de mercado", live.ipcaPlusReal));
+  if (live.fii12m) automatic.push(liveAssumption("FII_DY", "FII • IFIX retorno total 12 meses", live.fii12m));
+  if (live.propertyRentalYield) automatic.push(liveAssumption("PROPERTY_RENT_YIELD", "Imóvel residencial • rental yield", live.propertyRentalYield));
+
+  const liveKeys = new Set(automatic.map(row => row.assumption_key));
+  return [...stored.filter(row => !liveKeys.has(row.assumption_key)), ...automatic];
 }
 
 export async function persistComparisonScenario(input: {
