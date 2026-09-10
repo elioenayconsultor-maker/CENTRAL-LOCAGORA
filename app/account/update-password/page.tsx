@@ -22,7 +22,7 @@ export default function UpdatePasswordPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) {
-        setError("O link de confirmação não criou uma sessão válida. Solicite um novo acesso pela tela inicial.");
+        setError("Sua sessão de primeiro acesso não está mais ativa. Volte à tela inicial e entre novamente com a senha padrão.");
         setReady(true);
         return;
       }
@@ -45,7 +45,7 @@ export default function UpdatePasswordPage() {
     setError("");
     if (!passwordCheck.length) return setError(`Crie uma senha pessoal com pelo menos ${MIN_PERMANENT_PASSWORD_LENGTH} caracteres.`);
     if (!passwordCheck.hasLetter || !passwordCheck.hasNumber) return setError("A senha definitiva precisa combinar letras e números.");
-    if (!passwordCheck.differsFromActivation) return setError("A senha pessoal não pode ser a senha padrão de ativação.");
+    if (!passwordCheck.differsFromActivation) return setError("A senha pessoal não pode ser a senha padrão de primeiro acesso.");
     if (!passwordsMatch) return setError("As duas senhas não coincidem.");
 
     setLoading(true);
@@ -66,25 +66,27 @@ export default function UpdatePasswordPage() {
     setLoading(false);
   };
 
-  if (!ready) return <main className="authScreen"><section className="authCard"><p>Validando confirmação...</p></section></main>;
+  if (!ready) return <main className="authScreen"><section className="authCard"><p>Preparando primeiro acesso...</p></section></main>;
 
   if (done) {
     const allowed = profileStatus === "active";
     return <main className="authScreen"><section className="authCard">
       <div className={`authIcon ${allowed ? "" : "danger"}`}><CheckCircle2 /></div>
-      <div className="activationHint"><ShieldCheck size={15}/><span>ETAPA 1 DE 2 CONCLUÍDA</span></div>
+      <div className="activationHint"><ShieldCheck size={15}/><span>PRIMEIRO ACESSO CONCLUÍDO</span></div>
       <h1>Senha definitiva criada</h1>
-      <p>{allowed ? "Agora complete seu perfil profissional para liberar a Central Comercial." : "Sua senha definitiva foi criada, mas o perfil corporativo ainda precisa estar cadastrado e ativo no CRM Locagora."}</p>
-      <button className="primary" onClick={() => { window.location.href = "/central"; }}>{allowed ? "Continuar para meu perfil" : "Voltar ao acesso"}</button>
+      <p>{allowed ? "Seu acesso está pronto. Agora complete ou revise seu perfil profissional para usar a Central Comercial." : "Sua senha foi criada, mas o acesso está bloqueado ou ainda depende de liberação do administrador."}</p>
+      <button className="primary" onClick={() => { window.location.href = "/central"; }}>{allowed ? "Entrar na Central" : "Voltar ao acesso"}</button>
     </section></main>;
   }
 
   return <main className="authScreen"><section className="authCard">
     <div className="authIcon"><KeyRound /></div>
-    <div className="activationHint"><ShieldCheck size={15}/><span>PRIMEIRO ACESSO • ETAPA 1 DE 2</span></div>
+    <div className="activationHint"><ShieldCheck size={15}/><span>PRIMEIRO ACESSO</span></div>
     <h1>Crie sua senha definitiva</h1>
-    <p>Seu e-mail <b>{email}</b> foi confirmado. Antes de entrar na Central, substitua a senha de ativação por uma senha pessoal.</p>
-    {profileStatus === "profile_missing" && <div className="statusWarn">Seu e-mail foi confirmado, mas ainda não há perfil correspondente no CRM. Você pode definir sua senha; a liberação dependerá do cadastro pelo gestor.</div>}
+    <p>Você entrou com a senha padrão. Agora substitua-a por uma senha pessoal para concluir o primeiro acesso.</p>
+    <p><b>{email}</b></p>
+    {profileStatus === "profile_missing" && <div className="statusWarn">Este e-mail ainda não possui perfil cadastrado no sistema. A senha pode ser definida, mas o acesso dependerá da liberação do administrador.</div>}
+    {profileStatus === "inactive" && <div className="statusWarn">Este acesso está bloqueado pelo administrador.</div>}
     <form onSubmit={submit}>
       <label>Nova senha<input type="password" required minLength={MIN_PERMANENT_PASSWORD_LENGTH} value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" /></label>
       <div className="activationHint"><ShieldCheck size={15}/><span>{MIN_PERMANENT_PASSWORD_LENGTH}+ caracteres, com letras e números. Maiúsculas e caractere especial aumentam a segurança.</span></div>
@@ -92,7 +94,7 @@ export default function UpdatePasswordPage() {
       <label>Confirmar nova senha<input type="password" required minLength={MIN_PERMANENT_PASSWORD_LENGTH} value={confirm} onChange={e => setConfirm(e.target.value)} autoComplete="new-password" /></label>
       {confirm && !passwordsMatch && <div className="statusWarn">As senhas ainda não coincidem.</div>}
       {error && <div className="statusWarn">{error}</div>}
-      <button className="primary" disabled={loading || !passwordCheck.valid || !passwordsMatch}><KeyRound size={17}/>{loading ? "Salvando..." : "Salvar senha e continuar"}</button>
+      <button className="primary" disabled={loading || !passwordCheck.valid || !passwordsMatch}><KeyRound size={17}/>{loading ? "Salvando..." : "Salvar senha e entrar"}</button>
     </form>
   </section></main>;
 }
