@@ -1,8 +1,9 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { ExternalLink, MapPin, Phone, Search } from "lucide-react";
+import { ExternalLink, MapPin, Phone, Search, TrendingUp } from "lucide-react";
 import { NETWORK_POINTS, type NetworkPoint } from "@/lib/network";
+import { createClient } from "@/lib/supabase/client";
 import PageHero from "./PageHero";
 import GoMarker from "./GoMarker";
 import ModuleSkeleton from "./ModuleSkeleton";
@@ -17,18 +18,32 @@ function googleLink(p:NetworkPoint){return `https://www.google.com/maps/search/?
 function tone(p:NetworkPoint):"active"|"master"|"future"{return p.future?"future":(p.type==="master"||p.type==="international")?"master":"active";}
 
 export default function NetworkPage(){
+ const supabase=useMemo(()=>createClient(),[]);
  const [q,setQ]=useState("");
  const [country,setCountry]=useState("Todos");
  const [selected,setSelected]=useState<NetworkPoint|null>(null);
+ const [franchisesSold,setFranchisesSold]=useState<number|null>(null);
  const filtered=useMemo(()=>NETWORK_POINTS.filter(p=>{
    const okCountry=country==="Todos"||p.country===country;
    const hay=[p.name,p.city,p.state,p.country,p.address,p.status,p.type].join(" ").toLowerCase();
    return okCountry&&hay.includes(q.toLowerCase().trim());
  }),[q,country]);
  const stats=useMemo(()=>({total:filtered.length,active:filtered.filter(p=>p.status.toLowerCase().includes("opera")).length,territorial:filtered.filter(p=>p.type==="master"||p.type==="international"||p.name.toLowerCase().includes("master")).length}),[filtered]);
+ useEffect(()=>{let alive=true;(async()=>{const {data,error}=await supabase.from("commercial_market_assumptions").select("value").eq("assumption_key","FRANCHISES_SOLD").maybeSingle();if(alive&&!error)setFranchisesSold(data?.value==null?null:Number(data.value));})();return()=>{alive=false}},[supabase]);
+ const soldLabel=franchisesSold==null?"N/D":new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0}).format(franchisesSold);
 
  return <main className="workspace">
   <PageHero kicker="REDE LOCAGORA • PRESENÇA E EXPANSÃO" title="Onde a Locagora está presente." description="Unidades, Masters e territórios em uma visão única, com localização vinculada ao Google Maps e identidade visual própria da rede." actions={<div className="heroStatLine"><span><b>{stats.total}</b> pontos</span><span><b>{stats.active}</b> em operação</span><span><b>{stats.territorial}</b> Masters</span></div>}/>
+
+  <section className="panel" style={{marginBottom:16,overflow:"hidden",position:"relative",background:"linear-gradient(135deg,#082f63 0%,#0d4fa3 62%,#0a8f6a 140%)",color:"white",border:"none",boxShadow:"0 18px 45px rgba(8,47,99,.18)"}}>
+   <div style={{position:"absolute",right:-90,top:-110,width:300,height:300,borderRadius:"50%",background:"rgba(255,255,255,.08)"}}/>
+   <div style={{position:"absolute",right:95,bottom:-120,width:230,height:230,borderRadius:"50%",background:"rgba(255,255,255,.05)"}}/>
+   <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between",gap:24,flexWrap:"wrap",padding:"10px 4px"}}>
+    <div style={{display:"flex",alignItems:"center",gap:14}}><span style={{display:"grid",placeItems:"center",width:50,height:50,borderRadius:16,background:"rgba(255,255,255,.14)",border:"1px solid rgba(255,255,255,.18)"}}><TrendingUp size={25}/></span><div><small style={{display:"block",fontSize:11,fontWeight:900,letterSpacing:".12em",color:"#7ef1bd"}}>REDE LOCAGORA • INDICADOR COMERCIAL</small><h2 style={{margin:"6px 0 0",fontSize:"clamp(22px,2.2vw,34px)",lineHeight:1.05}}>Franquias vendidas</h2></div></div>
+    <div style={{minWidth:270,textAlign:"right"}}><span style={{display:"block",fontSize:11,fontWeight:900,letterSpacing:".1em",color:"rgba(255,255,255,.72)"}}>TOTAL PUBLICADO</span><strong style={{display:"block",fontSize:"clamp(52px,6vw,82px)",lineHeight:.95,letterSpacing:"-.045em",fontWeight:950,marginTop:8,fontVariantNumeric:"tabular-nums",textShadow:"0 8px 28px rgba(0,0,0,.18)"}}>{soldLabel}</strong><small style={{display:"block",marginTop:10,color:"rgba(255,255,255,.78)",fontSize:13}}>Atualização controlada pelo ADM</small></div>
+   </div>
+  </section>
+
   <section className="panel networkHeroPanel">
    <div className="networkFilters"><label><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Cidade, estado, unidade, tipo ou endereço"/></label><div>{["Todos","Brasil","Portugal","Espanha"].map(c=><button type="button" key={c} className={country===c?"active":""} onClick={()=>{setCountry(c);setSelected(null)}}>{c}</button>)}</div></div>
   </section>
@@ -51,5 +66,5 @@ export default function NetworkPage(){
      <a onClick={e=>e.stopPropagation()} target="_blank" rel="noreferrer" href={googleLink(p)}>Google Maps ↗</a>
    </article>)}</div>
   </section>
- </main>
+ </main>;
 }
