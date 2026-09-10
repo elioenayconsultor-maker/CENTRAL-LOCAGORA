@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Check, RotateCcw } from "lucide-react";
+import { ArrowRight, Check, RotateCcw, XCircle } from "lucide-react";
 import JourneyStepper from "./JourneyStepper";
 import CapitalOpportunityComparator from "./CapitalOpportunityComparator";
 import LocInvestCalculator from "./LocInvestCalculator";
@@ -16,9 +16,18 @@ import PageHero from "./PageHero";
 import { eligibleProducts, PRODUCTS } from "@/lib/products";
 import { defaultState, useCommercialState } from "@/lib/store";
 import { loadCommercialHistory, saveCommercialSession, saveRemoteSimulation, getSignedProposalUrl } from "@/lib/commercial-repository";
+import { cancelCommercialSession } from "@/lib/commercial-cancellation";
 import type { ClientProfile, ComparisonSnapshot, JourneyStep, Simulation } from "@/lib/types";
 
 const money=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(n)||0);
+const cancellationReasons=[
+ "Cliente não quis prosseguir",
+ "Valor incompatível neste momento",
+ "Aguardando momento futuro",
+ "Escolheu outra alternativa",
+ "Simulação apenas exploratória",
+ "Outro motivo"
+];
 
 export default function Journey(){
  const {state,setState,ready,activeSimulation}=useCommercialState();
@@ -27,7 +36,13 @@ export default function Journey(){
  const [historyLoading,setHistoryLoading]=useState(false);
  const [proposalExitPrompt,setProposalExitPrompt]=useState(false);
  const [pendingPresentation,setPendingPresentation]=useState(false);
+ const [cancelOpen,setCancelOpen]=useState(false);
+ const [cancelReason,setCancelReason]=useState(cancellationReasons[0]);
+ const [cancelNotes,setCancelNotes]=useState("");
+ const [cancelBusy,setCancelBusy]=useState(false);
+ const [cancelError,setCancelError]=useState("");
  const products=useMemo(()=>eligibleProducts(state.client.capital,state.client.income),[state.client.capital,state.client.income]);
+
  useEffect(()=>{
    if(!ready)return;
    const preselected=localStorage.getItem("locagora_preselect_product");
@@ -46,11 +61,32 @@ export default function Journey(){
    if(!PRODUCTS.some(p=>p.route===preselected)){localStorage.removeItem("locagora_preselect_product");return;}
    setState(s=>({...s,selectedProductRoute:preselected,selectedPresentationId:presentationId||s.selectedPresentationId,step:(s.client.name&&s.client.capital)?"solution":"client"}));
    localStorage.removeItem("locagora_preselect_product");
- },[ready]);
+ },[ready,setState]);
+
  useEffect(()=>{if(!ready||!state.client.name)return;const id=setTimeout(async()=>{const r=await saveCommercialSession(state);setSyncLabel(r.ok?"Atendimento sincronizado":"Salvo localmente")},900);return()=>clearTimeout(id)},[ready,state.client,state.step,state.selectedProductRoute,state.selectedPresentationId,state.selectedComparisonScenarioId]);
  if(!ready)return <div className="loading">Carregando atendimento...</div>;
+
+ const clearCurrentAttendance=()=>{
+   const {consultant,consultantPhone,consultantPhoto,consultantEmail}=state.proposal;
+   localStorage.removeItem("locagora_commercial_session_id");
+   localStorage.removeItem("locagora_selected_presentation_id");
+   localStorage.removeItem("locagora_pending_proposal");
+   localStorage.removeItem("locagora_pending_simulation");
+   localStorage.removeItem("locagora_pending_new_client");
+   setState({...defaultState,proposal:{...defaultState.proposal,consultant,consultantPhone,consultantPhoto,consultantEmail,date:new Date().toISOString().slice(0,10)}});
+   setPendingPresentation(false);
+ };
  const go=(step:JourneyStep)=>{if(state.step==="proposal"&&step!=="proposal"){setProposalExitPrompt(true);return}setState(s=>({...s,step}))};
- const newProposal=()=>{const {consultant,consultantPhone,consultantPhoto,consultantEmail}=state.proposal;localStorage.removeItem("locagora_commercial_session_id");localStorage.removeItem("locagora_selected_presentation_id");setState({...defaultState,proposal:{...defaultState.proposal,consultant,consultantPhone,consultantPhoto,consultantEmail,date:new Date().toISOString().slice(0,10)}});setProposalExitPrompt(false);setPendingPresentation(false);localStorage.removeItem("locagora_pending_proposal");localStorage.removeItem("locagora_pending_simulation");localStorage.removeItem("locagora_pending_new_client")};
+ const newProposal=()=>{clearCurrentAttendance();setProposalExitPrompt(false)};
+ const confirmCancellation=async()=>{
+   if(cancelBusy)return;
+   setCancelBusy(true);setCancelError("");
+   const result=await cancelCommercialSession(state,cancelReason,cancelNotes);
+   setCancelBusy(false);
+   if(!result.ok){setCancelError("Não foi possível encerrar este atendimento agora. Tente novamente.");return;}
+   clearCurrentAttendance();
+   setCancelOpen(false);setCancelNotes("");setCancelReason(cancellationReasons[0]);setSyncLabel("Atendimento encerrado");
+ };
  const updateClient=(patch:Partial<ClientProfile>)=>setState(s=>({...s,client:{...s.client,...patch}}));
  const chooseProduct=(route:string)=>{const p=products.find(x=>x.route===route);if(!p?.eligible)return;setState(s=>({...s,selectedProductRoute:route,selectedComparisonScenarioId:null,comparisonSnapshot:null,step:"simulation"}))};
  const saveMigratedSimulation=async(sim:Simulation)=>{const next={...state,simulations:[...state.simulations,sim],activeSimulationId:sim.id,selectedComparisonScenarioId:null,comparisonSnapshot:null,step:"confirmation" as const};setState(next);const remote=await saveRemoteSimulation(sim,next);if(remote.ok&&remote.simulationId){setState(s=>({...s,simulations:s.simulations.map(x=>x.id===sim.id?{...x,remoteId:remote.simulationId}:x)}));setSyncLabel("Simulação salva no Supabase")}else setSyncLabel("Simulação salva localmente")};
@@ -58,14 +94,26 @@ export default function Journey(){
  const searchHistory=async()=>{setHistoryLoading(true);const {data,error}=await loadCommercialHistory({phone:state.client.phone,name:state.client.name});setHistory(error?[]:(data||[]));setHistoryLoading(false)};
  const openHistoryPdf=async(path:string)=>{const url=await getSignedProposalUrl(path);if(url)window.open(url,"_blank","noopener,noreferrer")};
  const selectComparison=(snapshot:ComparisonSnapshot)=>setState(s=>({...s,selectedComparisonScenarioId:snapshot.scenarioId||null,comparisonSnapshot:snapshot}));
+ const canCloseAttendance=Boolean(activeSimulation||state.selectedProductRoute||state.client.name||state.client.capital);
+
  return <main className="workspace">
    <PageHero kicker="LOCAGORA • JORNADA COMERCIAL" title="Jornada Comercial" description="Cliente, solução, simulação, comparador e proposta em um único fluxo." actions={<div className="journeyHeroStepper"><JourneyStepper step={state.step} onChange={go}/>{syncLabel&&<small className="syncLabel">{syncLabel}</small>}</div>}/>
+   {canCloseAttendance&&<div className="actions" style={{justifyContent:"flex-end",marginTop:12}}><button className="secondary" type="button" onClick={()=>{setCancelError("");setCancelOpen(true)}}><XCircle size={16}/> Encerrar atendimento</button></div>}
+
    {state.step==="client"&&<section className="panel"><div className="sectionHead"><small>01 • CLIENTE</small><h2>Perfil comercial</h2>{pendingPresentation&&activeSimulation?<p>Investimento escolhido na apresentação: <b>{activeSimulation.name}</b> • {money(activeSimulation.capital)}. Cadastre o cliente para continuar.</p>:state.selectedProductRoute&&<p>Solução pré-selecionada: <b>{PRODUCTS.find(p=>p.route===state.selectedProductRoute)?.name}</b>.</p>}</div><div className="formGrid journeyFormGrid"><label className="floatingField"><span>Nome do cliente</span><input placeholder=" " value={state.client.name} onChange={e=>updateClient({name:e.target.value})}/></label><label className="floatingField"><span>WhatsApp</span><input inputMode="tel" placeholder=" " value={state.client.phone} onChange={e=>updateClient({phone:e.target.value})}/></label><label className="floatingField"><span>Capital disponível</span><input inputMode="decimal" type="number" placeholder=" " value={state.client.capital||""} onChange={e=>updateClient({capital:Number(e.target.value)})}/></label><label className="floatingField selectField"><span>Objetivo</span><select value={state.client.goal} onChange={e=>updateClient({goal:e.target.value})}><option>Renda mensal</option><option>Diversificação patrimonial</option><option>Empreender com franquia</option><option>Expansão internacional</option></select></label><label className="floatingField selectField"><span>Perfil de renda</span><select value={state.client.income} onChange={e=>updateClient({income:e.target.value})}><option>Renda variável</option><option>Renda fixa</option><option>Empresário / empreendedor</option></select></label><label className="floatingField selectField"><span>Prioridade</span><select value={state.client.priority} onChange={e=>updateClient({priority:e.target.value})}><option>Rentabilidade</option><option>Segurança</option><option>Liquidez</option><option>Escala</option></select></label><label className="floatingField wide textareaField"><span>Observações</span><textarea placeholder=" " rows={4} value={state.client.notes} onChange={e=>updateClient({notes:e.target.value})}/></label></div><div className="clientHistoryBlock"><button className="secondary" disabled={!state.client.name||historyLoading} onClick={searchHistory}>{historyLoading?"Buscando...":"Buscar histórico deste cliente"}</button>{history.length>0&&<div className="historyList">{history.map((h:any)=><article key={h.id}><div><b>{h.client?.name||state.client.name}</b><small>{new Date(h.updated_at).toLocaleString("pt-BR")} • {h.status}</small></div><div><span>{h.commercial_simulations?.length||0} simulações</span><span>{h.commercial_proposals?.length||0} propostas</span></div>{h.commercial_proposals?.filter((pr:any)=>pr.pdf_path).slice(0,1).map((pr:any)=><button key={pr.id} onClick={()=>openHistoryPdf(pr.pdf_path)}>Abrir PDF</button>)}</article>)}</div>}</div><button className="primary" disabled={!state.client.name||(!pendingPresentation&&!state.client.capital)} onClick={()=>{if(pendingPresentation&&activeSimulation){localStorage.removeItem("locagora_pending_proposal");localStorage.removeItem("locagora_pending_simulation");setPendingPresentation(false);go("confirmation")}else go("solution")}}>{pendingPresentation?"Salvar cliente e continuar":"Salvar e escolher solução"}<ArrowRight size={17}/></button></section>}
+
    {state.step==="solution"&&<section className="panel"><div className="sectionHead"><small>02 • SOLUÇÃO</small><h2>Projetos compatíveis com este cliente</h2><p>{state.client.name} • {money(state.client.capital)} • {state.client.income}</p></div><div className="productGrid">{products.map(p=><button key={p.route} disabled={!p.eligible} className={"productCard "+(p.eligible?"eligible":"locked")} onClick={()=>chooseProduct(p.route)}><small>{p.category}</small><h3>{p.name}</h3><p>{p.description}</p><span>A partir de <b>{money(p.min)}</b></span><strong>{p.eligible?"HABILITADO • SIMULAR →":`Faltam ${money(p.missing)}`}</strong></button>)}</div></section>}
+
    {state.step==="simulation"&&(state.selectedProductRoute==="locinvest"?<LocInvestCalculator initialCapital={state.client.capital} onBack={()=>go("solution")} onSave={saveMigratedSimulation}/>:state.selectedProductRoute==="euroloc"?<EuroLocCalculator initialCapital={state.client.capital} onBack={()=>go("solution")} onSave={saveMigratedSimulation}/>:state.selectedProductRoute==="locinternacional"?<LocInternacionalCalculator initialCapital={state.client.capital} onBack={()=>go("solution")} onSave={saveMigratedSimulation}/>:state.selectedProductRoute==="locmillion"?<LocMillionCalculator initialCapital={state.client.capital} onBack={()=>go("solution")} onSave={saveMigratedSimulation}/>:state.selectedProductRoute==="franq-n"?<FranquiaNacionalCalculator initialCapital={state.client.capital} onBack={()=>go("solution")} onSave={saveMigratedSimulation}/>:state.selectedProductRoute==="franq-i"?<FranquiaInternacionalCalculator initialCapital={state.client.capital} onBack={()=>go("solution")} onSave={saveMigratedSimulation}/>:state.selectedProductRoute==="mini"?<MiniMasterCalculator initialCapital={state.client.capital} onBack={()=>go("solution")} onSave={saveMigratedSimulation}/>:state.selectedProductRoute==="master"?<MasterRegionalCalculator initialCapital={state.client.capital} onBack={()=>go("solution")} onSave={saveMigratedSimulation}/>:<section className="panel"><div className="sectionHead"><small>03 • SIMULAÇÃO</small><h2>{PRODUCTS.find(p=>p.route===state.selectedProductRoute)?.name||"Simulação"}</h2><p>Este produto segue para cenário de referência até a migração do motor específico.</p></div><div className="summaryGrid"><div><span>Cliente</span><b>{state.client.name}</b></div><div><span>Capital</span><b>{money(state.client.capital)}</b></div><div><span>Produto</span><b>{PRODUCTS.find(p=>p.route===state.selectedProductRoute)?.name}</b></div></div><div className="actions"><button className="secondary" onClick={()=>go("solution")}><RotateCcw size={16}/> Alterar solução</button><button className="primary" onClick={makeReferenceSimulation}>Criar cenário de referência <ArrowRight size={16}/></button></div></section>)}
-   {state.step==="confirmation"&&<section className="panel"><div className="sectionHead"><small>04 • CONFIRMAÇÃO</small><h2>Confirme o cenário</h2><p>Depois da confirmação, o comparador recebe automaticamente capital e renda desta simulação.</p></div>{activeSimulation?<><div className="summaryGrid"><div><span>Produto</span><b>{activeSimulation.name}</b></div><div><span>Capital utilizado</span><b>{money(activeSimulation.capital)}</b></div><div><span>Ganho mensal</span><b className="green">{money(activeSimulation.monthly)}</b></div><div><span>Ganho anual</span><b>{money(activeSimulation.annual||0)}</b></div></div><button className="primary" onClick={()=>go("comparison")}><Check size={16}/> Confirmar e comparar oportunidades</button></>:<div className="empty">Nenhuma simulação ativa.</div>}</section>}
+
+   {state.step==="confirmation"&&<section className="panel"><div className="sectionHead"><small>04 • CONFIRMAÇÃO</small><h2>Confirme o cenário</h2><p>Depois da confirmação, o comparador recebe automaticamente capital e renda desta simulação.</p></div>{activeSimulation?<><div className="summaryGrid"><div><span>Produto</span><b>{activeSimulation.name}</b></div><div><span>Capital utilizado</span><b>{money(activeSimulation.capital)}</b></div><div><span>Ganho mensal</span><b className="green">{money(activeSimulation.monthly)}</b></div><div><span>Ganho anual</span><b>{money(activeSimulation.annual||0)}</b></div></div><div className="actions"><button className="secondary" type="button" onClick={()=>setCancelOpen(true)}><XCircle size={16}/> Não dar continuidade</button><button className="primary" onClick={()=>go("comparison")}><Check size={16}/> Confirmar e comparar oportunidades</button></div></>:<div className="empty">Nenhuma simulação ativa.</div>}</section>}
+
    {state.step==="comparison"&&(activeSimulation?<section className="panel"><div className="sectionHead"><small>05 • COMPARADOR</small><h2>Comparação integrada à simulação</h2><p>Selecione o cenário que deseja registrar na apresentação comercial e congelar na proposta.</p></div><CapitalOpportunityComparator embedded simulation={activeSimulation} selected={state.comparisonSnapshot} onSelect={selectComparison} onBack={()=>go("confirmation")} onContinue={()=>go("proposal")}/></section>:<section className="panel"><div className="empty">Confirme uma simulação antes de comparar.</div></section>)}
+
    {state.step==="proposal"&&(activeSimulation?<ProposalWorkspace client={state.client} simulation={activeSimulation} proposal={state.proposal} state={state} onBack={()=>go("comparison")} onFinalized={()=>setProposalExitPrompt(true)} onChange={patch=>setState(s=>({...s,proposal:{...s.proposal,...patch}}))}/>:<section className="panel"><div className="empty">Confirme uma simulação antes de gerar a proposta.</div></section>)}
+
+   {cancelOpen&&<div className="journeyDecisionBackdrop"><div className="journeyDecision"><small>ENCERRAR ATENDIMENTO</small><h3>Deseja realmente encerrar esta oportunidade?</h3><p>O histórico já realizado será preservado. O atendimento será marcado como cancelado e você poderá iniciar uma nova oportunidade sem carregar os dados atuais.</p><div className="formGrid" style={{gridTemplateColumns:"1fr"}}><label><span>Motivo</span><select value={cancelReason} onChange={e=>setCancelReason(e.target.value)}>{cancellationReasons.map(reason=><option key={reason}>{reason}</option>)}</select></label><label><span>Observação opcional</span><textarea rows={3} value={cancelNotes} onChange={e=>setCancelNotes(e.target.value)} placeholder="Ex.: retomar contato no próximo trimestre"/></label></div>{cancelError&&<div className="statusWarn">{cancelError}</div>}<div className="actions"><button className="secondary" disabled={cancelBusy} onClick={()=>setCancelOpen(false)}>Voltar ao atendimento</button><button className="primary" disabled={cancelBusy} onClick={()=>void confirmCancellation()}><XCircle size={16}/>{cancelBusy?" Encerrando...":" Encerrar atendimento"}</button></div></div></div>}
+
    {proposalExitPrompt&&<div className="journeyDecisionBackdrop"><div className="journeyDecision"><small>PROPOSTA EM ANDAMENTO / FINALIZADA</small><h3>O que deseja fazer agora?</h3><p>Você pode continuar na proposta atual ou iniciar um novo atendimento. Ao iniciar uma nova proposta, a Jornada volta para o passo 01.</p><div className="actions"><button className="secondary" onClick={()=>setProposalExitPrompt(false)}>Continuar nesta proposta</button><button className="primary" onClick={newProposal}>Nova proposta • voltar ao 01</button></div></div></div>}
  </main>
 }
