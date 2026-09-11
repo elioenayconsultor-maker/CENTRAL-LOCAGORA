@@ -69,3 +69,19 @@ where u.auth_user_id=m.auth_user_id
   and u.active=true
   and u.role='SDR'::user_role
   and m.role<>'admin';
+
+-- If both commercial_memberships and commercial_admins say the user is an admin,
+-- keep the profile role aligned so current_app_role() and all RLS policies agree.
+update public.users u
+set role='ADMIN'::user_role,
+    updated_at=now()
+where u.active=true
+  and exists (
+    select 1 from public.commercial_memberships m
+    where m.auth_user_id=u.auth_user_id and m.active=true and m.role='admin'
+  )
+  and exists (
+    select 1 from public.commercial_admins a
+    where a.user_id=u.auth_user_id
+  )
+  and u.role<>'ADMIN'::user_role;
