@@ -74,8 +74,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
         });
         const provision = await response.json().catch(() => null);
         if (!response.ok || !provision?.ok) {
-          if (provision?.reason === "profile_missing") setError("Este e-mail ainda não está cadastrado no sistema. Solicite o cadastro ao administrador.");
-          else if (provision?.reason === "inactive") setError("Este acesso está bloqueado pelo administrador.");
+          if (provision?.reason === "inactive") setError("Este acesso está bloqueado pelo administrador.");
           else setError("Não foi possível liberar o primeiro acesso agora.");
           return;
         }
@@ -102,7 +101,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       setAccess(result);
       if (result.status !== "active") {
         await supabase.auth.signOut();
-        if (result.status === "profile_missing") setError("Seu e-mail ainda não está cadastrado no sistema. Solicite o cadastro ao administrador.");
+        if (result.status === "profile_missing") setError("Não foi possível concluir seu cadastro corporativo. Tente novamente com a senha padrão de primeiro acesso.");
         else if (result.status === "inactive") setError("Seu acesso foi bloqueado pelo administrador.");
         else if (result.status === "already_linked") setError("Este perfil já está vinculado a outra credencial. Solicite revisão ao administrador.");
         else setError("Não foi possível validar seu acesso corporativo.");
@@ -150,7 +149,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
 
   if (authenticated && access && access.status !== "active") {
     const text = access.status === "profile_missing"
-      ? "Seu e-mail ainda não possui um perfil correspondente no sistema."
+      ? "Não foi possível concluir automaticamente seu cadastro corporativo."
       : access.status === "inactive"
         ? "Seu acesso foi bloqueado pelo administrador."
         : access.status === "already_linked"
@@ -164,11 +163,11 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       <div className="authBrand"><div className="brandLogoRow"><Image src="/locagora-logo.png" alt="Locagora - Assinatura de Motos" width={220} height={76} priority className="authLogo" /><span className="versionBadge">V9.0</span></div><small>CENTRAL COMERCIAL</small><div className="publicEntryLinks"><a href="/historia">História pública</a><a href="/negocios">Negócios & Investimentos</a></div></div>
       <div className="authIcon"><ShieldCheck /></div>
       <h1>Acesso corporativo</h1>
-      <p>Use seu e-mail <b>@locgrupo.com.br</b>. No primeiro acesso, entre com a senha padrão fornecida pela empresa e crie sua senha pessoal imediatamente.</p>
+      <p>Use seu e-mail <b>@locgrupo.com.br</b>. Se ainda não houver pré-cadastro, a Central cria automaticamente um perfil inicial como <b>Closer</b>. Depois do primeiro acesso, você cria sua senha pessoal e completa seus dados.</p>
       <form onSubmit={login}>
         <label>E-mail corporativo<input type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" placeholder="nome@locgrupo.com.br" /></label>
         <label>Senha<input type="password" required value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" /></label>
-        <div className="activationHint"><KeyRound size={15}/><span>Primeiro acesso: use a senha padrão. Não há confirmação por e-mail; após entrar, você será direcionado para criar sua senha definitiva.</span></div>
+        <div className="activationHint"><KeyRound size={15}/><span>Primeiro acesso: use a senha padrão. Não há confirmação por e-mail. Se o usuário ainda não existir, o pré-cadastro é criado automaticamente; depois você define sua senha e completa o perfil.</span></div>
         {notice && <div className="statusOk activationNotice"><MailCheck size={16}/><span>{notice}</span></div>}
         {error && <div className="statusWarn">{error}</div>}
         <button className="primary" disabled={loading || recovering}><LogIn size={17}/>{loading ? "Processando..." : "Entrar"}</button>
