@@ -32,6 +32,14 @@ async function listAllUsers(admin:any){
   return out;
 }
 
+function authUserForProfile(profile:any,authUsers:any[]){
+  const profileEmail=cleanEmail(profile?.email);
+  const linked=profile?.auth_user_id?authUsers.find((u:any)=>u.id===profile.auth_user_id):null;
+  const byEmail=profileEmail?authUsers.find((u:any)=>cleanEmail(u.email)===profileEmail):null;
+  if(linked&&cleanEmail(linked.email)===profileEmail)return linked;
+  return byEmail||linked||null;
+}
+
 export async function GET(request:Request){
   const access=await requireCommercialRole(request,["admin"]);
   if(!access.ok)return NextResponse.json({ok:false,reason:access.reason},{status:access.status});
@@ -42,19 +50,21 @@ export async function GET(request:Request){
     const {data:profiles,error:profileError}=await access.admin.from("users").select("id,auth_user_id,name,email,role,active,team_name,created_at,updated_at").order("created_at",{ascending:true});
     if(profileError)throw profileError;
     const membershipByAuth=new Map((memberships||[]).map((m:any)=>[m.auth_user_id,m]));
-    const authById=new Map(authUsers.map((u:any)=>[u.id,u]));
     const rows=(profiles||[]).map((p:any)=>{
-      const auth=p.auth_user_id?authById.get(p.auth_user_id) as any:null;
-      const m=p.auth_user_id?membershipByAuth.get(p.auth_user_id) as any:null;
+      const auth=authUserForProfile(p,authUsers);
+      const effectiveAuthId=auth?.id||p.auth_user_id||"";
+      const m=effectiveAuthId?membershipByAuth.get(effectiveAuthId) as any:null;
+      const linkNeedsRepair=Boolean(auth?.id&&p.auth_user_id!==auth.id);
       return {
         profileId:p.id,
-        userId:p.auth_user_id||"",
+        userId:effectiveAuthId,
         email:String(p.email||auth?.email||""),
         name:String(p.name||auth?.user_metadata?.full_name||""),
         role:m?.role||apiRole(p.role),
         active:p.active!==false&&m?.active!==false,
         teamName:String(m?.team_name||p.team_name||""),
-        accessCreated:Boolean(p.auth_user_id),
+        accessCreated:Boolean(auth?.id||p.auth_user_id),
+        linkNeedsRepair,
         createdAt:p.created_at||auth?.created_at||"",
         updatedAt:p.updated_at||m?.updated_at||auth?.updated_at||""
       };
@@ -74,22 +84,58 @@ export async function POST(request:Request){
       const profileId=String(body.profileId||"").trim();
       const userId=String(body.userId||"").trim();
       let profile:any=null;
-      if(profileId){const {data}=await access.admin.from("users").select("id,auth_user_id,email,active").eq("id",profileId).maybeSingle();profile=data;}
-      else if(userId){const {data}=await access.admin.from("users").select("id,auth_user_id,email,active").eq("auth_user_id",userId).maybeSingle();profile=data;}
+      if(profileId){const {data}=await access.admin.from("users").select("id,auth_user_id,email,active,role,team_name").eq("id",profileId).maybeSingle();profile=data;}
+      else if(userId){const {data}=await access.admin.from("users").select("id,auth_user_id,email,active,role,team_name").eq("auth_user_id",userId).maybeSingle();profile=data;}
       if(!profile)return NextResponse.json({ok:false,reason:"user_not_found",message:"Colaborador não encontrado."},{status:404});
-      if(!profile.auth_user_id)return NextResponse.json({ok:false,reason:"access_not_created",message:"Este colaborador ainda não criou o primeiro acesso. Nesse caso, use o fluxo de primeiro acesso."},{status:409});
       if(profile.active===false)return NextResponse.json({ok:false,reason:"inactive",message:"Reative o usuário antes de resetar a senha."},{status:409});
 
+      const targetEmail=cleanEmail(profile.email);
+      if(!emailOk(targetEmail))return NextResponse.json({ok:false,reason:"invalid_email",message:"O perfil não possui um e-mail corporativo válido."},{status:409});
+
+      const authUsers=await listAllUsers(access.admin);
+      const authUser=authUsers.find((u:any)=>cleanEmail(u.email)===targetEmail)||null;
+      if(!authUser)return NextResponse.json({ok:false,reason:"auth_user_not_found",message:"Não existe credencial de autenticação para este e-mail. Oriente o usuário a fazer o primeiro acesso antes do reset."},{status:409});
+
+      const oldAuthId=profile.auth_user_id||null;
+      let reconciled=false;
+      if(oldAuthId!==authUser.id){
+        const {data:conflict}=await access.admin.from("users").select("id,email").eq("auth_user_id",authUser.id).neq("id",profile.id).maybeSingle();
+        if(conflict)return NextResponse.json({ok:false,reason:"auth_link_conflict",message:`A credencial deste e-mail já está vinculada a outro perfil (${conflict.email||conflict.id}). Revise os cadastros antes de resetar.`},{status:409});
+
+        const now=new Date().toISOString();
+        const {error:linkError}=await access.admin.from("users").update({auth_user_id:authUser.id,must_change_password:true,updated_at:now}).eq("id",profile.id);
+        if(linkError)throw linkError;
+
+        const role=validRoles.has(apiRole(profile.role))?apiRole(profile.role):"closer";
+        const {error:membershipError}=await access.admin.from("commercial_memberships").upsert({
+          auth_user_id:authUser.id,
+          app_user_id:profile.id,
+          role,
+          team_name:profile.team_name||null,
+          active:true,
+          updated_at:now,
+          updated_by:access.user.id,
+        },{onConflict:"auth_user_id"});
+        if(membershipError)throw membershipError;
+        reconciled=true;
+      }
+
       const temp=temporaryPassword();
-      const {data:authData,error:authReadError}=await access.admin.auth.admin.getUserById(profile.auth_user_id);
-      if(authReadError)throw authReadError;
-      const metadata={...(authData.user?.user_metadata||{}),activation_required:true,password_reset_by_admin:true,password_reset_at:new Date().toISOString()};
-      const {error:updateAuthError}=await access.admin.auth.admin.updateUserById(profile.auth_user_id,{password:temp,user_metadata:metadata});
+      const metadata={...(authUser.user_metadata||{}),activation_required:true,password_reset_by_admin:true,password_reset_at:new Date().toISOString()};
+      const {error:updateAuthError}=await access.admin.auth.admin.updateUserById(authUser.id,{password:temp,user_metadata:metadata});
       if(updateAuthError)throw updateAuthError;
+
       const now=new Date().toISOString();
-      await access.admin.from("users").update({must_change_password:true,updated_at:now}).eq("id",profile.id);
-      await access.admin.from("commercial_audit_log").insert({action:"password_reset_by_admin",entity_type:"user",entity_id:profile.id,actor_user_id:access.user.id,actor_email:access.user.email||null,metadata:{target_email:profile.email||null,temporary_password:true}});
-      return NextResponse.json({ok:true,temporaryPassword:temp,message:"Senha temporária criada. Ela deve ser trocada no próximo acesso."});
+      await access.admin.from("users").update({auth_user_id:authUser.id,must_change_password:true,updated_at:now}).eq("id",profile.id);
+      await access.admin.from("commercial_audit_log").insert({
+        action:"password_reset_by_admin",
+        entity_type:"user",
+        entity_id:profile.id,
+        actor_user_id:access.user.id,
+        actor_email:access.user.email||null,
+        metadata:{target_email:targetEmail,temporary_password:true,auth_user_id:authUser.id,reconciled,previous_auth_user_id:oldAuthId}
+      });
+      return NextResponse.json({ok:true,temporaryPassword:temp,reconciled,authUserId:authUser.id,message:reconciled?"Vínculo de autenticação corrigido e senha temporária criada.":"Senha temporária criada. Ela deve ser trocada no próximo acesso."});
     }
 
     const teamName=cleanTeam(body.teamName);
