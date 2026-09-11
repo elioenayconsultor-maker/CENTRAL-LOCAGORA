@@ -7,69 +7,30 @@ import { useEffect, useMemo, useState } from "react";
 import { PUBLIC_PRODUCTS, type PublicProduct, type PublicProductProfile } from "@/lib/public-products";
 import { createClient } from "@/lib/supabase/client";
 
-const profileLabels:Record<PublicProductProfile,string>={
-  operator:"Quero operar um negócio",
-  investor:"Quero investir em ativos",
-  international:"Quero exposição internacional",
-  network:"Quero conhecer a rede"
-};
-
+const profileLabels:Record<PublicProductProfile,string>={operator:"Quero operar um negócio",investor:"Quero investir em ativos",international:"Quero exposição internacional",network:"Quero conhecer a rede"};
 type Filter="all"|PublicProductProfile;
+type ProductView=PublicProduct&{thumbnail_url?:string|null;thumbnail_position_x?:number;thumbnail_position_y?:number;display_order?:number};
+const defaultViews=PUBLIC_PRODUCTS.map((p,i)=>({...p,thumbnail_url:null,thumbnail_position_x:50,thumbnail_position_y:50,display_order:i+1}));
 
 export default function PublicProductExplorer(){
-  const [filter,setFilter]=useState<Filter>("all");
-  const [query,setQuery]=useState("");
-  const [compare,setCompare]=useState<string[]>([]);
-  const [finderOpen,setFinderOpen]=useState(false);
-  const [answers,setAnswers]=useState<PublicProductProfile[]>([]);
-  const [products,setProducts]=useState<PublicProduct[]>(PUBLIC_PRODUCTS);
-  useEffect(()=>{void (async()=>{try{const supabase=createClient();const {data}=await supabase.from("commercial_public_product_catalog").select("slug,name,eyebrow,category,description,audience,scope,structure,profiles,tags,status");if(!data?.length)return;const bySlug=new Map(PUBLIC_PRODUCTS.map(p=>[p.slug,p]));const rows=data as Array<{slug:string;name:string;eyebrow:string;category:string;description:string;audience:string;scope:string;structure:string;profiles:PublicProductProfile[];tags:string[];status:string}>;const merged=rows.filter(r=>r.status==="active").map(r=>{const base=bySlug.get(r.slug);return {slug:r.slug,name:r.name,eyebrow:r.eyebrow,category:r.category,description:r.description,audience:r.audience,scope:r.scope,structure:r.structure,profiles:r.profiles||["network"],tags:r.tags||[],slides:base?.slides||[],facts:base?.facts||[{label:"Modelo",value:r.name}]} as PublicProduct});const catalogSlugs=new Set(rows.map(r=>r.slug));const legacy=PUBLIC_PRODUCTS.filter(p=>!catalogSlugs.has(p.slug));setProducts([...merged,...legacy]);}catch{}})()},[]);
-
-  const filtered=useMemo(()=>products.filter(product=>{
-    const matchesFilter=filter==="all"||product.profiles.includes(filter);
-    const haystack=`${product.name} ${product.eyebrow} ${product.description} ${product.tags.join(" ")}`.toLocaleLowerCase("pt-BR");
-    return matchesFilter&&haystack.includes(query.trim().toLocaleLowerCase("pt-BR"));
-  }),[filter,query,products]);
-
+  const [filter,setFilter]=useState<Filter>("all");const [query,setQuery]=useState("");const [compare,setCompare]=useState<string[]>([]);const [finderOpen,setFinderOpen]=useState(false);const [answers,setAnswers]=useState<PublicProductProfile[]>([]);const [products,setProducts]=useState<ProductView[]>(defaultViews);
+  useEffect(()=>{void (async()=>{try{const supabase=createClient();const {data}=await supabase.from("commercial_public_product_catalog").select("slug,name,eyebrow,category,description,audience,scope,structure,profiles,tags,status,thumbnail_url,thumbnail_position_x,thumbnail_position_y,display_order").order("display_order").order("name");if(!data?.length)return;const bySlug=new Map(PUBLIC_PRODUCTS.map(p=>[p.slug,p]));const rows=data as Array<{slug:string;name:string;eyebrow:string;category:string;description:string;audience:string;scope:string;structure:string;profiles:PublicProductProfile[];tags:string[];status:string;thumbnail_url:string|null;thumbnail_position_x:number;thumbnail_position_y:number;display_order:number}>;const merged=rows.filter(r=>r.status==="active").map(r=>{const base=bySlug.get(r.slug);return {slug:r.slug,name:r.name,eyebrow:r.eyebrow,category:r.category,description:r.description,audience:r.audience,scope:r.scope,structure:r.structure,profiles:r.profiles||["network"],tags:r.tags||[],slides:base?.slides||[],facts:base?.facts||[{label:"Modelo",value:r.name}],thumbnail_url:r.thumbnail_url,thumbnail_position_x:r.thumbnail_position_x??50,thumbnail_position_y:r.thumbnail_position_y??50,display_order:r.display_order??100} as ProductView});const catalogSlugs=new Set(rows.map(r=>r.slug));const legacy=defaultViews.filter(p=>!catalogSlugs.has(p.slug));setProducts([...merged,...legacy].sort((a,b)=>(a.display_order??100)-(b.display_order??100)||a.name.localeCompare(b.name,"pt-BR")));}catch{}})()},[]);
+  const filtered=useMemo(()=>products.filter(product=>{const matchesFilter=filter==="all"||product.profiles.includes(filter);const haystack=`${product.name} ${product.eyebrow} ${product.description} ${product.tags.join(" ")}`.toLocaleLowerCase("pt-BR");return matchesFilter&&haystack.includes(query.trim().toLocaleLowerCase("pt-BR"));}),[filter,query,products]);
   const compared=products.filter(product=>compare.includes(product.slug));
-  const recommendations=useMemo(()=>products.map(product=>({
-    product,
-    score:answers.reduce((total,answer)=>total+(product.profiles.includes(answer)?1:0),0)
-  })).filter(item=>item.score>0).sort((a,b)=>b.score-a.score),[answers,products]);
-
-  const toggleCompare=(slug:string)=>setCompare(current=>current.includes(slug)?current.filter(item=>item!==slug):current.length<3?[...current,slug]:current);
-  const toggleAnswer=(profile:PublicProductProfile)=>setAnswers(current=>current.includes(profile)?current.filter(item=>item!==profile):[...current,profile]);
+  const recommendations=useMemo(()=>products.map(product=>({product,score:answers.reduce((total,answer)=>total+(product.profiles.includes(answer)?1:0),0)})).filter(item=>item.score>0).sort((a,b)=>b.score-a.score),[answers,products]);
+  const toggleCompare=(slug:string)=>setCompare(current=>current.includes(slug)?current.filter(item=>item!==slug):current.length<3?[...current,slug]:current);const toggleAnswer=(profile:PublicProductProfile)=>setAnswers(current=>current.includes(profile)?current.filter(item=>item!==profile):[...current,profile]);
 
   return <>
-    <section className="publicDiscovery" aria-label="Descoberta de modelos Locagora">
-      <div className="publicDiscoveryLead">
-        <small>DESCUBRA SEU CAMINHO</small>
-        <h2>Encontre o modelo que combina com seu objetivo.</h2>
-        <p>Explore por perfil, compare apresentações lado a lado ou responda a uma seleção rápida de objetivos.</p>
-      </div>
-      <button className="finderLaunch" onClick={()=>setFinderOpen(true)}><SlidersHorizontal size={19}/><span><b>Encontrar meu modelo</b><small>Seleção guiada em poucos passos</small></span><ArrowRight size={19}/></button>
-    </section>
+    <section className="publicDiscovery" aria-label="Descoberta de modelos Locagora"><div className="publicDiscoveryLead"><small>DESCUBRA SEU CAMINHO</small><h2>Encontre o modelo que combina com seu objetivo.</h2><p>Explore por perfil, compare apresentações lado a lado ou responda a uma seleção rápida de objetivos.</p></div><button className="finderLaunch" onClick={()=>setFinderOpen(true)}><SlidersHorizontal size={19}/><span><b>Encontrar meu modelo</b><small>Seleção guiada em poucos passos</small></span><ArrowRight size={19}/></button></section>
+    <section className="portfolioToolbar"><div className="portfolioFilters" aria-label="Filtros do portfólio"><button className={filter==="all"?"active":""} onClick={()=>setFilter("all")}>Todos</button>{(Object.keys(profileLabels) as PublicProductProfile[]).map(key=><button key={key} className={filter===key?"active":""} onClick={()=>setFilter(key)}>{profileLabels[key]}</button>)}</div><label className="portfolioSearch"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar modelo ou tema" aria-label="Buscar no portfólio"/>{query&&<button onClick={()=>setQuery("")} aria-label="Limpar busca"><X size={15}/></button>}</label></section>
 
-    <section className="portfolioToolbar">
-      <div className="portfolioFilters" aria-label="Filtros do portfólio">
-        <button className={filter==="all"?"active":""} onClick={()=>setFilter("all")}>Todos</button>
-        {(Object.keys(profileLabels) as PublicProductProfile[]).map(key=><button key={key} className={filter===key?"active":""} onClick={()=>setFilter(key)}>{profileLabels[key]}</button>)}
-      </div>
-      <label className="portfolioSearch"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar modelo ou tema" aria-label="Buscar no portfólio"/>{query&&<button onClick={()=>setQuery("")} aria-label="Limpar busca"><X size={15}/></button>}</label>
-    </section>
-
-    {filtered.length?<section className="publicProductGrid phase3Grid">{filtered.map(product=><article className="publicProductCard phase3Card" key={product.slug}>
-      <Link href={`/negocios/${product.slug}`} className="productCardMain">
-        <div className="productThumb">{product.slides[0]?<Image src={product.slides[0]} alt={product.name} width={700} height={394}/>:<div className="productThumbPlaceholder"><b>LOCAGORA</b><span>Apresentação em preparação</span></div>}<span className="productCategory">{product.category}</span></div>
-        <div className="productCardBody"><small>{product.eyebrow}</small><h2>{product.name}</h2><p>{product.description}</p><div className="productTags">{product.tags.slice(0,3).map(tag=><span key={tag}>{tag}</span>)}</div><strong>Ver detalhes <ArrowRight size={16}/></strong></div>
-      </Link>
+    {filtered.length?<section className="publicProductGrid phase3Grid">{filtered.map(product=>{const thumb=product.thumbnail_url||product.slides[0];return <article className="publicProductCard phase3Card" key={product.slug}>
+      <Link href={`/negocios/${product.slug}`} className="productCardMain"><div className="productThumb">{thumb?<Image src={thumb} alt={product.name} width={700} height={394} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:`${product.thumbnail_position_x??50}% ${product.thumbnail_position_y??50}%`}} unoptimized={thumb.startsWith("http")}/>:<div className="productThumbPlaceholder"><b>LOCAGORA</b><span>Apresentação em preparação</span></div>}<span className="productCategory">{product.category}</span></div><div className="productCardBody"><small>{product.eyebrow}</small><h2>{product.name}</h2><p>{product.description}</p><div className="productTags">{product.tags.slice(0,3).map(tag=><span key={tag}>{tag}</span>)}</div><strong>Ver detalhes <ArrowRight size={16}/></strong></div></Link>
       <button className={`compareToggle ${compare.includes(product.slug)?"selected":""}`} onClick={()=>toggleCompare(product.slug)} disabled={!compare.includes(product.slug)&&compare.length>=3} aria-pressed={compare.includes(product.slug)}>{compare.includes(product.slug)?<Check size={16}/>:<GitCompareArrows size={16}/>} {compare.includes(product.slug)?"Selecionado":"Comparar"}</button>
-    </article>)}</section>:<div className="publicEmpty"><Search/><h3>Nenhum modelo encontrado</h3><p>Ajuste os filtros ou limpe a busca para ver todo o portfólio.</p><button onClick={()=>{setFilter("all");setQuery("")}}><RotateCcw size={16}/> Limpar filtros</button></div>}
+    </article>})}</section>:<div className="publicEmpty"><Search/><h3>Nenhum modelo encontrado</h3><p>Ajuste os filtros ou limpe a busca para ver todo o portfólio.</p><button onClick={()=>{setFilter("all");setQuery("")}}><RotateCcw size={16}/> Limpar filtros</button></div>}
 
     {compare.length>0&&<div className="compareBar"><div><GitCompareArrows size={19}/><span><b>{compare.length} de 3 modelos</b><small>Selecione pelo menos 2 para comparar.</small></span></div><div><button className="compareClear" onClick={()=>setCompare([])}>Limpar</button><button className="compareOpen" onClick={()=>document.getElementById("public-comparison")?.scrollIntoView({behavior:"smooth"})} disabled={compare.length<2}>Comparar agora</button></div></div>}
-
-    {compared.length>=2&&<section className="publicComparison" id="public-comparison"><div className="comparisonHead"><small>COMPARADOR</small><h2>Compare os modelos selecionados.</h2><p>Leitura orientativa baseada nas informações públicas desta versão. Condições comerciais devem ser confirmadas com um consultor.</p></div><div className="comparisonScroll"><table><thead><tr><th>Critério</th>{compared.map(p=><th key={p.slug}>{p.name}<button onClick={()=>toggleCompare(p.slug)} aria-label={`Remover ${p.name}`}><X size={14}/></button></th>)}</tr></thead><tbody><tr><td>Categoria</td>{compared.map(p=><td key={p.slug}>{p.category}</td>)}</tr><tr><td>Indicado para</td>{compared.map(p=><td key={p.slug}>{p.audience}</td>)}</tr><tr><td>Escopo</td>{compared.map(p=><td key={p.slug}>{p.scope}</td>)}</tr><tr><td>Estrutura</td>{compared.map(p=><td key={p.slug}>{p.structure}</td>)}</tr><tr><td>Apresentação</td>{compared.map(p=><td key={p.slug}>{10} páginas</td>)}</tr><tr><td></td>{compared.map(p=><td key={p.slug}><Link href={`/negocios/${p.slug}`}>Abrir detalhes <ArrowRight size={14}/></Link></td>)}</tr></tbody></table></div></section>}
-
+    {compared.length>=2&&<section className="publicComparison" id="public-comparison"><div className="comparisonHead"><small>COMPARADOR</small><h2>Compare os modelos selecionados.</h2><p>Leitura orientativa baseada nas informações públicas desta versão. Condições comerciais devem ser confirmadas com um consultor.</p></div><div className="comparisonScroll"><table><thead><tr><th>Critério</th>{compared.map(p=><th key={p.slug}>{p.name}<button onClick={()=>toggleCompare(p.slug)} aria-label={`Remover ${p.name}`}><X size={14}/></button></th>)}</tr></thead><tbody><tr><td>Categoria</td>{compared.map(p=><td key={p.slug}>{p.category}</td>)}</tr><tr><td>Indicado para</td>{compared.map(p=><td key={p.slug}>{p.audience}</td>)}</tr><tr><td>Escopo</td>{compared.map(p=><td key={p.slug}>{p.scope}</td>)}</tr><tr><td>Estrutura</td>{compared.map(p=><td key={p.slug}>{p.structure}</td>)}</tr><tr><td>Apresentação</td>{compared.map(p=><td key={p.slug}>10 páginas</td>)}</tr><tr><td></td>{compared.map(p=><td key={p.slug}><Link href={`/negocios/${p.slug}`}>Abrir detalhes <ArrowRight size={14}/></Link></td>)}</tr></tbody></table></div></section>}
     {finderOpen&&<div className="publicFinderBackdrop" role="presentation" onMouseDown={e=>{if(e.currentTarget===e.target)setFinderOpen(false)}}><section className="publicFinder" role="dialog" aria-modal="true" aria-labelledby="finder-title"><div className="finderHead"><div><small>ENCONTRAR MEU MODELO</small><h2 id="finder-title">O que você busca na Locagora?</h2><p>Marque uma ou mais opções. A recomendação usa apenas a classificação pública do portfólio, sem simular retorno ou condição comercial.</p></div><button onClick={()=>setFinderOpen(false)} aria-label="Fechar"><X/></button></div><div className="finderChoices">{(Object.keys(profileLabels) as PublicProductProfile[]).map(profile=><button key={profile} className={answers.includes(profile)?"selected":""} onClick={()=>toggleAnswer(profile)}><span>{answers.includes(profile)&&<Check size={16}/>}</span><b>{profileLabels[profile]}</b></button>)}</div>{answers.length>0&&<div className="finderResults"><small>MODELOS MAIS ADERENTES</small>{recommendations.slice(0,3).map(({product,score},index)=><Link href={`/negocios/${product.slug}`} key={product.slug}><span>{String(index+1).padStart(2,"0")}</span><div><b>{product.name}</b><small>{score} {score===1?"critério compatível":"critérios compatíveis"} • {product.category}</small></div><ArrowRight/></Link>)}</div>}<div className="finderFooter"><button onClick={()=>setAnswers([])} disabled={!answers.length}>Recomeçar</button><button className="finderDone" onClick={()=>setFinderOpen(false)}>Continuar explorando</button></div></section></div>}
   </>;
 }
