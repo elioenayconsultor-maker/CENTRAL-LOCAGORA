@@ -3,11 +3,38 @@ type NotificationSimulation={capital:number;invested:number;monthly:number;annua
 
 const money=(value:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0}).format(value||0);
 const escapeHtml=(value:string)=>value.replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]||char));
+const emailPattern=/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
+const fallbackFrom="Locagora <onboarding@resend.dev>";
+
+function normalizeResendFrom(raw:string|undefined){
+  const value=String(raw||"").trim().replace(/^["']+|["']+$/g,"").trim();
+  if(!value)return fallbackFrom;
+  if(emailPattern.test(value))return value.toLowerCase();
+  const named=value.match(/^(.+?)\s*<([^<>]+)>$/);
+  if(named&&emailPattern.test(named[2].trim())){
+    const label=named[1].replace(/[<>\"]/g,"").trim()||"Locagora";
+    return `${label} <${named[2].trim().toLowerCase()}>`;
+  }
+  return fallbackFrom;
+}
+
+export function getEmailProviderConfiguration(){
+  const apiKey=String(process.env.RESEND_API_KEY||"").trim();
+  const rawFrom=String(process.env.COMMERCIAL_LEAD_FROM_EMAIL||"").trim();
+  const normalizedFrom=normalizeResendFrom(rawFrom);
+  return {
+    resendConfigured:Boolean(apiKey),
+    resendKeyLooksValid:/^re_[A-Za-z0-9_-]{10,}$/.test(apiKey),
+    leadFromEmailConfigured:Boolean(rawFrom),
+    leadFromEmailLooksValid:!rawFrom||normalizedFrom!==fallbackFrom||rawFrom===fallbackFrom,
+  };
+}
 
 async function sendResend(input:{to:string;subject:string;html:string;replyTo?:string}){
-  const apiKey=process.env.RESEND_API_KEY;
-  const from=process.env.COMMERCIAL_LEAD_FROM_EMAIL||"Locagora <onboarding@resend.dev>";
+  const apiKey=String(process.env.RESEND_API_KEY||"").trim();
+  const from=normalizeResendFrom(process.env.COMMERCIAL_LEAD_FROM_EMAIL);
   if(!apiKey)return {ok:false as const,error:"RESEND_API_KEY_not_configured"};
+  if(!/^re_[A-Za-z0-9_-]{10,}$/.test(apiKey))return {ok:false as const,error:"RESEND_API_KEY_invalid_format"};
   try{
     const response=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:`Bearer ${apiKey}`,"Content-Type":"application/json"},body:JSON.stringify({from,to:[input.to],subject:input.subject,html:input.html,...(input.replyTo?{reply_to:input.replyTo}:{})})});
     const data=await response.json().catch(()=>({})) as {id?:string;message?:string};
