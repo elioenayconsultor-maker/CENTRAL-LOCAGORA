@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import {
   LOC_PLANS, LOC_OPERATION, calculateLocInvest, compareLocInvest, enumeratePackages,
-  groupRecommendation, projectLocInvest, type LocPlanKey, type LocPlan
+  groupRecommendation, projectLocInvest, variantCost, type LocPlanKey, type LocPlan
 } from "@/lib/locinvest";
 import type { Simulation } from "@/lib/types";
 
@@ -22,7 +22,6 @@ export default function LocInvestCalculator({
   saveLabel?:string;
 }){
  const [capital,setCapital]=useState(initialCapital||137594);
- const [workingPerBike,setWorkingPerBike]=useState(600);
  const [ipca,setIpca]=useState(4.64);
  const [renewWorking,setRenewWorking]=useState(600);
  const [selic,setSelic]=useState(14);
@@ -35,12 +34,13 @@ export default function LocInvestCalculator({
  const [manualPlan,setManualPlan]=useState<LocPlanKey>("exclusive");
  const [manualQty,setManualQty]=useState(6);
 
- const result=useMemo(()=>calculateLocInvest(capital,workingPerBike,plans),[capital,workingPerBike,plans]);
+ const result=useMemo(()=>calculateLocInvest(capital,0,plans),[capital,plans]);
  const projection=useMemo(()=>projectLocInvest(capital,ipca,renewWorking,plans),[capital,ipca,renewWorking,plans]);
- const compare=useMemo(()=>compareLocInvest(capital,selic,cdi,ir,plans,workingPerBike),[capital,selic,cdi,ir,plans,workingPerBike]);
+ const compare=useMemo(()=>compareLocInvest(capital,selic,cdi,ir,plans,0),[capital,selic,cdi,ir,plans]);
  const eligible=useMemo(()=>enumeratePackages(capital,plans),[capital,plans]);
 
  const manualCfg=plans[manualPlan];
+ const manualCost=variantCost(manualCfg,manualQty);
  const setPlan=(key:LocPlanKey)=>{
    setManualPlan(key);
    const p=plans[key];
@@ -61,7 +61,7 @@ export default function LocInvestCalculator({
      unitValue:result.qty?result.bikesValue/result.qty:0,
      roiAnnual:result.roiAnnual,
      plan:result.groups.map(g=>`${g.count}× ${g.label}`).join(" + "),
-     workingCapital:result.working,
+     workingCapital:0,
      fees:result.fees,
      appropriation:result.appropriation,
      gross:result.gross,
@@ -74,6 +74,7 @@ export default function LocInvestCalculator({
      horizon:"12 anos",
      notes:[
        `Modelo de moto definido pelo consultor: ${bikeModel}.`,
+       "Capital de giro inicial já incluído no valor comercial do plano.",
        "Renda tratada nesta simulação como líquida conforme condição comercial informada.",
        "Reajuste anual conforme IPCA projetado.",
        "Recebimento de referência a partir de 45 dias.",
@@ -94,8 +95,8 @@ export default function LocInvestCalculator({
 
  return <div className="locinvest">
    <div className="calculatorHero">
-     <div><small>LOCAGORA • LOCINVEST</small><h2>Transforme capital em renda mensal.</h2><p>Composição inteligente por capital disponível, renda líquida, frota, giro e projeção em 12 anos.</p></div>
-     <div className="miniMetrics"><div><span>Horizonte</span><b>12 anos</b></div><div><span>Renda</span><b>Líquida</b></div><div><span>Renovação</span><b>36 meses</b></div></div>
+     <div><small>LOCAGORA • LOCINVEST</small><h2>Transforme capital em renda mensal.</h2><p>Composição inteligente por capital disponível, renda líquida, frota e projeção em 12 anos. O capital de giro inicial já está incluído no valor dos planos.</p></div>
+     <div className="miniMetrics"><div><span>Horizonte</span><b>12 anos</b></div><div><span>Renda</span><b>Líquida</b></div><div><span>Giro inicial</span><b>Incluído</b></div></div>
    </div>
 
    <div className="calcLayout">
@@ -103,27 +104,24 @@ export default function LocInvestCalculator({
       <div className="sectionHead"><small>CONFIGURAÇÃO</small><h2>Quanto o cliente deseja investir?</h2></div>
       <div className="formGrid">
         <label>Capital disponível<input type="number" value={capital||""} onChange={e=>setCapital(Number(e.target.value))}/></label>
-        <label>Capital de giro / moto<input type="number" value={workingPerBike} onChange={e=>setWorkingPerBike(Number(e.target.value))}/></label>
+        <label>Capital de giro<input value="Já incluído no plano" disabled/></label>
       </div>
-      <div className="quickValues">{[70000,130000,300000,500000].map(v=><button key={v} className="secondary" onClick={()=>setCapital(v)}>{money(v).replace(",00","")}</button>)}</div>
+      <div className="quickValues">{[30598,74296,137594,300000].map(v=><button key={v} className="secondary" onClick={()=>setCapital(v)}>{money(v).replace(",00","")}</button>)}</div>
 
       <div className="softBlock freeEditBlock">
         <div className="blockHead"><div><small>AJUSTE LIVRE DO CONSULTOR</small><h3>Valores comerciais do LocInvest</h3></div><span className="successBadge">EDITÁVEL</span></div>
-        <div className="formGrid"><label>Tipo / modelo da moto<input value={bikeModel} onChange={e=>setBikeModel(e.target.value)}/></label><label>Capital de giro / moto<input type="number" value={workingPerBike} onChange={e=>setWorkingPerBike(Number(e.target.value)||0)}/></label></div>
-        <div className="editablePlanGrid">{(Object.keys(plans) as LocPlanKey[]).map(key=>{const p=plans[key];return <div key={key} className="editablePlan"><b>{p.label}</b><label>Valor da moto<input type="number" value={p.bike} onChange={e=>setPlans(x=>({...x,[key]:{...x[key],bike:Number(e.target.value)||0}}))}/></label><label>Taxa ADM<select value={p.fee} onChange={e=>setPlans(x=>({...x,[key]:{...x[key],fee:Number(e.target.value)||0}}))}>{p.fees.map((fee,i)=><option key={fee+"-"+i} value={fee}>{money(fee)}</option>)}</select><small>Opções definidas pelo Administrador.</small></label><label>Rentabilidade / moto / mês<input type="number" value={p.income} onChange={e=>setPlans(x=>({...x,[key]:{...x[key],income:Number(e.target.value)||0}}))}/></label><label>Apropriação / moto<input type="number" value={p.appropriation} onChange={e=>setPlans(x=>({...x,[key]:{...x[key],appropriation:Number(e.target.value)||0}}))}/></label></div>})}</div>
-        <div className="quickValues"><button type="button" className="secondary" onClick={()=>{setBikeModel("Yamaha Factor 150");setWorkingPerBike(600);setRenewWorking(600);setPlans({start:{...LOC_PLANS.start},premium:{...LOC_PLANS.premium},exclusive:{...LOC_PLANS.exclusive}})}}>Restaurar tabela padrão</button></div>
+        <div className="formGrid"><label>Tipo / modelo da moto<input value={bikeModel} onChange={e=>setBikeModel(e.target.value)}/></label><label>Capital de giro inicial<input value="Incluído no valor-base" disabled/></label></div>
+        <div className="editablePlanGrid">{(Object.keys(plans) as LocPlanKey[]).map(key=>{const p=plans[key];return <div key={key} className="editablePlan"><b>{p.label}</b><label>Quantidade-base<input type="number" value={p.baseQty} disabled/></label><label>Valor-base<input type="number" value={p.basePrice} onChange={e=>setPlans(x=>({...x,[key]:{...x[key],basePrice:Number(e.target.value)||0}}))}/></label><label>Valor da moto adicional/retirada<input type="number" value={p.bike} onChange={e=>setPlans(x=>({...x,[key]:{...x[key],bike:Number(e.target.value)||0}}))}/></label><label>Rentabilidade / moto / mês<input type="number" value={p.income} onChange={e=>setPlans(x=>({...x,[key]:{...x[key],income:Number(e.target.value)||0}}))}/></label><label>Apropriação adicional<input type="number" value={p.appropriation} onChange={e=>setPlans(x=>({...x,[key]:{...x[key],appropriation:Number(e.target.value)||0}}))}/><small>{key==="start"?"Aplicada ao acrescentar a 2ª moto.":"Não aplicada nesta configuração."}</small></label></div>})}</div>
+        <div className="quickValues"><button type="button" className="secondary" onClick={()=>{setBikeModel("Yamaha Factor 150");setRenewWorking(600);setPlans({start:{...LOC_PLANS.start},premium:{...LOC_PLANS.premium},exclusive:{...LOC_PLANS.exclusive}})}}>Restaurar tabela padrão</button></div>
       </div>
 
       <div className="softBlock">
         <div className="blockHead"><div><small>COMPOSIÇÃO AUTOMÁTICA</small><h3>Melhor estrutura para o capital</h3></div><span className="successBadge">{result.qty?`${result.qty} MOTOS`:"SEM PLANO"}</span></div>
         {result.groups.length?result.groups.map(g=><div className="line" key={`${g.key}-${g.qty}`}><span>{g.count}× {g.label} ({g.count*g.qty} motos)</span><b>{money(g.count*g.cost)}</b></div>):<div className="empty">Nenhum LocInvest completo cabe no valor informado.</div>}
         <div className="line"><span>Valor usado nos planos</span><b>{money(result.invested)}</b></div>
-        <div className="line"><span>Taxa ADM total</span><b>{money(result.fees)}</b></div>
-        <div className="line"><span>Apropriação total</span><b>{money(result.appropriation)}</b></div>
+        <div className="line"><span>Capital de giro inicial</span><b>INCLUÍDO</b></div>
         <div className="line"><span>Sobra do capital</span><b>{money(result.leftover)}</b></div>
-        <div className="line"><span>Capital de giro necessário</span><b>{money(result.working)}</b></div>
-        <div className="line"><span>Plano + giro</span><b>{money(result.totalWithWorking)}</b></div>
-        <div className={result.workingGap>=0?"statusOk":"statusWarn"}>{result.workingGap>=0?`Capital de giro coberto. Restam ${money(result.workingGap)}.`:`Faltam ${money(Math.abs(result.workingGap))} para completar o giro.`}</div>
+        <div className="statusOk">O valor do plano já contempla o capital de giro inicial. Não há soma adicional de giro nesta contratação.</div>
       </div>
     </section>
 
@@ -142,13 +140,13 @@ export default function LocInvestCalculator({
    </div>
 
    <section className="panel">
-    <div className="sectionHead"><small>PLANOS</small><h2>Condições LocInvest</h2><p>Plano e quantidade continuam ligados entre si.</p></div>
+    <div className="sectionHead"><small>PLANOS</small><h2>Condições LocInvest</h2><p>Valores-base oficiais com capital de giro inicial já incluído.</p></div>
     <div className="planCards">{(Object.keys(plans) as LocPlanKey[]).map(key=>{const p=plans[key];return <button key={key} className={manualPlan===key?"planCard selected":"planCard"} onClick={()=>setPlan(key)}>
-       <small>{p.min}–{p.max} MOTOS</small><h3>{p.label}</h3><span>{money(p.bike)} / moto</span><b>{money(p.income)} / moto / mês</b><span>ADM selecionada {money(p.fee)}</span><small>{p.fees.map((f,i)=>`${money(f)}`).join(" • ")}</small><span>{p.appropriation?`Apropriação ${money(p.appropriation)} / moto`:"Apropriação isenta"}</span>
+       <small>{p.min}–{p.max} MOTOS</small><h3>{p.label}</h3><span>Base: {p.baseQty} {p.baseQty===1?"moto":"motos"}</span><b>{money(p.basePrice)}</b><span>{money(p.income)} / moto / mês</span><small>Capital de giro inicial incluído</small><span>{key==="start"?`2ª moto: + ${money(p.bike)} + apropriação ${money(p.appropriation)}`:key==="premium"?`4ª moto: + ${money(p.bike)}`:`5 motos: - ${money(p.bike)}`}</span>
     </button>})}</div>
     <div className="manualRow"><label>Plano<select value={manualPlan} onChange={e=>setPlan(e.target.value as LocPlanKey)}>{(Object.keys(plans) as LocPlanKey[]).map(k=><option value={k} key={k}>{plans[k].label}</option>)}</select></label>
       <label>Quantidade<input type="number" min={1} max={6} value={manualQty} onChange={e=>setQty(Number(e.target.value))}/></label>
-      <div><span>Configuração individual</span><b>{money(manualQty*manualCfg.bike+manualCfg.fee+manualQty*manualCfg.appropriation)}</b></div>
+      <div><span>Configuração individual</span><b>{money(manualCost)}</b></div>
     </div>
    </section>
 
