@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, BookOpenText, Building2, Calculator, LogIn, TrendingUp } from "lucide-react";
+import { ArrowRight, Bike, BookOpenText, Building2, Calculator, LogIn, TrendingUp } from "lucide-react";
 import PublicShell from "@/components/PublicShell";
+import rentalStyles from "@/components/RentalPublic.module.css";
 
 export default function PublicHome(){
   return <PublicShell>
@@ -20,6 +21,13 @@ export default function PublicHome(){
           <div><Building2/><b>Apresentações</b><span>produto antes da simulação</span></div>
           <div><TrendingUp/><b>Simule</b><span>cenários de investimento</span></div>
         </div>
+      </section>
+
+      <section className={rentalStyles.homeCall} aria-label="Aluguel de motos Locagora">
+        <Link href="/aluguel" className={rentalStyles.homeCard}>
+          <div><small>MOBILIDADE • ALUGUEL DE MOTOS</small><h2>Precisa de uma moto para trabalhar?</h2><p>Veja as cidades atendidas pela rede e deixe seu contato para receber orientação sobre disponibilidade e condições.</p></div>
+          <strong><Bike size={21}/> Quero alugar uma moto <ArrowRight size={18}/></strong>
+        </Link>
       </section>
 
       <section className="publicHomeGrid" aria-label="Caminhos da Central Pública">
