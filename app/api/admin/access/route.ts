@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireCommercialRole } from "@/lib/server-access";
+import { DEFAULT_ACTIVATION_PASSWORD } from "@/lib/corporate-auth";
 
 const validRoles=new Set(["admin","gestor","sdr","closer"]);
 const cleanEmail=(v:unknown)=>String(v??"").trim().toLowerCase().slice(0,180);
@@ -8,18 +9,6 @@ const cleanTeam=(v:unknown)=>String(v??"").trim().slice(0,120);
 const emailOk=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.endsWith("@locgrupo.com.br");
 const dbRole=(role:string)=>({admin:"ADMIN",gestor:"GESTOR",sdr:"SDR",closer:"CLOSER"}[role]||"CLOSER");
 const apiRole=(role:unknown)=>String(role||"CLOSER").toLowerCase();
-
-function temporaryPassword(){
-  const lower="abcdefghijkmnopqrstuvwxyz";
-  const upper="ABCDEFGHJKLMNPQRSTUVWXYZ";
-  const digits="23456789";
-  const symbols="!@#$%&*";
-  const all=lower+upper+digits+symbols;
-  const pick=(chars:string)=>chars[Math.floor(Math.random()*chars.length)];
-  const base=[pick(lower),pick(upper),pick(digits),pick(symbols),...Array.from({length:12},()=>pick(all))];
-  for(let i=base.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[base[i],base[j]]=[base[j],base[i]];}
-  return base.join("");
-}
 
 async function listAllUsers(admin:any){
   const out:any[]=[];
@@ -120,9 +109,8 @@ export async function POST(request:Request){
         reconciled=true;
       }
 
-      const temp=temporaryPassword();
       const metadata={...(authUser.user_metadata||{}),activation_required:true,password_reset_by_admin:true,password_reset_at:new Date().toISOString()};
-      const {error:updateAuthError}=await access.admin.auth.admin.updateUserById(authUser.id,{password:temp,user_metadata:metadata});
+      const {error:updateAuthError}=await access.admin.auth.admin.updateUserById(authUser.id,{password:DEFAULT_ACTIVATION_PASSWORD,user_metadata:metadata});
       if(updateAuthError)throw updateAuthError;
 
       const now=new Date().toISOString();
@@ -133,9 +121,9 @@ export async function POST(request:Request){
         entity_id:profile.id,
         actor_user_id:access.user.id,
         actor_email:access.user.email||null,
-        metadata:{target_email:targetEmail,temporary_password:true,auth_user_id:authUser.id,reconciled,previous_auth_user_id:oldAuthId}
+        metadata:{target_email:targetEmail,reset_to_activation_password:true,auth_user_id:authUser.id,reconciled,previous_auth_user_id:oldAuthId}
       });
-      return NextResponse.json({ok:true,temporaryPassword:temp,reconciled,authUserId:authUser.id,message:reconciled?"Vínculo de autenticação corrigido e senha temporária criada.":"Senha temporária criada. Ela deve ser trocada no próximo acesso."});
+      return NextResponse.json({ok:true,temporaryPassword:DEFAULT_ACTIVATION_PASSWORD,reconciled,authUserId:authUser.id,message:reconciled?"Vínculo de autenticação corrigido. Senha redefinida para a senha padrão e troca obrigatória ativada.":"Senha redefinida para a senha padrão. O usuário deverá criar uma nova senha no próximo acesso."});
     }
 
     const teamName=cleanTeam(body.teamName);
