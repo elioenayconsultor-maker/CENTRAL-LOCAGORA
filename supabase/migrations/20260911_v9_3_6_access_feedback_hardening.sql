@@ -57,6 +57,11 @@ begin
 end;
 $function$;
 
+-- Trigger-only SECURITY DEFINER functions must never be directly callable via REST/RPC.
+revoke execute on function public.commercial_assign_default_closer() from public, anon, authenticated;
+revoke execute on function public.commercial_audit_market_assumption_change() from public, anon, authenticated;
+revoke execute on function public.commercial_touch_motorcycle() from public, anon, authenticated;
+
 -- Repair members that were set as SDR in the profile while the old constraint
 -- prevented the membership from being updated. Never downgrade an admin.
 update public.commercial_memberships m
