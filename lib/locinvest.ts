@@ -5,6 +5,8 @@ export interface LocPlan {
   label: string;
   min: number;
   max: number;
+  baseQty: number;
+  basePrice: number;
   bike: number;
   fee: number;
   fees: number[];
@@ -37,17 +39,28 @@ export interface LocProjectionRow {
   accumulated: number;
 }
 
+/**
+ * Tabela comercial oficial LocInvest.
+ * O capital de giro inicial já está incluído nos valores-base abaixo.
+ *
+ * Start: R$ 30.598 / 1 moto. Para 2 motos, soma 1 moto + apropriação.
+ * Premium: R$ 74.296 / 3 motos. Para 4 motos, soma 1 moto.
+ * Exclusive: R$ 137.594 / 6 motos. Para 5 motos, retira 1 moto.
+ */
 export const LOC_PLANS: Record<LocPlanKey, LocPlan> = {
   start: {
     key:"start", label:"Start", min:1, max:2,
+    baseQty:1, basePrice:30598,
     bike:21999, fee:8999, fees:[8999,7999,6999], appropriation:1000, income:410
   },
   premium: {
     key:"premium", label:"Premium", min:3, max:4,
+    baseQty:3, basePrice:74296,
     bike:20999, fee:9999, fees:[9999,9499,8999], appropriation:0, income:430
   },
   exclusive: {
     key:"exclusive", label:"Exclusive", min:5, max:6,
+    baseQty:6, basePrice:137594,
     bike:19999, fee:14000, fees:[14000,13500,13000], appropriation:0, income:470
   }
 };
@@ -61,7 +74,12 @@ export const LOC_OPERATION = {
 };
 
 export function variantCost(plan: LocPlan, qty: number) {
-  return qty * plan.bike + plan.fee + qty * plan.appropriation;
+  const deltaQty = qty - plan.baseQty;
+  const bikeDelta = deltaQty * plan.bike;
+  const appropriationDelta = plan.key === "start" && deltaQty > 0
+    ? deltaQty * plan.appropriation
+    : 0;
+  return plan.basePrice + bikeDelta + appropriationDelta;
 }
 
 export function allVariants(plans:Record<LocPlanKey,LocPlan>=LOC_PLANS): LocVariant[] {
@@ -81,8 +99,7 @@ export function enumeratePackages(capital:number,plans:Record<LocPlanKey,LocPlan
 }
 
 /**
- * Port fiel do motor da versão HTML.
- * Prioridade:
+ * Prioridade da composição automática:
  * 1. maior número de motos;
  * 2. maior renda mensal;
  * 3. maior capital efetivamente alocado.
@@ -159,7 +176,7 @@ export function groupRecommendation(items:LocVariant[]) {
 
 export function calculateLocInvest(
   capital:number,
-  workingPerBike=600,
+  _workingPerBike=0,
   plans:Record<LocPlanKey,LocPlan>=LOC_PLANS,
   operation=LOC_OPERATION
 ){
@@ -169,11 +186,16 @@ export function calculateLocInvest(
   const invested=recommendation.cost;
   const monthly=recommendation.monthly;
   const annual=monthly*12;
-  const working=qty*workingPerBike;
-  const totalWithWorking=invested+working;
+
+  // O capital de giro inicial já compõe o preço comercial do plano.
+  const working=0;
+  const totalWithWorking=invested;
   const bikesValue=recommendation.items.reduce((sum,v)=>sum+v.qty*v.bike,0);
   const fees=recommendation.items.reduce((sum,v)=>sum+v.fee,0);
-  const appropriation=recommendation.items.reduce((sum,v)=>sum+v.qty*v.appropriation,0);
+  const appropriation=recommendation.items.reduce((sum,v)=>{
+    const extraStartBikes=v.key==="start"?Math.max(0,v.qty-v.baseQty):0;
+    return sum+extraStartBikes*v.appropriation;
+  },0);
 
   const gross=qty*operation.grossPerBike;
   const op=qty*operation.opPerBike;
@@ -191,7 +213,7 @@ export function calculateLocInvest(
     capital,recommendation,groups,qty,invested,monthly,annual,working,totalWithWorking,
     bikesValue,fees,appropriation,
     leftover:Math.max(0,capital-invested),
-    workingGap:capital-totalWithWorking,
+    workingGap:capital-invested,
     gross,op,insurance,accounting,expenses,net,locagora,
     roiAnnual,rentMonthly,bikeRentMonthly
   };
@@ -204,7 +226,7 @@ export function projectLocInvest(
   plans:Record<LocPlanKey,LocPlan>=LOC_PLANS,
   operation=LOC_OPERATION
 ){
-  const base=calculateLocInvest(capital,renewalWorkingPerBike,plans,operation);
+  const base=calculateLocInvest(capital,0,plans,operation);
   const q=base.qty;
   const monthly0=base.monthly;
   const ipca=ipcaPct/100;
@@ -251,7 +273,7 @@ export function compareLocInvest(
   cdiPct=13.9,
   irPct=15,
   plans:Record<LocPlanKey,LocPlan>=LOC_PLANS,
-  workingPerBike=600
+  workingPerBike=0
 ){
   const base=calculateLocInvest(capital,workingPerBike,plans);
   const ir=irPct/100;
