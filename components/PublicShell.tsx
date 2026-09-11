@@ -1,19 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpenText, Building2, Calculator, LogIn, Menu, X } from "lucide-react";
-import { useState, type ReactNode } from "react";
-
-export default function PublicShell({children}:{children:ReactNode}){
-  const [open,setOpen]=useState(false);
-  return <div className="publicApp">
-    <header className="publicHeader">
-      <Link href="/" className="publicBrand"><Image src="/locagora-logo.png" alt="Locagora" width={170} height={58}/><span className="versionBadge">V9.0</span></Link>
-      <nav className="publicDesktopNav"><Link href="/historia"><BookOpenText size={16}/> História</Link><Link href="/negocios"><Building2 size={16}/> Negócios & Investimentos</Link><Link href="/simulador"><Calculator size={16}/> Simulador</Link><Link className="publicLogin" href="/acesso"><LogIn size={16}/> Área corporativa</Link></nav>
-      <button className="publicMenuBtn" onClick={()=>setOpen(v=>!v)} aria-label="Abrir menu">{open?<X/>:<Menu/>}</button>
-    </header>
-    {open&&<div className="publicMobileMenu"><Link onClick={()=>setOpen(false)} href="/historia">História</Link><Link onClick={()=>setOpen(false)} href="/negocios">Negócios & Investimentos</Link><Link onClick={()=>setOpen(false)} href="/simulador">Simulador</Link><Link onClick={()=>setOpen(false)} href="/acesso">Área corporativa</Link></div>}
-    {children}
-    <footer className="publicFooter"><div><b>Locagora</b><span>Mobilidade, negócios e investimentos.</span></div><Link href="/acesso">Acesso corporativo</Link></footer>
-  </div>
-}
+import { BookOpenText,Building2,Calculator,LogIn,Menu,X } from "lucide-react";
+import { useState,type ReactNode } from "react";
+import PublicFeedbackBox from "./PublicFeedbackBox";
+export default function PublicShell({children}:{children:ReactNode}){const [open,setOpen]=useState(false);return <div className="publicApp"><header className="publicHeader"><Link href="/" className="publicBrand"><Image src="/locagora-logo.png" alt="Locagora" width={170} height={58}/><span className="versionBadge">V9.0</span></Link><nav className="publicDesktopNav"><Link href="/historia"><BookOpenText size={16}/> História</Link><Link href="/negocios"><Building2 size={16}/> Negócios & Investimentos</Link><Link href="/simulador"><Calculator size={16}/> Simulador</Link><Link className="publicLogin" href="/acesso"><LogIn size={16}/> Área corporativa</Link></nav><button className="publicMenuBtn" onClick={()=>setOpen(v=>!v)} aria-label="Abrir menu">{open?<X/>:<Menu/>}</button></header>{open&&<div className="publicMobileMenu"><Link onClick={()=>setOpen(false)} href="/historia">História</Link><Link onClick={()=>setOpen(false)} href="/negocios">Negócios & Investimentos</Link><Link onClick={()=>setOpen(false)} href="/simulador">Simulador</Link><Link onClick={()=>setOpen(false)} href="/acesso">Área corporativa</Link></div>}{children}<PublicFeedbackBox/><footer className="publicFooter"><div><b>Locagora</b><span>Mobilidade, negócios e investimentos.</span></div><Link href="/acesso">Acesso corporativo</Link></footer></div>}
