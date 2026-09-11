@@ -110,7 +110,12 @@ export function enumeratePackages(capital:number,plans:Record<LocPlanKey,LocPlan
 export function recommendLocInvest(rawCapital:number,plans:Record<LocPlanKey,LocPlan>=LOC_PLANS):LocRecommendation {
   const capital=Math.max(0,Number(rawCapital)||0);
   const variants=allVariants(plans);
-  const maxK=Math.floor(capital/1000);
+
+  // O bucket é apenas um índice de otimização. A elegibilidade financeira
+  // sempre usa o custo real em reais. Math.ceil evita que um plano com
+  // R$ 137.594 seja descartado quando o capital informado é exatamente
+  // R$ 137.594 (o bug anterior usava floor no limite e round no item).
+  const maxK=Math.ceil(capital/1000);
 
   type Bucket = LocRecommendation | null;
   const dp:Bucket[][]=Array.from({length:maxK+1},()=>[null,null,null]);
@@ -136,9 +141,6 @@ export function recommendLocInvest(rawCapital:number,plans:Record<LocPlanKey,Loc
         if(isStart) nextState=1;
         if(isExclusive) nextState=2;
 
-        const nk=k+Math.round(v.cost/1000);
-        if(nk>maxK) continue;
-
         const candidate:LocRecommendation={
           motos:cur.motos+v.qty,
           cost:cur.cost+v.cost,
@@ -147,7 +149,14 @@ export function recommendLocInvest(rawCapital:number,plans:Record<LocPlanKey,Loc
           state:nextState
         };
 
-        if(candidate.cost<=capital && better(candidate,dp[nk][nextState])){
+        if(candidate.cost>capital) continue;
+
+        // Deriva o bucket do custo acumulado real, evitando erro cumulativo
+        // de arredondamento entre pacotes.
+        const nk=Math.ceil(candidate.cost/1000);
+        if(nk>maxK) continue;
+
+        if(better(candidate,dp[nk][nextState])){
           dp[nk][nextState]=candidate;
         }
       }
