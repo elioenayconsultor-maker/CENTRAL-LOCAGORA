@@ -8,7 +8,10 @@ export async function GET(){
     proposalModelConfigured:Boolean(process.env.OPENAI_PROPOSAL_MODEL),
     supabaseConfigured:Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL&&process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
     serviceRoleConfigured:Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-    ...emailProvider,
+    resendConfigured:emailProvider.resendConfigured&&emailProvider.resendKeyLooksValid,
+    resendKeyLooksValid:emailProvider.resendKeyLooksValid,
+    leadFromEmailConfigured:emailProvider.leadFromEmailConfigured&&emailProvider.leadFromEmailLooksValid,
+    leadFromEmailLooksValid:emailProvider.leadFromEmailLooksValid,
     appUrlConfigured:Boolean(process.env.NEXT_PUBLIC_APP_URL),
     generatedAt:new Date().toISOString()
   },{headers:{"Cache-Control":"no-store"}});
