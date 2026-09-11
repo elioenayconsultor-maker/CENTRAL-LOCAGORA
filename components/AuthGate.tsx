@@ -75,13 +75,13 @@ export default function AuthGate({ children }: { children: ReactNode }) {
         const provision = await response.json().catch(() => null);
         if (!response.ok || !provision?.ok) {
           if (provision?.reason === "inactive") setError("Este acesso está bloqueado pelo administrador.");
-          else setError("Não foi possível liberar o primeiro acesso agora.");
+          else setError("Não foi possível liberar o acesso com a senha padrão agora.");
           return;
         }
 
         const { error: firstLoginError } = await supabase.auth.signInWithPassword({ email: corporateEmail, password });
         if (firstLoginError) {
-          setError("A senha padrão só funciona no primeiro acesso. Se você já criou sua senha pessoal, use-a abaixo ou clique em Esqueci minha senha.");
+          setError("A senha padrão funciona no primeiro acesso ou depois de um reset feito pelo administrador. Se sua conta não foi resetada, use sua senha pessoal ou clique em Esqueci minha senha.");
           return;
         }
         window.location.replace("/account/update-password");
@@ -93,7 +93,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
         password,
       });
       if (loginError) {
-        setError("E-mail ou senha não conferem. No primeiro acesso, use a senha padrão fornecida pela empresa.");
+        setError("E-mail ou senha não conferem. No primeiro acesso ou após reset do administrador, use a senha padrão fornecida pela empresa.");
         return;
       }
 
@@ -101,7 +101,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       setAccess(result);
       if (result.status !== "active") {
         await supabase.auth.signOut();
-        if (result.status === "profile_missing") setError("Não foi possível concluir seu cadastro corporativo. Tente novamente com a senha padrão de primeiro acesso.");
+        if (result.status === "profile_missing") setError("Não foi possível concluir seu cadastro corporativo. Tente novamente com a senha padrão de acesso.");
         else if (result.status === "inactive") setError("Seu acesso foi bloqueado pelo administrador.");
         else if (result.status === "already_linked") setError("Este perfil já está vinculado a outra credencial. Solicite revisão ao administrador.");
         else setError("Não foi possível validar seu acesso corporativo.");
@@ -167,7 +167,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
       <form onSubmit={login}>
         <label>E-mail corporativo<input type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" placeholder="nome@locgrupo.com.br" /></label>
         <label>Senha<input type="password" required value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" /></label>
-        <div className="activationHint"><KeyRound size={15}/><span>Primeiro acesso: use a senha padrão. Não há confirmação por e-mail. Se o usuário ainda não existir, o pré-cadastro é criado automaticamente; depois você define sua senha e completa o perfil.</span></div>
+        <div className="activationHint"><KeyRound size={15}/><span>Primeiro acesso ou senha resetada pelo ADM: use a senha padrão. Em seguida você será direcionado para criar uma nova senha pessoal.</span></div>
         {notice && <div className="statusOk activationNotice"><MailCheck size={16}/><span>{notice}</span></div>}
         {error && <div className="statusWarn">{error}</div>}
         <button className="primary" disabled={loading || recovering}><LogIn size={17}/>{loading ? "Processando..." : "Entrar"}</button>
