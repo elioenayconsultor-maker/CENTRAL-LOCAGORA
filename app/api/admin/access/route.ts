@@ -9,6 +9,18 @@ const emailOk=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v.endsWith("@loc
 const dbRole=(role:string)=>({admin:"ADMIN",gestor:"GESTOR",sdr:"SDR",closer:"CLOSER"}[role]||"CLOSER");
 const apiRole=(role:unknown)=>String(role||"CLOSER").toLowerCase();
 
+function temporaryPassword(){
+  const lower="abcdefghijkmnopqrstuvwxyz";
+  const upper="ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const digits="23456789";
+  const symbols="!@#$%&*";
+  const all=lower+upper+digits+symbols;
+  const pick=(chars:string)=>chars[Math.floor(Math.random()*chars.length)];
+  const base=[pick(lower),pick(upper),pick(digits),pick(symbols),...Array.from({length:12},()=>pick(all))];
+  for(let i=base.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[base[i],base[j]]=[base[j],base[i]];}
+  return base.join("");
+}
+
 async function listAllUsers(admin:any){
   const out:any[]=[];
   for(let page=1;page<=10;page++){
@@ -57,6 +69,29 @@ export async function POST(request:Request){
   try{
     const body=await request.json() as Record<string,unknown>;
     const action=String(body.action||"update");
+
+    if(action==="reset_password"){
+      const profileId=String(body.profileId||"").trim();
+      const userId=String(body.userId||"").trim();
+      let profile:any=null;
+      if(profileId){const {data}=await access.admin.from("users").select("id,auth_user_id,email,active").eq("id",profileId).maybeSingle();profile=data;}
+      else if(userId){const {data}=await access.admin.from("users").select("id,auth_user_id,email,active").eq("auth_user_id",userId).maybeSingle();profile=data;}
+      if(!profile)return NextResponse.json({ok:false,reason:"user_not_found",message:"Colaborador não encontrado."},{status:404});
+      if(!profile.auth_user_id)return NextResponse.json({ok:false,reason:"access_not_created",message:"Este colaborador ainda não criou o primeiro acesso. Nesse caso, use o fluxo de primeiro acesso."},{status:409});
+      if(profile.active===false)return NextResponse.json({ok:false,reason:"inactive",message:"Reative o usuário antes de resetar a senha."},{status:409});
+
+      const temp=temporaryPassword();
+      const {data:authData,error:authReadError}=await access.admin.auth.admin.getUserById(profile.auth_user_id);
+      if(authReadError)throw authReadError;
+      const metadata={...(authData.user?.user_metadata||{}),activation_required:true,password_reset_by_admin:true,password_reset_at:new Date().toISOString()};
+      const {error:updateAuthError}=await access.admin.auth.admin.updateUserById(profile.auth_user_id,{password:temp,user_metadata:metadata});
+      if(updateAuthError)throw updateAuthError;
+      const now=new Date().toISOString();
+      await access.admin.from("users").update({must_change_password:true,updated_at:now}).eq("id",profile.id);
+      await access.admin.from("commercial_audit_log").insert({action:"password_reset_by_admin",entity_type:"user",entity_id:profile.id,actor_user_id:access.user.id,actor_email:access.user.email||null,metadata:{target_email:profile.email||null,temporary_password:true}});
+      return NextResponse.json({ok:true,temporaryPassword:temp,message:"Senha temporária criada. Ela deve ser trocada no próximo acesso."});
+    }
+
     const teamName=cleanTeam(body.teamName);
     const role=String(body.role||"closer").trim().toLowerCase();
     if(!validRoles.has(role))return NextResponse.json({ok:false,reason:"invalid_role",message:"Permissão inválida."},{status:400});
