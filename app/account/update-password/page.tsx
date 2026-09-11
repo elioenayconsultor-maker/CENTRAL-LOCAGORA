@@ -60,6 +60,16 @@ export default function UpdatePasswordPage() {
       return;
     }
 
+    const {data:sessionData}=await supabase.auth.getSession();
+    const token=sessionData.session?.access_token||"";
+    const finalize=await fetch("/api/auth/complete-password",{method:"POST",headers:{Authorization:`Bearer ${token}`}});
+    const finalized=await finalize.json().catch(()=>null);
+    if(!finalize.ok||!finalized?.ok){
+      setError("A nova senha foi salva, mas não foi possível concluir a ativação do perfil. Tente entrar novamente ou solicite suporte ao administrador.");
+      setLoading(false);
+      return;
+    }
+
     const access = await activateCorporateAccess();
     setProfileStatus(access.status);
     setDone(true);
@@ -72,7 +82,7 @@ export default function UpdatePasswordPage() {
     const allowed = profileStatus === "active";
     return <main className="authScreen"><section className="authCard">
       <div className={`authIcon ${allowed ? "" : "danger"}`}><CheckCircle2 /></div>
-      <div className="activationHint"><ShieldCheck size={15}/><span>PRIMEIRO ACESSO CONCLUÍDO</span></div>
+      <div className="activationHint"><ShieldCheck size={15}/><span>ACESSO ATIVADO</span></div>
       <h1>Senha definitiva criada</h1>
       <p>{allowed ? "Seu acesso está pronto. Agora complete ou revise seu perfil profissional para usar a Central Comercial." : "Sua senha foi criada, mas o acesso está bloqueado ou ainda depende de liberação do administrador."}</p>
       <button className="primary" onClick={() => { window.location.href = "/central"; }}>{allowed ? "Entrar na Central" : "Voltar ao acesso"}</button>
@@ -81,11 +91,11 @@ export default function UpdatePasswordPage() {
 
   return <main className="authScreen"><section className="authCard">
     <div className="authIcon"><KeyRound /></div>
-    <div className="activationHint"><ShieldCheck size={15}/><span>PRIMEIRO ACESSO</span></div>
+    <div className="activationHint"><ShieldCheck size={15}/><span>ATIVAÇÃO DE ACESSO</span></div>
     <h1>Crie sua senha definitiva</h1>
-    <p>Você entrou com a senha padrão. Agora substitua-a por uma senha pessoal para concluir o primeiro acesso.</p>
+    <p>Você entrou com a senha padrão. Agora substitua-a por uma senha pessoal para concluir o acesso.</p>
     <p><b>{email}</b></p>
-    {profileStatus === "profile_missing" && <div className="statusWarn">Este e-mail ainda não possui perfil cadastrado no sistema. A senha pode ser definida, mas o acesso dependerá da liberação do administrador.</div>}
+    {profileStatus === "profile_missing" && <div className="statusWarn">Seu perfil ainda não foi vinculado corretamente. Volte à tela de acesso e tente novamente com a senha padrão.</div>}
     {profileStatus === "inactive" && <div className="statusWarn">Este acesso está bloqueado pelo administrador.</div>}
     <form onSubmit={submit}>
       <label>Nova senha<input type="password" required minLength={MIN_PERMANENT_PASSWORD_LENGTH} value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" /></label>
