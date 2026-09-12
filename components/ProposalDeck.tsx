@@ -11,9 +11,7 @@ const pct=(n:number)=>`${(Number(n)||0).toLocaleString("pt-BR",{minimumFractionD
 const text=(v:unknown,fallback="-")=>v===undefined||v===null||v===""?fallback:String(v);
 const num=(v:unknown)=>Number(v)||0;
 
-function productLabel(route:string){
- return ({locinvest:"LocInvest",euroloc:"EUROLOC",locinternacional:"Cotas LocInternacional",locmillion:"LocMillion","franq-n":"Franquia Nacional Exclusive","franq-i":"Franquia Internacional 2 em 1",mini:"Mini-Master",master:"Master Regional"} as Record<string,string>)[route]||"Solução Locagora";
-}
+function productLabel(route:string){return ({locinvest:"LocInvest",euroloc:"EUROLOC",locinternacional:"Cotas LocInternacional",locmillion:"LocMillion","franq-n":"Franquia Nacional Exclusive","franq-i":"Franquia Internacional 2 em 1",mini:"Mini-Master",master:"Master Regional"} as Record<string,string>)[route]||"Solução Locagora";}
 function validUntil(date:string,days:number){const d=new Date(`${date}T12:00:00`);if(Number.isNaN(d.getTime()))return "-";d.setDate(d.getDate()+Number(days||0));return d.toLocaleDateString("pt-BR");}
 function getNotes(sim:Simulation){const n=sim.details?.notes;return Array.isArray(n)?n.map(String).slice(0,4):[];}
 
@@ -21,108 +19,30 @@ export type ProposalPageLayout={x:number;y:number;fontScale:number};
 export type ProposalLayout={pages:Record<number,ProposalPageLayout>};
 export const defaultProposalPageLayout=():ProposalPageLayout=>({x:0,y:0,fontScale:1});
 export const defaultProposalLayout=():ProposalLayout=>({pages:Object.fromEntries(Array.from({length:10},(_,i)=>[i,defaultProposalPageLayout()])) as Record<number,ProposalPageLayout>});
-
-function pageStyle(layout:ProposalPageLayout|undefined):CSSProperties{
- const v=layout||defaultProposalPageLayout();
- return {"--proposal-page-x":`${v.x}%`,"--proposal-page-y":`${v.y}%`,"--proposal-page-scale":v.fontScale} as CSSProperties;
-}
-
-function Page({image,n,pageIndex,children,className="",shade=true,selected,onSelect,layout}:{image:string;n?:number;pageIndex:number;children?:ReactNode;className?:string;shade?:boolean;selected:boolean;onSelect?:(page:number)=>void;layout?:ProposalPageLayout}){
- return <article
-   className={`proposalPage proposalV13Page proposalEditablePage ${className} ${selected?"selected":""}`}
-   style={{backgroundImage:`url(/proposal-v13/${image})`,...pageStyle(layout)}}
-   data-proposal-page={pageIndex}
-   data-page-label={pageIndex===0?"Capa":pageIndex===9?"Contracapa":`Página ${String(pageIndex).padStart(2,"0")}`}
-   onClick={()=>onSelect?.(pageIndex)}
- >
-   {shade&&<div className="proposalPageShade proposalV13Shade"/>}
-   {children&&<div className="proposalPageContent">{children}</div>}
-   {n? <div className="proposalPageNo">{String(n).padStart(2,"0")}</div>:null}
- </article>;
-}
+function pageStyle(layout:ProposalPageLayout|undefined):CSSProperties{const v=layout||defaultProposalPageLayout();return {"--proposal-page-x":`${v.x}%`,"--proposal-page-y":`${v.y}%`,"--proposal-page-scale":v.fontScale} as CSSProperties;}
+function Page({image,n,pageIndex,children,className="",shade=true,selected,onSelect,layout}:{image:string;n?:number;pageIndex:number;children?:ReactNode;className?:string;shade?:boolean;selected:boolean;onSelect?:(page:number)=>void;layout?:ProposalPageLayout}){return <article className={`proposalPage proposalV13Page proposalEditablePage ${className} ${selected?"selected":""}`} style={{backgroundImage:`url(/proposal-v13/${image})`,...pageStyle(layout)}} data-proposal-page={pageIndex} data-page-label={pageIndex===0?"Capa":pageIndex===9?"Contracapa":`Página ${String(pageIndex).padStart(2,"0")}`} onClick={()=>onSelect?.(pageIndex)}>{shade&&<div className="proposalPageShade proposalV13Shade"/>}{children&&<div className="proposalPageContent">{children}</div>}{n?<div className="proposalPageNo">{String(n).padStart(2,"0")}</div>:null}</article>}
 function Kpi({label,value,sub}:{label:string;value:string;sub?:string}){return <div className="deckKpi"><span>{label}</span><b>{value}</b>{sub&&<small>{sub}</small>}</div>}
 
 export default function ProposalDeck({client,simulation,proposal,layout,selectedPage=0,onSelectPage}:{client:ClientProfile;simulation:Simulation;proposal:ProposalState;layout?:ProposalLayout;selectedPage?:number;onSelectPage?:(page:number)=>void}){
- const visual=layout||defaultProposalLayout();
- const d=simulation.details||{};
- const qty=num(d.qty||d.bikes||d.internationalQty);
- const assets=num(d.assets);
- const unitValue=num(d.unitValue);
- const plan=text(d.plan,productLabel(simulation.sourceRoute));
- const roiAnnual=num(d.roiAnnual)||(simulation.capital?num(simulation.annual)/simulation.capital*100:0);
- const payback=num(d.paybackMonths);
- const notes=getNotes(simulation);
- const validity=validUntil(proposal.date,proposal.validityDays);
- const annual=num(simulation.annual)||num(simulation.monthly)*12;
- const gain36=num(d.operating36)||num(simulation.monthly)*36;
- const narrative=proposal.aiNarrative||deterministicNarrative(client,simulation);
- const initials=(proposal.consultant||"Locagora").split(/\s+/).filter(Boolean).slice(0,2).map(v=>v[0]).join("").toUpperCase();
+ const visual=layout||defaultProposalLayout(); const d=simulation.details||{};
+ const qty=num(d.qty||d.bikes||d.internationalQty); const assets=num(d.assets); const unitValue=num(d.unitValue);
+ const plan=text(d.plan,productLabel(simulation.sourceRoute)); const roiAnnual=num(d.roiAnnual)||(simulation.capital?num(simulation.annual)/simulation.capital*100:0); const payback=num(d.paybackMonths);
+ const notes=getNotes(simulation); const validity=validUntil(proposal.date,proposal.validityDays); const annual=num(simulation.annual)||num(simulation.monthly)*12; const gain36=num(d.operating36)||num(simulation.monthly)*36;
+ const narrative=proposal.aiNarrative||deterministicNarrative(client,simulation); const initials=(proposal.consultant||"Locagora").split(/\s+/).filter(Boolean).slice(0,2).map(v=>v[0]).join("").toUpperCase();
  const common=(pageIndex:number)=>({pageIndex,selected:selectedPage===pageIndex,onSelect:onSelectPage,layout:visual.pages[pageIndex]});
+ const dre=(d.dreEvolution&&typeof d.dreEvolution==="object"?d.dreEvolution:null) as Record<string,unknown>|null;
+ const showDre=Boolean(d.dreIncludeInProposal&&dre); const dreMode=text(dre?.modeLabel,"Sem evolução");
 
  return <div className={`proposalDeck proposalDeckV13 ${styles.v929Fix}`} id="proposalDeck">
-  <Page image="cover.png" className="coverPage proposalCoverV13" shade={false} {...common(0)}>
-   <div className="proposalCoverMetadata">
-    <small>PROPOSTA COMERCIAL • {productLabel(simulation.sourceRoute)}</small>
-    <span>PREPARADO PARA</span><h1>{client.name}</h1>
-    <div className="proposalCoverFacts"><b>{money(simulation.capital)} <small>Investimento</small></b><b>{money(simulation.monthly)}/mês <small>Renda projetada</small></b><b>{validity} <small>Validade</small></b></div>
-   </div>
-  </Page>
-
-  <Page image="page-1.png" n={1} {...common(1)}>
-   <div className="deckEyebrow">01 • OPORTUNIDADE</div><h2>{narrative.opportunityTitle}</h2>
-   <p className="deckLead">{narrative.opportunityText}</p>
-   <div className="deckKpiRow four"><Kpi label="Capital" value={money(simulation.capital)}/><Kpi label="Renda mensal" value={money(simulation.monthly)}/><Kpi label="Renda anual" value={money(annual)}/><Kpi label="ROI anual simples" value={pct(roiAnnual)}/></div>
-   <div className="deckSplit"><div><h3>Perfil do cliente</h3><ul><li>Objetivo: {client.goal}</li><li>Prioridade: {client.priority}</li><li>Perfil: {client.income}</li></ul></div><div><h3>Solução indicada</h3><p><strong>{productLabel(simulation.sourceRoute)}</strong></p><p>{simulation.name}</p></div></div>
-  </Page>
-
-  <Page image="page-2.png" n={2} {...common(2)}>
-   <div className="deckEyebrow">02 • ESTRUTURA DA OPERAÇÃO</div><h2>Uma configuração <em>objetiva e mensurável.</em></h2>
-   <p className="deckLead compact">{narrative.operationSummary}</p>
-   <div className="deckKpiRow four"><Kpi label="Solução" value={productLabel(simulation.sourceRoute)}/><Kpi label="Plano" value={plan}/><Kpi label="Quantidade" value={qty?number(qty):"Conforme projeto"}/><Kpi label="Ciclo" value={text(d.cycle,d.contract?String(d.contract):"Conforme contrato")}/></div>
-   <div className="deckCards"><div><span>01</span><h3>Entrada</h3><p>Investimento comercial considerado: <b>{money(simulation.capital)}</b>.</p></div><div><span>02</span><h3>Operação</h3><p>Renda mensal projetada no cenário: <b>{money(simulation.monthly)}</b>.</p></div><div><span>03</span><h3>Gestão</h3><p>As premissas ficam registradas na simulação e seguem para esta proposta.</p></div></div>
-  </Page>
-
-  <Page image="page-3.png" n={3} {...common(3)}>
-   <div className="deckEyebrow">03 • ATIVOS E COMPOSIÇÃO</div><h2>O que sustenta <em>o cenário financeiro.</em></h2>
-   <div className="deckKpiRow four"><Kpi label="Ativos" value={assets?money(assets):"Estrutura operacional"}/><Kpi label="Valor unitário" value={unitValue?money(unitValue):"-"}/><Kpi label="Quantidade" value={qty?number(qty):"-"}/><Kpi label="Modelo" value={text(d.model,"Locagora")}/></div>
-   <div className="deckSplit"><div><h3>Composição</h3><p>{assets?`O cenário considera ${money(assets)} vinculados a ativos.`:"O produto é estruturado como operação/franquia conforme as premissas selecionadas."}</p></div><div><h3>Premissas</h3><ul>{notes.length?notes.map((n,i)=><li key={i}>{n}</li>):<><li>Valores projetados conforme cenário comercial.</li><li>Condições finais sujeitas à documentação aplicável.</li></>}</ul></div></div>
-  </Page>
-
-  <Page image="page-4.png" n={4} {...common(4)}>
-   <div className="deckEyebrow">04 • PROJEÇÃO FINANCEIRA</div><h2>Primeiro o ganho. <em>Depois, o investimento.</em></h2>
-   <div className="heroNumber"><span>GANHO MENSAL PROJETADO</span><b>{money(simulation.monthly)}</b><small>{money(annual)} por ano em projeção simples</small></div>
-   <div className="deckKpiRow four"><Kpi label="Investimento" value={money(simulation.capital)}/><Kpi label="ROI anual simples" value={pct(roiAnnual)}/><Kpi label="36 meses - renda" value={money(gain36)}/><Kpi label="Payback simples" value={payback?`${payback.toFixed(1).replace(".",",")} meses`:"Conforme cenário"}/></div>
-   <p className="deckNarrative">{narrative.financialNarrative}</p><p className="deckDisclaimer">Projeções não constituem garantia de rentabilidade. Resultados dependem da operação, condições comerciais, contratos, tributos e demais premissas aplicáveis.</p>
-  </Page>
-
-  <Page image="page-5.png" n={5} {...common(5)}>
-   <div className="deckEyebrow">05 • ESCALA E POTENCIAL</div><h2>Uma solução preparada <em>para evoluir.</em></h2>
-   <div className="deckCards"><div><span>01</span><h3>Renda</h3><p>Referência mensal: <b>{money(simulation.monthly)}</b>.</p></div><div><span>02</span><h3>12 meses</h3><p>Referência anual: <b>{money(annual)}</b>.</p></div><div><span>03</span><h3>Estrutura</h3><p>{qty?`${number(qty)} unidades/ativos considerados.`:"Escala definida pelas regras do produto."}</p></div></div>
-   <div className="deckQuote">“{narrative.scaleNarrative}”</div>
-  </Page>
-
-  <Page image="page-6.png" n={6} {...common(6)}>
-   <div className="deckEyebrow">06 • RESUMO EXECUTIVO</div><h2>Os números essenciais <em>em uma página.</em></h2>
-   <div className="executiveGrid"><Kpi label="Cliente" value={client.name}/><Kpi label="Produto" value={productLabel(simulation.sourceRoute)}/><Kpi label="Investimento" value={money(simulation.capital)}/><Kpi label="Ganho mensal" value={money(simulation.monthly)}/><Kpi label="Ganho anual" value={money(annual)}/><Kpi label="ROI anual simples" value={pct(roiAnnual)}/></div>
-   <div className="deckExtra"><span>RESUMO EXECUTIVO</span><p>{narrative.executiveSummary}</p></div>{proposal.extraInfo&&<div className="deckExtra"><span>INFORMAÇÃO ADICIONAL</span><p>{proposal.extraInfo}</p></div>}
-   <p className="deckDisclaimer">Esta síntese deve ser lida em conjunto com contrato, anexos, regras do produto e documentação definitiva.</p>
-  </Page>
-
-  <Page image="page-7.png" n={7} {...common(7)}>
-   <div className="deckEyebrow">07 • PRÓXIMOS PASSOS</div><h2>Pronto para <em>o próximo passo.</em></h2>
-   <p className="deckLead">{narrative.closingText}</p>
-   <div className="closingNumbers"><Kpi label="Investimento" value={money(simulation.capital)}/><Kpi label="Ganho mensal projetado" value={money(simulation.monthly)}/><Kpi label="Validade" value={validity}/></div>
-   <div className="nextSteps"><div><b>1</b><span>Validar condição comercial</span></div><div><b>2</b><span>Formalizar documentos</span></div><div><b>3</b><span>Confirmar implantação</span></div><div><b>4</b><span>Iniciar operação</span></div></div>
-  </Page>
-
-  <Page image="page-8.png" n={8} className="proposalFinalPage proposalCloserPage" {...common(8)}>
-   <div className="deckEyebrow">08 • CONDIÇÃO COMERCIAL</div><h2>Uma decisão com <em>clareza e segurança.</em></h2>
-   <p className="deckLead">Esta proposta consolida o cenário selecionado e as premissas comerciais registradas durante o atendimento.</p>
-   <div className="executiveGrid"><Kpi label="Cliente" value={client.name}/><Kpi label="Solução" value={productLabel(simulation.sourceRoute)}/><Kpi label="Investimento" value={money(simulation.capital)}/><Kpi label="Renda mensal projetada" value={money(simulation.monthly)}/><Kpi label="Validade" value={validity}/></div>
-   <div className="deckExtra"><span>IMPORTANTE</span><p>Condições definitivas, disponibilidade, implantação, contratos, tributos e demais obrigações devem ser confirmados nos documentos finais da operação.</p></div>
-   <ProposalConsultantIdentity name={proposal.consultant} phone={proposal.consultantPhone} email={proposal.consultantEmail} photo={proposal.consultantPhoto} initials={initials}/>
-  </Page>
-
+  <Page image="cover.png" className="coverPage proposalCoverV13" shade={false} {...common(0)}><div className="proposalCoverMetadata"><small>PROPOSTA COMERCIAL • {productLabel(simulation.sourceRoute)}</small><span>PREPARADO PARA</span><h1>{client.name}</h1><div className="proposalCoverFacts"><b>{money(simulation.capital)} <small>Investimento</small></b><b>{money(simulation.monthly)}/mês <small>Renda projetada</small></b><b>{validity} <small>Validade</small></b></div></div></Page>
+  <Page image="page-1.png" n={1} {...common(1)}><div className="deckEyebrow">01 • OPORTUNIDADE</div><h2>{narrative.opportunityTitle}</h2><p className="deckLead">{narrative.opportunityText}</p><div className="deckKpiRow four"><Kpi label="Capital" value={money(simulation.capital)}/><Kpi label="Renda mensal" value={money(simulation.monthly)}/><Kpi label="Renda anual" value={money(annual)}/><Kpi label="ROI anual simples" value={pct(roiAnnual)}/></div><div className="deckSplit"><div><h3>Perfil do cliente</h3><ul><li>Objetivo: {client.goal}</li><li>Prioridade: {client.priority}</li><li>Perfil: {client.income}</li></ul></div><div><h3>Solução indicada</h3><p><strong>{productLabel(simulation.sourceRoute)}</strong></p><p>{simulation.name}</p></div></div></Page>
+  <Page image="page-2.png" n={2} {...common(2)}><div className="deckEyebrow">02 • ESTRUTURA DA OPERAÇÃO</div><h2>Uma configuração <em>objetiva e mensurável.</em></h2><p className="deckLead compact">{narrative.operationSummary}</p><div className="deckKpiRow four"><Kpi label="Solução" value={productLabel(simulation.sourceRoute)}/><Kpi label="Plano" value={plan}/><Kpi label="Quantidade" value={qty?number(qty):"Conforme projeto"}/><Kpi label="Ciclo" value={text(d.cycle,d.contract?String(d.contract):"Conforme contrato")}/></div><div className="deckCards"><div><span>01</span><h3>Entrada</h3><p>Investimento comercial considerado: <b>{money(simulation.capital)}</b>.</p></div><div><span>02</span><h3>Operação</h3><p>Renda mensal projetada no cenário: <b>{money(simulation.monthly)}</b>.</p></div><div><span>03</span><h3>Gestão</h3><p>As premissas ficam registradas na simulação e seguem para esta proposta.</p></div></div></Page>
+  <Page image="page-3.png" n={3} {...common(3)}><div className="deckEyebrow">03 • ATIVOS E COMPOSIÇÃO</div><h2>O que sustenta <em>o cenário financeiro.</em></h2><div className="deckKpiRow four"><Kpi label="Ativos" value={assets?money(assets):"Estrutura operacional"}/><Kpi label="Valor unitário" value={unitValue?money(unitValue):"-"}/><Kpi label="Quantidade" value={qty?number(qty):"-"}/><Kpi label="Modelo" value={text(d.model,"Locagora")}/></div><div className="deckSplit"><div><h3>Composição</h3><p>{assets?`O cenário considera ${money(assets)} vinculados a ativos.`:"O produto é estruturado como operação/franquia conforme as premissas selecionadas."}</p></div><div><h3>Premissas</h3><ul>{notes.length?notes.map((n,i)=><li key={i}>{n}</li>):<><li>Valores projetados conforme cenário comercial.</li><li>Condições finais sujeitas à documentação aplicável.</li></>}</ul></div></div></Page>
+  <Page image="page-4.png" n={4} {...common(4)}><div className="deckEyebrow">04 • PROJEÇÃO FINANCEIRA</div><h2>Primeiro o ganho. <em>Depois, o investimento.</em></h2><div className="heroNumber"><span>GANHO MENSAL PROJETADO</span><b>{money(simulation.monthly)}</b><small>{money(annual)} por ano em projeção simples</small></div><div className="deckKpiRow four"><Kpi label="Investimento" value={money(simulation.capital)}/><Kpi label="ROI anual simples" value={pct(roiAnnual)}/><Kpi label="36 meses - renda" value={money(gain36)}/><Kpi label="Payback simples" value={payback?`${payback.toFixed(1).replace(".",",")} meses`:"Conforme cenário"}/></div><p className="deckNarrative">{narrative.financialNarrative}</p><p className="deckDisclaimer">Projeções não constituem garantia de rentabilidade. Resultados dependem da operação, condições comerciais, contratos, tributos e demais premissas aplicáveis.</p></Page>
+  <Page image="page-5.png" n={5} {...common(5)}>{showDre&&dre?<><div className="deckEyebrow">05 • DRE E EVOLUÇÃO DE ATIVOS</div><h2>Resultado operacional com <em>estratégia de reaplicação.</em></h2><p className="deckLead compact">Cenário selecionado: <b>{dreMode}</b>{num(dre.reinvestPct)>0?` • ${num(dre.reinvestPct).toFixed(0)}% do resultado destinado à evolução`:" • sem reaplicação"}.</p><div className="executiveGrid"><Kpi label="Frota inicial" value={`${number(num(dre.initialAssets))} motos`}/><Kpi label="Frota final" value={`${number(num(dre.finalAssets))} motos`}/><Kpi label="Novos ativos" value={`+${number(num(dre.addedAssets))}`}/><Kpi label="Resultado operacional" value={money(num(dre.totalOperatingResult))}/><Kpi label="Reaplicado em ativos" value={money(num(dre.totalReinvested))}/><Kpi label="Disponível ao cliente" value={money(num(dre.totalAvailableToClient))}/></div><div className="deckExtra"><span>CRITÉRIO</span><p>Cada nova moto entra quando o caixa reservado para evolução alcança o custo incremental registrado de {money(num(dre.unitAssetCost))}. Saldo final do caixa de reinvestimento: {money(num(dre.endingPool))}.</p></div><p className="deckDisclaimer">DRE projetado para fins comerciais e operacionais. O cenário de reaplicação não constitui recomendação financeira individual nem garantia de resultado.</p></>:<><div className="deckEyebrow">05 • ESCALA E POTENCIAL</div><h2>Uma solução preparada <em>para evoluir.</em></h2><div className="deckCards"><div><span>01</span><h3>Renda</h3><p>Referência mensal: <b>{money(simulation.monthly)}</b>.</p></div><div><span>02</span><h3>12 meses</h3><p>Referência anual: <b>{money(annual)}</b>.</p></div><div><span>03</span><h3>Estrutura</h3><p>{qty?`${number(qty)} unidades/ativos considerados.`:"Escala definida pelas regras do produto."}</p></div></div><div className="deckQuote">“{narrative.scaleNarrative}”</div></>}</Page>
+  <Page image="page-6.png" n={6} {...common(6)}><div className="deckEyebrow">06 • RESUMO EXECUTIVO</div><h2>Os números essenciais <em>em uma página.</em></h2><div className="executiveGrid"><Kpi label="Cliente" value={client.name}/><Kpi label="Produto" value={productLabel(simulation.sourceRoute)}/><Kpi label="Investimento" value={money(simulation.capital)}/><Kpi label="Ganho mensal" value={money(simulation.monthly)}/><Kpi label="Ganho anual" value={money(annual)}/><Kpi label="ROI anual simples" value={pct(roiAnnual)}/></div><div className="deckExtra"><span>RESUMO EXECUTIVO</span><p>{narrative.executiveSummary}</p></div>{proposal.extraInfo&&<div className="deckExtra"><span>INFORMAÇÃO ADICIONAL</span><p>{proposal.extraInfo}</p></div>}<p className="deckDisclaimer">Esta síntese deve ser lida em conjunto com contrato, anexos, regras do produto e documentação definitiva.</p></Page>
+  <Page image="page-7.png" n={7} {...common(7)}><div className="deckEyebrow">07 • PRÓXIMOS PASSOS</div><h2>Pronto para <em>o próximo passo.</em></h2><p className="deckLead">{narrative.closingText}</p><div className="closingNumbers"><Kpi label="Investimento" value={money(simulation.capital)}/><Kpi label="Ganho mensal projetado" value={money(simulation.monthly)}/><Kpi label="Validade" value={validity}/></div><div className="nextSteps"><div><b>1</b><span>Validar condição comercial</span></div><div><b>2</b><span>Formalizar documentos</span></div><div><b>3</b><span>Confirmar implantação</span></div><div><b>4</b><span>Iniciar operação</span></div></div></Page>
+  <Page image="page-8.png" n={8} className="proposalFinalPage proposalCloserPage" {...common(8)}><div className="deckEyebrow">08 • CONDIÇÃO COMERCIAL</div><h2>Uma decisão com <em>clareza e segurança.</em></h2><p className="deckLead">Esta proposta consolida o cenário selecionado e as premissas comerciais registradas durante o atendimento.</p><div className="executiveGrid"><Kpi label="Cliente" value={client.name}/><Kpi label="Solução" value={productLabel(simulation.sourceRoute)}/><Kpi label="Investimento" value={money(simulation.capital)}/><Kpi label="Renda mensal projetada" value={money(simulation.monthly)}/><Kpi label="Validade" value={validity}/></div><div className="deckExtra"><span>IMPORTANTE</span><p>Condições definitivas, disponibilidade, implantação, contratos, tributos e demais obrigações devem ser confirmados nos documentos finais da operação.</p></div><ProposalConsultantIdentity name={proposal.consultant} phone={proposal.consultantPhone} email={proposal.consultantEmail} photo={proposal.consultantPhoto} initials={initials}/></Page>
   <Page image="back-cover.png" className="proposalBackCover" shade={false} {...common(9)}/>
  </div>;
 }
