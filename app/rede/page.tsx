@@ -7,5 +7,5 @@ export const metadata={
 };
 
 export default function PublicNetworkPage(){
-  return <PublicShell><NetworkPage publicMode/></PublicShell>;
+  return <PublicShell><NetworkPage/></PublicShell>;
 }
