@@ -31,6 +31,7 @@ export default function LocInvestCalculator({initialCapital,onBack,onSave,saveLa
  const projection=useMemo(()=>projectLocInvest(applied.invested,ipca,renewWorking,plans),[applied.invested,ipca,renewWorking,plans]);
  const compare=useMemo(()=>compareLocInvest(applied.invested,selic,cdi,ir,plans,0),[applied.invested,selic,cdi,ir,plans]);
  const eligible=useMemo(()=>enumeratePackages(capital,plans),[capital,plans]);
+ const operatingMargin=applied.gross?applied.net/applied.gross*100:0;
 
  const manualCfg=plans[manualPlan];
  const manualCost=variantCost(manualCfg,manualQty);
@@ -38,7 +39,7 @@ export default function LocInvestCalculator({initialCapital,onBack,onSave,saveLa
  const setQty=(qty:number)=>{const q=Math.max(1,Math.round(qty||1));if(q<=2){setManualPlan("start");setManualQty(Math.min(2,q))}else if(q<=4){setManualPlan("premium");setManualQty(Math.max(3,q))}else{setManualPlan("exclusive");setManualQty(Math.min(6,Math.max(5,q)))}};
 
  const save=()=>{
-   const details={qty:applied.qty,model:bikeModel,assets:applied.bikesValue,unitValue:applied.qty?applied.bikesValue/applied.qty:0,roiAnnual:applied.roiAnnual,plan:applied.groups.map(g=>`${g.count}× ${g.label}`).join(" + "),workingCapital:0,fees:applied.fees,appropriation:applied.appropriation,gross:applied.gross,operatingExpenses:applied.op,insurance:applied.insurance,accounting:applied.accounting,netOperational:applied.net,locagoraShare:applied.locagora,cycle:"36 meses",horizon:"12 anos",notes:[`Modelo de moto definido pelo consultor: ${bikeModel}.`,`Composição: ${applied.groups.map(g=>`${g.count}× ${g.label} (${g.count*g.qty} motos)`).join(" + ")}.`,"Cada LocInvest comporta no máximo 6 motos: 1–2 Start, 3–4 Premium e 5–6 Exclusive.","Acima de 6 motos o sistema abre automaticamente uma nova LocInvest na composição.","Capital de giro inicial já incluído no valor comercial do plano."]};
+   const details={qty:applied.qty,model:bikeModel,assets:applied.bikesValue,unitValue:applied.qty?applied.bikesValue/applied.qty:0,roiAnnual:applied.roiAnnual,plan:applied.groups.map(g=>`${g.count}× ${g.label}`).join(" + "),workingCapital:0,fees:applied.fees,appropriation:applied.appropriation,gross:applied.gross,operatingExpenses:applied.op,insurance:applied.insurance,accounting:applied.accounting,netOperational:applied.net,locagoraShare:applied.locagora,cycle:"36 meses",horizon:"12 anos",notes:[`Modelo de moto definido pelo consultor: ${bikeModel}.`,`Composição: ${applied.groups.map(g=>`${g.count}× ${g.label} (${g.count*g.qty} motos)`).join(" + ")}.`,"Cada LocInvest comporta no máximo 6 motos: 1–2 Start, 3–4 Premium e 5–6 Exclusive.","Acima de 6 motos o sistema abre automaticamente uma nova LocInvest na composição.","Capital de giro inicial já incluído no valor comercial do plano.",`Base operacional unitária: receita ${money(LOC_OPERATION.grossPerBike)}, despesas operacionais agregadas ${money(LOC_OPERATION.opPerBike)}, seguro ${money(LOC_OPERATION.insurancePerBike)}, contabilidade ${money(LOC_OPERATION.accountingPerBike)} e resultado operacional ${money(LOC_OPERATION.netPerBike)} por moto.`]};
    onSave({id:Date.now(),name:`LocInvest — ${applied.qty} motos`,sourceRoute:"locinvest",capital:applied.invested,monthly:applied.monthly,annual:applied.annual,details,updatedAt:new Date().toISOString()});
  };
 
@@ -67,7 +68,32 @@ export default function LocInvestCalculator({initialCapital,onBack,onSave,saveLa
 
    {dimensionMode==="capital"&&<section className="panel"><div className="sectionHead"><small>OPÇÕES ELEGÍVEIS</small><h2>LocInvest individuais que cabem neste capital</h2></div><div className="tableWrap"><table className="dataTable"><thead><tr><th>Plano</th><th>Motos</th><th>Investimento</th><th>Renda líquida/mês</th></tr></thead><tbody>{eligible.length?eligible.map(v=><tr key={`${v.key}-${v.qty}`}><td><b>{v.label}</b></td><td>{v.qty}</td><td>{money(v.cost)}</td><td>{money(v.monthly)}</td></tr>):<tr><td colSpan={4}>Nenhum plano completo disponível.</td></tr>}</tbody></table></div></section>}
 
-   <div className="calcLayout"><section className="panel"><div className="sectionHead"><small>BASE ECONÔMICA</small><h2>Como a rentabilidade acontece</h2></div><div className="line"><span>Faturamento bruto da locação</span><b>{money(applied.gross)}</b></div><div className="line"><span>Despesas operacionais</span><b>- {money(applied.op)}</b></div><div className="line"><span>Seguro</span><b>- {money(applied.insurance)}</b></div><div className="line"><span>Contabilidade</span><b>- {money(applied.accounting)}</b></div><div className="line"><span>Total de despesas</span><b>- {money(applied.expenses)}</b></div><div className="statusOk"><span>Lucro líquido operacional da frota</span><b>{money(applied.net)}</b></div></section><section className="panel"><div className="sectionHead"><small>DISTRIBUIÇÃO</small><h2>Cenário simulado</h2></div><div className="resultGrid two"><div className="highlight"><span>Investidor / mês</span><b>{money(applied.monthly)}</b><small>{applied.qty?money(applied.monthly/applied.qty):"—"} por moto</small></div><div><span>Locagora / mês</span><b>{money(applied.locagora)}</b><small>{applied.qty?money(applied.locagora/applied.qty):"—"} por moto</small></div></div></section></div>
+   <div className="calcLayout">
+    <section className="panel">
+      <div className="sectionHead"><small>BASE ECONÔMICA • TRANSPARÊNCIA OPERACIONAL</small><h2>Como a rentabilidade acontece</h2><p>Valores unitários e totais são exibidos separadamente para deixar claro o que é receita, custo e resultado.</p></div>
+      <div className="softBlock">
+        <div className="blockHead"><div><small>BASE POR MOTO / MÊS</small><h3>Composição operacional unitária</h3></div><span className="successBadge">REFERÊNCIA</span></div>
+        <div className="line"><span>Receita bruta de locação</span><b>{money(LOC_OPERATION.grossPerBike)}</b></div>
+        <div className="line"><span>Despesas operacionais agregadas</span><b>- {money(LOC_OPERATION.opPerBike)}</b></div>
+        <div className="line"><span>Seguro / proteção</span><b>- {money(LOC_OPERATION.insurancePerBike)}</b></div>
+        <div className="line"><span>Contabilidade</span><b>- {money(LOC_OPERATION.accountingPerBike)}</b></div>
+        <div className="line"><span>Total de despesas por moto</span><b>- {money(LOC_OPERATION.opPerBike+LOC_OPERATION.insurancePerBike+LOC_OPERATION.accountingPerBike)}</b></div>
+        <div className="statusOk"><span>Lucro líquido operacional por moto</span><b>{money(LOC_OPERATION.netPerBike)}</b></div>
+        <p className="footnote"><b>Importante:</b> os R$ {LOC_OPERATION.opPerBike.toLocaleString("pt-BR",{minimumFractionDigits:2})} de despesas operacionais permanecem como um bloco consolidado da premissa atual. Seguro/proteção e contabilidade já aparecem separados e não devem ser somados novamente dentro desse bloco.</p>
+      </div>
+      <div className="softBlock">
+        <div className="blockHead"><div><small>TOTAL DA FROTA / MÊS</small><h3>{applied.qty} motos em operação</h3></div><span className="successBadge">{pct(operatingMargin)} MARGEM</span></div>
+        <div className="line"><span>Receita bruta da frota</span><b>{money(applied.gross)}</b></div>
+        <div className="line"><span>Despesas operacionais agregadas</span><b>- {money(applied.op)}</b></div>
+        <div className="line"><span>Seguro / proteção</span><b>- {money(applied.insurance)}</b></div>
+        <div className="line"><span>Contabilidade</span><b>- {money(applied.accounting)}</b></div>
+        <div className="line"><span>Total de despesas da frota</span><b>- {money(applied.expenses)}</b></div>
+        <div className="statusOk"><span>Lucro líquido operacional da frota</span><b>{money(applied.net)}</b></div>
+      </div>
+      <p className="footnote">Fórmula visível: receita bruta − despesas operacionais agregadas − seguro/proteção − contabilidade = lucro líquido operacional. Qualquer novo custo só deve ser acrescentado quando a premissa oficial for atualizada, evitando dupla contagem.</p>
+    </section>
+    <section className="panel"><div className="sectionHead"><small>DISTRIBUIÇÃO</small><h2>Cenário simulado</h2></div><div className="resultGrid two"><div className="highlight"><span>Investidor / mês</span><b>{money(applied.monthly)}</b><small>{applied.qty?money(applied.monthly/applied.qty):"—"} por moto</small></div><div><span>Locagora / mês</span><b>{money(applied.locagora)}</b><small>{applied.qty?money(applied.locagora/applied.qty):"—"} por moto</small></div></div><div className="line"><span>Lucro operacional da frota</span><b>{money(applied.net)}</b></div><div className="line"><span>Parcela destinada ao investidor</span><b>{money(applied.monthly)}</b></div><div className="line"><span>Saldo operacional Locagora</span><b>{money(applied.locagora)}</b></div><p className="footnote">A distribuição parte do resultado operacional calculado acima. Assim, receita e custos ficam separados da remuneração do investidor.</p></section>
+   </div>
 
    <section className="panel"><div className="sectionHead"><small>VISÃO DE LONGO PRAZO</small><h2>Projeção financeira em 12 anos</h2></div><div className="formGrid smallGrid"><label>IPCA projetado (% a.a.)<input type="number" step=".01" value={ipca} onChange={e=>setIpca(Number(e.target.value))}/></label><label>Giro na renovação / moto<input type="number" value={renewWorking} onChange={e=>setRenewWorking(Number(e.target.value))}/></label></div><div className="summaryGrid"><div><span>Investimento inicial</span><b>{money(projection.initial)}</b></div><div><span>Renda acumulada</span><b className="green">{money(projection.accumulatedIncome)}</b></div><div><span>Devoluções brutas</span><b>{money(projection.accumulatedReturns)}</b></div><div><span>Total líquido após renovações</span><b>{money(projection.netAfterRenewals)}</b></div></div></section>
 
