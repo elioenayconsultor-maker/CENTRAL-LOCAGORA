@@ -5,6 +5,7 @@ import { OBJECTIONS } from "@/lib/objections";
 import { createClient } from "@/lib/supabase/client";
 import { getCurrentAppUser } from "@/lib/commercial-repository";
 import PageHero from "./PageHero";
+import NetworkContactsDirectory from "./NetworkContactsDirectory";
 
 type Obj={
  id?:string; cat:string; q:string; why:string; answer:string; next:string;
@@ -74,7 +75,9 @@ export default function Support(){
    finally{setAiLoading(false)}
  }
 
- return <main className="workspace supportWorkspace"><PageHero kicker="APOIO COMERCIAL • ARGUMENTAÇÃO" title="Objeções, argumentos e IA assistente." description="Biblioteca pesquisável com respostas consultivas. A IA reformula a conversa, mas não cria condições comerciais nem altera regras." actions={canManage?<button className="heroActionButton" onClick={()=>setEditing({...EMPTY})}><Plus size={16}/> Nova objeção</button>:undefined}/> <section className="panel">
+ return <main className="workspace supportWorkspace"><PageHero kicker="APOIO COMERCIAL • ARGUMENTAÇÃO E CONTATOS" title="Objeções, argumentos, contatos internos e IA assistente." description="Biblioteca consultiva e diretório interno para localizar rapidamente Diretoria, Financeiro, CS, Operações, Masters e demais áreas da Locagora." actions={canManage?<button className="heroActionButton" onClick={()=>setEditing({...EMPTY})}><Plus size={16}/> Nova objeção</button>:undefined}/>
+ <NetworkContactsDirectory context="support"/>
+ <section className="panel">
   <div className="sectionIntro"><small>ARGUMENTAÇÃO CONSULTIVA</small><h2>Objeções e respostas para avançar a conversa.</h2></div>
   <div className="objectionTools professional"><label><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Pesquisar objeção, argumento ou palavra-chave"/></label><select value={cat} onChange={e=>setCat(e.target.value)}><option value="all">Todas as categorias</option>{cats.map(c=><option key={c}>{c}</option>)}</select><select value={product} onChange={e=>setProduct(e.target.value)}><option value="all">Todos os produtos</option>{products.map(p=><option key={p}>{p}</option>)}</select></div>
   {status&&<div className="supportStatus">{status}</div>}
