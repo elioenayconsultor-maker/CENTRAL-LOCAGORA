@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Sidebar from "@/components/Sidebar";
 import AuthGate from "@/components/AuthGate";
@@ -8,6 +8,9 @@ import MobileNav from "@/components/MobileNav";
 import MobileCorporateHeader from "@/components/MobileCorporateHeader";
 import AppHeader from "@/components/AppHeader";
 import ModuleSkeleton from "@/components/ModuleSkeleton";
+import CorporateHome from "@/components/CorporateHome";
+import { createClient } from "@/lib/supabase/client";
+import { allowedCorporatePages, type CorporatePage } from "@/lib/corporate-access";
 
 const load = () => <ModuleSkeleton/>;
 const News = dynamic(()=>import("@/components/News"),{loading:load});
@@ -19,11 +22,18 @@ const Benchmark = dynamic(()=>import("@/components/Benchmark"),{loading:load});
 const CapitalOpportunityComparator = dynamic(()=>import("@/components/CapitalOpportunityComparator"),{loading:load});
 const Quality = dynamic(()=>import("@/components/Quality"),{loading:load});
 
-type Page = "news"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
+type AppUser={id:string;name:string|null;email:string|null;role:string|null;department:string|null;job_title:string|null;access_profile:string|null;module_permissions:string[]|null};
 
 export default function Home(){
- const [page,setPage]=useState<Page>("solutions");
- return <AuthGate><CommercialConfigGate><div className="appShell"><MobileCorporateHeader/><Sidebar page={page} onChange={setPage}/><div className="content"><AppHeader page={page}/>
+ const supabase=useMemo(()=>createClient(),[]);
+ const [page,setPage]=useState<CorporatePage>("home");
+ const [appUser,setAppUser]=useState<AppUser|null>(null);
+ useEffect(()=>{let alive=true;(async()=>{const {data:{user}}=await supabase.auth.getUser();if(!user)return;const {data}=await supabase.from("users").select("id,name,email,role,department,job_title,access_profile,module_permissions").eq("auth_user_id",user.id).maybeSingle();if(alive&&data)setAppUser(data as AppUser);})();return()=>{alive=false}},[supabase]);
+ const allowed=useMemo(()=>allowedCorporatePages(appUser),[appUser]);
+ const go=(next:CorporatePage)=>setPage(allowed.includes(next)?next:"home");
+ useEffect(()=>{if(!allowed.includes(page))setPage("home")},[allowed,page]);
+ return <AuthGate><CommercialConfigGate><div className="appShell"><MobileCorporateHeader/><Sidebar page={page} onChange={go} allowedPages={allowed}/><div className="content"><AppHeader page={page}/>
+   {page==="home"&&<CorporateHome user={appUser} onOpen={go}/>} 
    {page==="news"&&<News/>}
    {page==="solutions"&&<Solutions/>}
    {page==="network"&&<NetworkPage/>}
@@ -32,5 +42,5 @@ export default function Home(){
    {page==="capital"&&<CapitalOpportunityComparator/>}
    {page==="support"&&<Support/>}
    {page==="quality"&&<Quality/>}
- </div><MobileNav page={page} onChange={setPage}/></div></CommercialConfigGate></AuthGate>
+ </div><MobileNav page={page} onChange={go} allowedPages={allowed}/></div></CommercialConfigGate></AuthGate>
 }
