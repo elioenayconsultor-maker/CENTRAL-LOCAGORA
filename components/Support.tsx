@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Bot, Edit3, Plus, Save, Search, Sparkles, X } from "lucide-react";
+import { Bot, Edit3, ExternalLink, Headphones, Plus, Save, Search, Sparkles, UsersRound, X } from "lucide-react";
 import { OBJECTIONS } from "@/lib/objections";
 import { createClient } from "@/lib/supabase/client";
 import { getCurrentAppUser } from "@/lib/commercial-repository";
@@ -75,7 +75,14 @@ export default function Support(){
    finally{setAiLoading(false)}
  }
 
- return <main className="workspace supportWorkspace"><PageHero kicker="APOIO COMERCIAL • ARGUMENTAÇÃO E CONTATOS" title="Objeções, argumentos, contatos internos e IA assistente." description="Biblioteca consultiva e diretório interno para localizar rapidamente Diretoria, Financeiro, CS, Operações, Masters e demais áreas da Locagora." actions={canManage?<button className="heroActionButton" onClick={()=>setEditing({...EMPTY})}><Plus size={16}/> Nova objeção</button>:undefined}/>
+ return <main className="workspace supportWorkspace"><PageHero kicker="APOIO COMERCIAL • ARGUMENTAÇÃO E CONTATOS" title="Objeções, argumentos, contatos internos e IA assistente." description="Biblioteca consultiva, diretório interno e acesso rápido aos principais sistemas corporativos da Locagora." actions={canManage?<button className="heroActionButton" onClick={()=>setEditing({...EMPTY})}><Plus size={16}/> Nova objeção</button>:undefined}/>
+ <section className="panel" style={{background:"linear-gradient(135deg,#071a3f,#0d3475)",color:"white"}}>
+  <div className="sectionIntro"><small style={{color:"#76ec3f"}}>SISTEMAS LOCAGORA</small><h2 style={{color:"white"}}>Acesso rápido às ferramentas do colaborador.</h2><p style={{color:"#c5d4ef"}}>Os sistemas continuam independentes e abrem em nova aba, mantendo a Central LOC disponível durante o atendimento.</p></div>
+  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:14,marginTop:18}}>
+   <a href="https://chamados-ti.locgrupo.com.br/#" target="_blank" rel="noreferrer" style={{display:"flex",alignItems:"center",gap:14,padding:18,borderRadius:16,border:"1px solid rgba(255,255,255,.14)",background:"rgba(255,255,255,.07)",color:"white",textDecoration:"none"}}><span style={{display:"grid",placeItems:"center",width:48,height:48,borderRadius:14,background:"rgba(118,236,63,.14)",color:"#76ec3f",flex:"0 0 auto"}}><Headphones size={24}/></span><span style={{display:"flex",flexDirection:"column",gap:4,flex:1}}><b style={{fontSize:17}}>Chamados LOC</b><small style={{color:"#afc1df",lineHeight:1.45}}>Suporte, TI e abertura de chamados internos.</small></span><ExternalLink size={18}/></a>
+   <a href="https://rh-colaborador.quark.tec.br/" target="_blank" rel="noreferrer" style={{display:"flex",alignItems:"center",gap:14,padding:18,borderRadius:16,border:"1px solid rgba(255,255,255,.14)",background:"rgba(255,255,255,.07)",color:"white",textDecoration:"none"}}><span style={{display:"grid",placeItems:"center",width:48,height:48,borderRadius:14,background:"rgba(118,236,63,.14)",color:"#76ec3f",flex:"0 0 auto"}}><UsersRound size={24}/></span><span style={{display:"flex",flexDirection:"column",gap:4,flex:1}}><b style={{fontSize:17}}>QuarkRH | Colaborador</b><small style={{color:"#afc1df",lineHeight:1.45}}>Portal do colaborador e rotinas de RH.</small></span><ExternalLink size={18}/></a>
+  </div>
+ </section>
  <NetworkContactsDirectory context="support"/>
  <section className="panel">
   <div className="sectionIntro"><small>ARGUMENTAÇÃO CONSULTIVA</small><h2>Objeções e respostas para avançar a conversa.</h2></div>
