@@ -1,11 +1,12 @@
 "use client";
 import Image from "next/image";
 import CloudSyncStatus from "./CloudSyncStatus";
-import { Activity, BarChart3, BookOpenText, ExternalLink, Gauge, Headphones, Newspaper, Network, ShieldQuestion, Scale, UsersRound } from "lucide-react";
+import { Activity, BarChart3, BookOpenText, ExternalLink, Gauge, Headphones, Home, Newspaper, Network, ShieldQuestion, Scale, UsersRound } from "lucide-react";
+import type { CorporatePage } from "@/lib/corporate-access";
 
-type Page = "news"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
-export default function Sidebar({page,onChange}:{page:Page,onChange:(p:Page)=>void}) {
+export default function Sidebar({page,onChange,allowedPages}:{page:CorporatePage;onChange:(p:CorporatePage)=>void;allowedPages:CorporatePage[]}) {
  const items = [
+  ["home","Início",Home,"Seu perfil"],
   ["news","LOCNEWS",Newspaper,"Mercado"],
   ["solutions","Investimentos & Franquias",BarChart3,"Portfólio"],
   ["network","Rede Locagora",Network,"Rede"],
@@ -15,14 +16,15 @@ export default function Sidebar({page,onChange}:{page:Page,onChange:(p:Page)=>vo
   ["support","Apoio Comercial",ShieldQuestion,"Argumentação"],
   ["quality","Homologação",Activity,"Qualidade"]
  ] as const;
+ const visible=items.filter(([id])=>allowedPages.includes(id));
  const systems=[
   {label:"Chamados LOC",hint:"Suporte e TI",href:"https://chamados-ti.locgrupo.com.br/#",Icon:Headphones},
   {label:"QuarkRH",hint:"Portal do colaborador",href:"https://rh-colaborador.quark.tec.br/",Icon:UsersRound}
  ] as const;
  return <aside className="sidebar">
-   <div className="brand brandOfficial"><div className="brandLogoRow"><Image src="/locagora-logo.png" alt="Locagora - Assinatura de Motos" width={190} height={72} priority className="sidebarLogo"/><span className="versionBadge">V9.0</span></div><small>CENTRAL COMERCIAL</small></div>
+   <div className="brand brandOfficial"><div className="brandLogoRow"><Image src="/locagora-logo.png" alt="Locagora - Assinatura de Motos" width={190} height={72} priority className="sidebarLogo"/><span className="versionBadge">V9.0</span></div><small>CENTRAL CORPORATIVA</small></div>
    <div className="sidebarNavLabel">CENTRAL</div>
-   <nav>{items.map(([id,label,Icon,hint])=>
+   <nav>{visible.map(([id,label,Icon,hint])=>
      <button key={id} className={`${page===id?"active":""} ${id==="news"?"newsNav":""} ${id==="history"?"historyNav":""}`} onClick={()=>onChange(id)} type="button" title={label}>
        <span className="sidebarIcon"><Icon size={19}/></span><span className="sidebarItemText"><b>{label}</b><small>{hint}</small></span>
      </button>)}
