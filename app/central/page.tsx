@@ -42,5 +42,5 @@ export default function Home(){
    {page==="capital"&&<CapitalOpportunityComparator/>}
    {page==="support"&&<Support/>}
    {page==="quality"&&<Quality/>}
- </div><MobileNav page={page} onChange={go} allowedPages={allowed}/></div></CommercialConfigGate></AuthGate>
+ </div><MobileNav page={page as any} onChange={go as any}/></div></CommercialConfigGate></AuthGate>
 }
