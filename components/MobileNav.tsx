@@ -1,5 +1,5 @@
 "use client";
-import { BookOpenText, Building2, Ellipsis, Newspaper, X, Gauge, ShieldQuestion, Activity, Network, Settings, Scale } from "lucide-react";
+import { BookOpenText, Building2, Ellipsis, Newspaper, X, Gauge, ShieldQuestion, Activity, Network, Settings, Scale, Headphones, UsersRound, ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 type Page="news"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
@@ -15,5 +15,5 @@ export default function MobileNav({page,onChange}:{page:Page;onChange:(p:Page)=>
     <button className={page==="network"?"active":""} onClick={()=>go("network")}><Network/><span>Rede</span></button>
     <button className={page==="capital"?"active":""} onClick={()=>go("capital")}><Scale/><span>Comparador</span></button>
     <button onClick={()=>setMore(true)}><Ellipsis/><span>Mais</span></button>
-  </nav>{more&&<div className="mobileMoreBackdrop" onClick={()=>setMore(false)}><div className="mobileMoreSheet" onClick={e=>e.stopPropagation()}><header><b>Mais ferramentas</b><button onClick={()=>setMore(false)}><X/></button></header><button onClick={()=>go("news")}><Newspaper/> LOCNEWS</button><button onClick={()=>go("benchmark")}><Gauge/> Benchmark</button><button onClick={()=>go("support")}><ShieldQuestion/> Apoio Comercial</button><button onClick={()=>go("quality")}><Activity/> Homologação</button>{isAdmin&&<a className="mobileMoreAdmin" href="/admin"><Settings/> Administração</a>}</div></div>}</>;
+  </nav>{more&&<div className="mobileMoreBackdrop" onClick={()=>setMore(false)}><div className="mobileMoreSheet" onClick={e=>e.stopPropagation()}><header><b>Mais ferramentas</b><button onClick={()=>setMore(false)}><X/></button></header><button onClick={()=>go("news")}><Newspaper/> LOCNEWS</button><button onClick={()=>go("benchmark")}><Gauge/> Benchmark</button><button onClick={()=>go("support")}><ShieldQuestion/> Apoio Comercial</button><button onClick={()=>go("quality")}><Activity/> Homologação</button><a href="https://chamados-ti.locgrupo.com.br/#" target="_blank" rel="noreferrer" onClick={()=>setMore(false)}><Headphones/> Chamados LOC <ExternalLink size={14}/></a><a href="https://rh-colaborador.quark.tec.br/" target="_blank" rel="noreferrer" onClick={()=>setMore(false)}><UsersRound/> QuarkRH <ExternalLink size={14}/></a>{isAdmin&&<a className="mobileMoreAdmin" href="/admin"><Settings/> Administração</a>}</div></div>}</>;
 }
