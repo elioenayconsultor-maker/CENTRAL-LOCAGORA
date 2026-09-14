@@ -2,9 +2,10 @@
 import { CircleHelp, Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import type { CorporatePage } from "@/lib/corporate-access";
 
-type Page = "news"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
-const labels:Record<Page,{eyebrow:string;title:string}>={
+const labels:Record<CorporatePage,{eyebrow:string;title:string}>={
+  home:{eyebrow:"Central corporativa",title:"Início"},
   news:{eyebrow:"Inteligência comercial",title:"LOCNEWS"},
   solutions:{eyebrow:"Portfólio",title:"Investimentos & Franquias"},
   network:{eyebrow:"Expansão",title:"Rede Locagora"},
@@ -14,7 +15,7 @@ const labels:Record<Page,{eyebrow:string;title:string}>={
   support:{eyebrow:"Vendas",title:"Apoio Comercial"},
   quality:{eyebrow:"Governança",title:"Homologação"}
 };
-export default function AppHeader({page}:{page:Page}){
+export default function AppHeader({page}:{page:CorporatePage}){
  const current=labels[page];
  const supabase=useMemo(()=>createClient(),[]);
  const [isAdmin,setIsAdmin]=useState(false);
