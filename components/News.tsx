@@ -71,6 +71,10 @@ export default function News(){
    </div></aside>
   </section>
   <style jsx>{`
+   .newsCarouselContent .locnewsMeta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+   .newsCarouselContent .locnewsMeta span{font-size:12px!important;line-height:1.1;font-weight:900!important;padding:7px 11px!important;border-radius:999px!important;letter-spacing:.03em!important}
+   .newsCarouselContent .locnewsMeta b{font-size:15px!important;line-height:1.2!important;font-weight:900!important;color:#fff!important;letter-spacing:.02em;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);padding:8px 12px;border-radius:999px;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+   .newsSecondaryStrip span{font-size:11px!important;line-height:1.2;font-weight:900!important;letter-spacing:.035em!important}
    .editorialArchiveGrid{gap:14px}
    .editorialArchiveCard{display:grid;grid-template-columns:76px minmax(0,1fr);min-height:158px;background:#fff;border:1px solid #dbe4ef;border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
    .editorialArchiveCard:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(13,42,82,.10);border-color:#b8c9dd}
@@ -82,10 +86,10 @@ export default function News(){
    .archiveSourceLine>div{display:flex;flex-direction:column;gap:2px;min-width:0}
    .archiveSourceLine b{font-size:12px;line-height:1.2;color:#17375e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
    .archiveSourceLine small{font-size:10px;color:#7b8ca2}
-   .archiveCategory{flex:none;padding:5px 8px;border-radius:999px;background:#eef5ff;color:#1557a5;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+   .archiveCategory{flex:none;padding:6px 9px;border-radius:999px;background:#eef5ff;color:#1557a5;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
    .editorialArchiveBody h3{margin:0;font-size:15px;line-height:1.28;color:#071a36}
-   .archiveFooter{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#6f8096;font-size:11px}
-   @media(max-width:720px){.editorialArchiveCard{grid-template-columns:58px minmax(0,1fr)}.archiveSourceMark{padding:10px}.archiveSourceMark img,.archiveSourceMark span{width:34px;height:34px}.archiveCategory{display:none}}
+   .archiveFooter{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#52667f;font-size:12px;font-weight:700}
+   @media(max-width:720px){.newsCarouselContent .locnewsMeta b{font-size:13px!important;padding:7px 10px}.newsCarouselContent .locnewsMeta span{font-size:11px!important}.editorialArchiveCard{grid-template-columns:58px minmax(0,1fr)}.archiveSourceMark{padding:10px}.archiveSourceMark img,.archiveSourceMark span{width:34px;height:34px}.archiveCategory{display:none}}
   `}</style>
  </main>
 }
