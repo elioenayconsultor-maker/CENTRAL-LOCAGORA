@@ -1,4 +1,4 @@
-export const MIN_PERMANENT_PASSWORD_LENGTH = 10;
+export const MIN_PERMANENT_PASSWORD_LENGTH = 8;
 
 export type PermanentPasswordCheck = {
   valid: boolean;
@@ -24,6 +24,6 @@ export function checkPermanentPassword(password: string, activationPassword: str
 export function permanentPasswordStrengthLabel(score: number) {
   if (score >= 6) return "Muito forte";
   if (score >= 5) return "Forte";
-  if (score >= 4) return "Boa";
-  return "Ainda fraca";
+  if (score >= 4) return "Média";
+  return "Fraca";
 }
