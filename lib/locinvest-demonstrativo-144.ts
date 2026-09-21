@@ -1,4 +1,4 @@
-import { calculateLocInvest, LOC_PLANS, type LocPlanKey, type LocPlan } from './locinvest';
+import { LOC_PLANS, type LocPlanKey, type LocPlan } from './locinvest';
 
 /** Projeção financeira ilustrativa. O Focus é expectativa de mercado, não IPCA realizado. */
 export interface LocInvestIpcaYear { year: number; ratePct: number; source: string; kind: 'focus' | 'assumption' | 'actual'; }
@@ -54,7 +54,8 @@ export function buildLocInvestDemonstrativo(input: LocInvestDemonstrativoInput):
   let paybackMonth: number | null = null;
   let annualMultiplier = 1;
   for (let year = 1; year <= 12; year++) {
-    if (year > 1) annualMultiplier *= 1 + input.ipca[year - 2].ratePct / 100;
+    // A taxa identificada para o ano corrente reajusta a renda no início desse ano; ano 1 é a base.
+    if (year > 1) annualMultiplier *= 1 + input.ipca[year - 1].ratePct / 100;
     for (let m = 1; m <= 12; m++) {
       const month = (year - 1) * 12 + m;
       const active = input.renewAtCycles || month <= 36;
