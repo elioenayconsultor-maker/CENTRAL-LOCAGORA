@@ -7,17 +7,18 @@ const brl = (cents: number) => new Intl.NumberFormat("pt-BR", { style: "currency
 
 /** Componente isolado de homologação. Não salva dados nem altera o simulador legado. */
 export default function LocInvestProjection36Panel() {
-  const [signedAt, setSignedAt] = useState("2026-09-21");
+  const [signedAt, setSignedAt] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [bikeCapital, setBikeCapital] = useState(21999);
-  const [fees, setFees] = useState(8599);
-  const [monthlyPerBike, setMonthlyPerBike] = useState(410);
-  const [ipca, setIpca] = useState(4.5);
+  const [bikeCapital, setBikeCapital] = useState(0);
+  const [fees, setFees] = useState(0);
+  const [monthlyPerBike, setMonthlyPerBike] = useState(0);
+  const [ipca, setIpca] = useState(0);
   const [firstPaymentMonth, setFirstPaymentMonth] = useState(2);
   const calculation = useMemo(() => {
     try {
+      if (!signedAt || bikeCapital <= 0 || monthlyPerBike <= 0) throw new Error("Informe a data e as premissas comerciais aprovadas para iniciar a homologação.");
       const cents = (amount: number) => {
-        if (!Number.isFinite(amount) || amount < 0) throw new Error("Informe valores monetários válidos.");
+        if (!Number.isFinite(amount) || amount < 0 || !Number.isSafeInteger(Math.round(amount * 100))) throw new Error("Informe valores monetários válidos.");
         return Math.round(amount * 100);
       };
       return { result: projectLocInvest36({ signedAt, quantity, bikeCapitalCents: cents(bikeCapital), initialFeesCents: cents(fees), monthlyIncomePerBikeCents: cents(monthlyPerBike), estimatedAnnualIpcaPct: ipca, firstPaymentMonth }), error: "" };
@@ -26,9 +27,9 @@ export default function LocInvestProjection36Panel() {
     }
   }, [signedAt, quantity, bikeCapital, fees, monthlyPerBike, ipca, firstPaymentMonth]);
   return <section className="panel" aria-label="Homologação da projeção LocInvest de 36 meses">
-    <div className="sectionHead"><small>HOMOLOGAÇÃO • NÃO APROVADO PARA PROPOSTAS</small><h2>Projeção ilustrativa de 36 meses</h2><p>Premissas editáveis; nenhuma condição comercial ou contratual é garantida.</p></div>
+    <div className="sectionHead"><small>HOMOLOGAÇÃO • NÃO APROVADO PARA PROPOSTAS</small><h2>Projeção ilustrativa de 36 meses</h2><p>Preencha somente premissas verificadas. Os valores comerciais não são carregados automaticamente.</p></div>
     <div className="formGrid">
-      <label>Data da assinatura<input type="date" value={signedAt} onChange={event => setSignedAt(event.target.value)} /></label>
+      <label>Data da assinatura (referência; não calcula os 45 dias)<input type="date" value={signedAt} onChange={event => setSignedAt(event.target.value)} /></label>
       <label>Quantidade de motos<input type="number" min="1" step="1" value={quantity} onChange={event => setQuantity(Number(event.target.value))} /></label>
       <label>Capital destinado às motos (R$)<input type="number" min="0" step="0.01" value={bikeCapital} onChange={event => setBikeCapital(Number(event.target.value))} /></label>
       <label>Taxas iniciais (R$)<input type="number" min="0" step="0.01" value={fees} onChange={event => setFees(Number(event.target.value))} /></label>
