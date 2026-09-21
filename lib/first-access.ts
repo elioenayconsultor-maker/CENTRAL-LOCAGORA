@@ -1,4 +1,4 @@
-export const MIN_PERMANENT_PASSWORD_LENGTH = 8;
+export const MIN_PERMANENT_PASSWORD_LENGTH = 10;
 
 export type PermanentPasswordCheck = {
   valid: boolean;
