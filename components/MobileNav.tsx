@@ -2,13 +2,15 @@
 import { BookOpenText, Building2, Ellipsis, Newspaper, X, Gauge, ShieldQuestion, Activity, Network, Settings, Scale, Headphones, UsersRound, ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-type Page="news"|"solutions"|"network"|"history"|"benchmark"|"capital"|"support"|"quality";
-export default function MobileNav({page,onChange}:{page:Page;onChange:(p:Page)=>void}){
+import { MODULE_LABELS, type CorporatePage } from "@/lib/corporate-access";
+import { Home } from "lucide-react";
+export default function MobileNav({page,onChange,allowedPages}:{page:CorporatePage;onChange:(p:CorporatePage)=>void;allowedPages?:CorporatePage[]}){
   const [more,setMore]=useState(false);
   const supabase=useMemo(()=>createClient(),[]);
   const [isAdmin,setIsAdmin]=useState(false);
   useEffect(()=>{let alive=true;(async()=>{const {data,error}=await supabase.rpc("is_commercial_admin");if(alive)setIsAdmin(!error&&Boolean(data));})();return()=>{alive=false}},[supabase]);
-  const go=(p:Page)=>{setMore(false);onChange(p)};
+  const go=(p:CorporatePage)=>{setMore(false);onChange(p)};
+  if(allowedPages)return <><nav className="mobileBottomNav"><button className={page==="home"?"active":""} onClick={()=>go("home")}><Home/><span>Início</span></button>{(["announcements","documents","directory"] as const).filter(p=>allowedPages.includes(p)).map(p=><button key={p} className={page===p?"active":""} onClick={()=>go(p)}>{p==="directory"?<UsersRound/>:p==="documents"?<BookOpenText/>:<Newspaper/>}<span>{MODULE_LABELS[p]}</span></button>)}<button aria-expanded={more} onClick={()=>setMore(!more)}><Ellipsis/><span>Mais</span></button></nav>{more&&<div className="mobileMoreBackdrop" onClick={()=>setMore(false)}><div className="mobileMoreSheet" onClick={e=>e.stopPropagation()}><header><b>Ferramentas</b><button aria-label="Fechar menu" onClick={()=>setMore(false)}><X/></button></header>{allowedPages.filter(p=>p!=="home").map(p=><button key={p} onClick={()=>go(p)}>{MODULE_LABELS[p as Exclude<CorporatePage,"home">]}</button>)}{isAdmin&&<a href="/admin">Administração</a>}</div></div>}</>;
   return <><nav className="mobileBottomNav">
     <button className={page==="solutions"?"active":""} onClick={()=>go("solutions")}><Building2/><span>Negócios</span></button>
     <button className={page==="history"?"active":""} onClick={()=>go("history")}><BookOpenText/><span>História</span></button>

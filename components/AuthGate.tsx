@@ -75,6 +75,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
         const provision = await response.json().catch(() => null);
         if (!response.ok || !provision?.ok) {
           if (provision?.reason === "inactive") setError("Este acesso está bloqueado pelo administrador.");
+          else if (provision?.reason === "approval_required") setError("Solicite seu cadastro ao administrador da intranet antes do primeiro acesso.");
           else setError("Não foi possível liberar o acesso com a senha padrão agora.");
           return;
         }
@@ -160,10 +161,10 @@ export default function AuthGate({ children }: { children: ReactNode }) {
 
   return <main className="authScreen">
     <section className="authCard">
-      <div className="authBrand"><div className="brandLogoRow"><Image src="/locagora-logo.png" alt="Locagora - Assinatura de Motos" width={220} height={76} priority className="authLogo" /><span className="versionBadge">V9.0</span></div><small>CENTRAL COMERCIAL</small><div className="publicEntryLinks"><a href="/historia">História pública</a><a href="/negocios">Negócios & Investimentos</a></div></div>
+      <div className="authBrand"><div className="brandLogoRow"><Image src="/locagora-logo.png" alt="Locagora - Assinatura de Motos" width={220} height={76} priority className="authLogo" /><span className="versionBadge">V9.0</span></div><small>INTRANET LOCAGORA</small><div className="publicEntryLinks"><a href="/historia">História pública</a><a href="/negocios">Negócios & Investimentos</a></div></div>
       <div className="authIcon"><ShieldCheck /></div>
       <h1>Acesso corporativo</h1>
-      <p>Use seu e-mail <b>@locgrupo.com.br</b>. Se ainda não houver pré-cadastro, a Central cria automaticamente um perfil inicial como <b>Closer</b>. Depois do primeiro acesso, você cria sua senha pessoal e completa seus dados.</p>
+      <p>Use seu e-mail <b>@locgrupo.com.br</b>. Seu cadastro precisa ser aprovado previamente pelo administrador da intranet. Depois do primeiro acesso, você cria sua senha pessoal e completa seus dados.</p>
       <form onSubmit={login}>
         <label>E-mail corporativo<input type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" placeholder="nome@locgrupo.com.br" /></label>
         <label>Senha<input type="password" required value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" /></label>

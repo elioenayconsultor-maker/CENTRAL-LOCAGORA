@@ -6,7 +6,10 @@ import type { CorporatePage } from "@/lib/corporate-access";
 
 export default function Sidebar({page,onChange,allowedPages}:{page:CorporatePage;onChange:(p:CorporatePage)=>void;allowedPages:CorporatePage[]}) {
  const items = [
-  ["home","Início",Home,"Seu perfil"],
+  ["home","Início",Home,"Sua intranet"],
+  ["announcements","Comunicados",Newspaper,"Empresa e setores"],
+  ["documents","Documentos",BookOpenText,"Biblioteca interna"],
+  ["directory","Equipe",UsersRound,"Colaboradores"],
   ["news","LOCNEWS",Newspaper,"Mercado"],
   ["solutions","Investimentos & Franquias",BarChart3,"Portfólio"],
   ["network","Rede Locagora",Network,"Rede"],
@@ -22,7 +25,7 @@ export default function Sidebar({page,onChange,allowedPages}:{page:CorporatePage
   {label:"QuarkRH",hint:"Portal do colaborador",href:"https://rh-colaborador.quark.tec.br/",Icon:UsersRound}
  ] as const;
  return <aside className="sidebar">
-   <div className="brand brandOfficial"><div className="brandLogoRow"><Image src="/locagora-logo.png" alt="Locagora - Assinatura de Motos" width={190} height={72} priority className="sidebarLogo"/><span className="versionBadge">V9.0</span></div><small>CENTRAL CORPORATIVA</small></div>
+   <div className="brand brandOfficial"><div className="brandLogoRow"><Image src="/locagora-logo.png" alt="Locagora - Assinatura de Motos" width={190} height={72} priority className="sidebarLogo"/><span className="versionBadge">V9.0</span></div><small>INTRANET LOCAGORA</small></div>
    <div className="sidebarNavLabel">CENTRAL</div>
    <nav>{visible.map(([id,label,Icon,hint])=>
      <button key={id} className={`${page===id?"active":""} ${id==="news"?"newsNav":""} ${id==="history"?"historyNav":""}`} onClick={()=>onChange(id)} type="button" title={label}>

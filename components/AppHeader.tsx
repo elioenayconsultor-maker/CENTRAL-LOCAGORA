@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { CorporatePage } from "@/lib/corporate-access";
 
 const labels:Record<CorporatePage,{eyebrow:string;title:string}>={
-  home:{eyebrow:"Central corporativa",title:"Início"},news:{eyebrow:"Inteligência comercial",title:"LOCNEWS"},solutions:{eyebrow:"Portfólio",title:"Investimentos & Franquias"},network:{eyebrow:"Expansão",title:"Rede Locagora"},history:{eyebrow:"Institucional",title:"História"},benchmark:{eyebrow:"Inteligência",title:"Benchmark"},capital:{eyebrow:"Inteligência financeira",title:"Comparador de Oportunidades de Capital"},support:{eyebrow:"Vendas",title:"Apoio Comercial"},quality:{eyebrow:"Governança",title:"Homologação"}
+  home:{eyebrow:"Intranet Locagora",title:"Início"},announcements:{eyebrow:"Comunicação interna",title:"Comunicados"},documents:{eyebrow:"Biblioteca interna",title:"Documentos"},directory:{eyebrow:"Pessoas",title:"Equipe"},news:{eyebrow:"Inteligência comercial",title:"LOCNEWS"},solutions:{eyebrow:"Portfólio",title:"Investimentos & Franquias"},network:{eyebrow:"Expansão",title:"Rede Locagora"},history:{eyebrow:"Institucional",title:"História"},benchmark:{eyebrow:"Inteligência",title:"Benchmark"},capital:{eyebrow:"Inteligência financeira",title:"Comparador de Oportunidades de Capital"},support:{eyebrow:"Vendas",title:"Apoio Comercial"},quality:{eyebrow:"Governança",title:"Homologação"}
 };
 export default function AppHeader({page}:{page:CorporatePage}){
  const current=labels[page],supabase=useMemo(()=>createClient(),[]);const[isAdmin,setIsAdmin]=useState(false);
