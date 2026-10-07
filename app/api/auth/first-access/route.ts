@@ -73,42 +73,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, reason: "profile_lookup_failed" }, { status: 500 });
     }
 
-    let selfPreregistered = false;
+    const selfPreregistered = false;
     if (!profile) {
-      const { data: createdProfile, error: createProfileError } = await admin
-        .from("users")
-        .insert({
-          name: nameFromEmail(email),
-          email,
-          role: "CLOSER",
-          active: true,
-          must_change_password: true,
-          team_name: null,
-        })
-        .select("id,auth_user_id,email,active,role,team_name,must_change_password")
-        .single();
-
-      if (createProfileError) {
-        const { data: concurrentProfile, error: retryError } = await admin
-          .from("users")
-          .select("id,auth_user_id,email,active,role,team_name,must_change_password")
-          .eq("email", email)
-          .maybeSingle();
-        if (retryError || !concurrentProfile) {
-          return NextResponse.json({ ok: false, reason: "profile_create_failed", message: createProfileError.message }, { status: 500 });
-        }
-        profile = concurrentProfile;
-      } else {
-        profile = createdProfile;
-        selfPreregistered = true;
-        await admin.from("commercial_audit_log").insert({
-          action: "access_self_preregistered",
-          entity_type: "user",
-          entity_id: createdProfile.id,
-          actor_email: email,
-          metadata: { target_email: email, role: "closer", origin: "first_access" },
-        });
-      }
+      return NextResponse.json({ ok: false, reason: "approval_required", message: "Solicite seu cadastro ao administrador da intranet." }, { status: 403 });
     }
 
     if (profile.active !== true) {

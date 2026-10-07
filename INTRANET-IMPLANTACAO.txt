@@ -1,0 +1,71 @@
+INTRANET LOCAGORA — PRIMEIRA VERSÃO
+
+O QUE FOI IMPLEMENTADO
+- Área /central com início, comunicados, documentos e equipe.
+- Conteúdo geral ou destinado a um dos nove setores existentes.
+- Publicação e arquivamento por administradores ativos.
+- Documentos cadastrados como links HTTPS. O arquivo deve ter acesso restrito
+  também no serviço de origem; cadastrar o link não protege um arquivo público.
+- Diretório com nome, e-mail profissional, setor e cargo de colaboradores ativos.
+- Navegação para celular respeitando os módulos disponíveis ao perfil.
+- Primeiro acesso exige um perfil previamente cadastrado e ativo.
+- Novas tabelas protegidas por RLS. Não há exclusão permanente na interface.
+- Governança impede colaboradores de alterar o próprio setor ou permissões.
+
+SETOR E FUNÇÃO
+Setores: Jurídico, Financeiro, Comercial, RH, Diretoria, Marketing, Operações,
+CS/Relacionamento e TI/Suporte. São os setores já previstos no projeto.
+Em /admin/perfis, definir departamento, cargo, perfil e módulos de cada pessoa.
+Publicar conteúdo da intranet exige membership administrativo; o rótulo de perfil
+corporativo ADMINISTRADOR, isoladamente, não concede publicação no banco.
+
+ANTES DE IMPLANTAR
+1. Fazer backup/exportação do banco e guardar o código em produção.
+2. Conferir os administradores existentes: users e commercial_memberships devem
+   estar ativos e vinculados ao mesmo auth_user_id. Conferir vínculos pendentes.
+3. Testar em um projeto Supabase de homologação e em uma prévia Vercel separada.
+   Nunca conectar a prévia de teste ao banco de produção para testes de escrita.
+4. Aplicar, uma única vez, supabase/migrations/20261006_intranet.sql no SQL Editor.
+   Não executar toda a pasta de migrations em um banco existente. Esta migration
+   é transacional e cria as novas tabelas, regras e funções de acesso da intranet.
+5. Publicar estes arquivos no repositório CENTRAL-LOCAGORA, preferencialmente em
+   uma branch para revisão e prévia. Nenhuma alteração foi enviada ao GitHub.
+6. Usar as variáveis Supabase do ambiente correspondente. Chaves administrativas
+   ficam somente no servidor e não devem ser adicionadas ao repositório.
+7. Validar com contas de administrador, RH, Jurídico e Financeiro, com uma conta
+   bloqueada e sem login. Confirmar isolamento, publicação e cadastro aprovado.
+8. Só então aplicar a migration em produção e publicar a versão revisada.
+
+PRIMEIRO ACESSO
+O fluxo antigo de autocadastro como Closer foi bloqueado no servidor.
+O administrador deve pré-cadastrar o colaborador usando a gestão existente,
+definir o setor e orientar o primeiro acesso. A versão mantém o mecanismo legado
+de senha de ativação para perfis aprovados; convites com link individual, MFA e
+SSO ainda não foram implementados. Antes de uma abertura ampla, recomenda-se
+substituir a senha compartilhada por convite individual e revisar os privilégios
+comerciais legados dos colaboradores que não atuam no Comercial.
+As rotas públicas de apresentação e captação continuam públicas.
+
+VALIDAÇÃO EXECUTADA
+- TypeScript: passou.
+- Cinco testes novos de permissões dos menus, URLs e cadastro aprovado: passaram.
+- Migration executada em PostgreSQL local de validação com estrutura mínima:
+  RH/Financeiro isolados, rascunhos restritos, publicação só por administrador,
+  usuários bloqueados e visitantes sem acesso; tentativas de promoção do próprio
+  perfil e mudança do setor rejeitadas. Estrutura real de produção não foi migrada.
+- A suíte original apresentou 17 falhas tanto no ZIP recebido quanto na versão
+  modificada. São falhas preexistentes; não foram corrigidas nesta entrega.
+- Build Next.js não concluído: compilador nativo encontrou acesso negado ao
+  resolver o caminho do projeto no ambiente Windows. Validar build na Vercel.
+- Prévia HTML gerada a partir do componente, com dados fictícios. Ela mostra
+  os três módulos, mas não consulta o banco nem salva dados. O navegador desta
+  sessão não conseguiu acessar o servidor local; revisão visual continua pendente.
+
+ESCOPO POSTERIOR
+Chamados e solicitações por setor, confirmação de leitura, documentos hospedados
+em armazenamento privado próprio, convites individuais, integrações, backup
+agendado e auditoria completa dos módulos antigos são próximos incrementos.
+
+STATUS
+Entrega de código para homologação. GitHub, Vercel e Supabase de produção
+permanecem sem alterações realizadas nesta sessão.
